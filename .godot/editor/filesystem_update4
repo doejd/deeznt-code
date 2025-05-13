@@ -1,3 +1,5 @@
 res://main.tscn
 res://main.gd
 res://lines.gd
+res://intro.tscn
+res://intro.gd
