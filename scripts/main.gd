@@ -25,8 +25,8 @@ func _ready():
 	item_list.select(cur_ind)
 
 func diplay_items(items: Array) -> void:
-	items.sort()
 	item_list.clear()
+	items.sort()
 	item_list.add_item("..")
 	for item in items:
 		item_list.add_item(item)
