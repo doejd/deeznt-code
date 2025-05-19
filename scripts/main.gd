@@ -21,15 +21,13 @@ func get_dir_contents() -> Array:
 func _ready():
 	editor.editable = false
 	editor.syntax_highlighter = MyHighlight.new()
-	var items = get_dir_contents()
-	item_list.clear()
-	for item in items:
-		item_list.add_item(item)
+	diplay_items(get_dir_contents())
 	item_list.select(cur_ind)
 
-func diplay_items(items: Array):
+func diplay_items(items: Array) -> void:
+	items.sort()
 	item_list.clear()
-	
+	item_list.add_item("..")
 	for item in items:
 		item_list.add_item(item)
 
