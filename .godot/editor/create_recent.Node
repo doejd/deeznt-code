@@ -1,11 +1,14 @@
+ItemList
+Tree
+CodeEdit
+Label
+HBoxContainer
 Timer
 AudioStreamPlayer
 AudioStreamPlayer2D
-Label
 ColorRect
 GridContainer
 Control
 Button
 FileDialog
-HBoxContainer
 TextEdit

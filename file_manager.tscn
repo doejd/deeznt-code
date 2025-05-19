@@ -1,0 +1,71 @@
+[gd_scene load_steps=2 format=3 uid="uid://pmid4f7hmnpw"]
+
+[sub_resource type="GDScript" id="GDScript_3nq82"]
+script/source = "extends Control
+@onready var item_list = $ItemList
+@onready var editor = $Editor
+var dir = DirAccess.open(OS.get_environment(\"USERPROFILE\"))
+var cur_ind = 0
+
+func get_dir_contents() -> Array:
+	var items = []
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != \"\":
+			items.append(file_name)
+			file_name = dir.get_next()
+		return items
+	else:
+		print(\"An error has been encountered\")
+		return []
+		
+func _ready():
+	var items = get_dir_contents()
+	item_list.clear()
+	for item in items:
+		item_list.add_item(item)
+	item_list.select(cur_ind)
+
+func diplay_items(items: Array):
+	item_list.clear()
+	for item in item_list:
+		item_list.add_item(item)
+
+func _input(_event: InputEvent) -> void:
+	if Input.is_action_just_pressed(\"ui_open\"):
+		get_tree().change_scene_to_file('res://main.tscn')
+	elif Input.is_action_just_pressed(\"ui_up\") and cur_ind > 0:
+		cur_ind -= 1
+	elif Input.is_action_just_pressed(\"ui_down\") and cur_ind < item_list.get_item_count():
+		cur_ind += 1
+	elif Input.is_action_just_pressed(\"enter\"):
+		var selected_name = item_list.get_item_text(cur_ind)
+		var full_path = dir.get_current_dir().path_join(selected_name)
+		if DirAccess.open(full_path):
+			dir.change_dir(selected_name)
+			diplay_items(get_dir_contents())
+			cur_ind = 0
+		else:
+			var file = FileAccess.open(full_path, FileAccess.READ)
+			if file:
+				editor.text = file.get_as_text()
+			
+	item_list.select(cur_ind)
+"
+
+[node name="File Manager" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_3nq82")
+
+[node name="ItemList" type="ItemList" parent="."]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 118.0
+grow_vertical = 2
