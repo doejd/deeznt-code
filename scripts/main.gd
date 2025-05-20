@@ -25,7 +25,6 @@ func _ready():
 	item_list.select(cur_ind)
 
 func diplay_items(items: Array) -> void:
-	items.sort()
 	item_list.clear()
 	item_list.add_item("..")
 	for item in items:
@@ -41,7 +40,7 @@ func _input(_event: InputEvent) -> void:
 		is_open_file_picker = false
 	elif Input.is_action_just_pressed("ui_up") and cur_ind > 0:
 		cur_ind -= 1
-	elif Input.is_action_just_pressed("ui_down") and cur_ind < item_list.get_item_count():
+	elif Input.is_action_just_pressed("ui_down") and cur_ind < item_list.get_item_count() - 1:
 		cur_ind += 1
 	elif Input.is_action_just_pressed("save"):
 		var full_path = dir.get_current_dir().path_join(item_list.get_item_text(cur_ind))

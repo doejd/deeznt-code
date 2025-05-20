@@ -1,7 +1,2 @@
 res://main.tscn
-res://highlighter.gd
-res://main.gd
-res://file_manager.gd
-res://file_manager.tscn
-res://intro.tscn
 res://scripts/main.gd
