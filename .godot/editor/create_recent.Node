@@ -1,3 +1,5 @@
+RichTextLabel
+VBoxContainer
 ItemList
 Tree
 CodeEdit
@@ -11,4 +13,3 @@ GridContainer
 Control
 Button
 FileDialog
-TextEdit

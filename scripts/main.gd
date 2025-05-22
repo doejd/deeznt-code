@@ -1,7 +1,7 @@
 extends Control
 @onready var editor = $Editor
 @onready var item_list = $ItemList
-var lua = LuaAPI.new()
+@onready var file_display = $RichTextLabel
 var is_open_file_picker = false
 var dir = DirAccess.open(OS.get_environment("USERPROFILE"))
 var cur_ind = 0
@@ -30,7 +30,7 @@ func diplay_items(items: Array) -> void:
 	for item in items:
 		item_list.add_item(item)
 
-func _input(_event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if Input.is_action_just_pressed("ui_open") and not is_open_file_picker:
 		item_list.position.x = 0
 		editor.editable = false
@@ -38,9 +38,9 @@ func _input(_event: InputEvent) -> void:
 	elif Input.is_action_just_pressed("ui_open") and is_open_file_picker:
 		item_list.position.x = -162
 		is_open_file_picker = false
-	elif Input.is_action_just_pressed("ui_up") and cur_ind > 0:
+	elif Input.is_action_pressed("ui_up") and cur_ind > 0:
 		cur_ind -= 1
-	elif Input.is_action_just_pressed("ui_down") and cur_ind < item_list.get_item_count() - 1:
+	elif Input.is_action_pressed("ui_down") and cur_ind < item_list.get_item_count() - 1:
 		cur_ind += 1
 	elif Input.is_action_just_pressed("save"):
 		var full_path = dir.get_current_dir().path_join(item_list.get_item_text(cur_ind))
@@ -59,6 +59,8 @@ func _input(_event: InputEvent) -> void:
 		else:
 			var file = FileAccess.open(full_path, FileAccess.READ)
 			if file:
+				file_display.clear()
+				file_display.text = selected_name
 				editor.text = file.get_as_text()
 				editor.editable = true
 				item_list.position.x = -162
