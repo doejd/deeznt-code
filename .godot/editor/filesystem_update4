@@ -1,2 +1,6 @@
+res://intro.tscn
 res://main.tscn
+res://demo/HelloLua.tscn
 res://scripts/main.gd
+res://scripts/highlighter.gd
+res://code_edit.gd

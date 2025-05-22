@@ -1,6 +1,7 @@
 extends Control
 @onready var editor = $Editor
 @onready var item_list = $ItemList
+var lua = LuaAPI.new()
 var is_open_file_picker = false
 var dir = DirAccess.open(OS.get_environment("USERPROFILE"))
 var cur_ind = 0
@@ -20,7 +21,6 @@ func get_dir_contents() -> Array:
 		
 func _ready():
 	editor.editable = false
-	editor.syntax_highlighter = MyHighlight.new()
 	diplay_items(get_dir_contents())
 	item_list.select(cur_ind)
 
