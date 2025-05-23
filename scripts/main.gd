@@ -1,7 +1,6 @@
 extends Control
 @onready var editor = $Editor
 @onready var item_list = $ItemList
-@onready var file_display = $RichTextLabel
 var is_open_file_picker = false
 var dir = DirAccess.open(OS.get_environment("USERPROFILE"))
 var cur_ind = 0
@@ -59,8 +58,6 @@ func _input(event: InputEvent) -> void:
 		else:
 			var file = FileAccess.open(full_path, FileAccess.READ)
 			if file:
-				file_display.clear()
-				file_display.text = selected_name
 				editor.text = file.get_as_text()
 				editor.editable = true
 				item_list.position.x = -162

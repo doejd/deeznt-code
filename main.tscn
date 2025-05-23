@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://cw5d886rkrgad"]
+[gd_scene load_steps=3 format=3 uid="uid://cw5d886rkrgad"]
 
 [ext_resource type="Script" uid="uid://d3mjdab1o1wqs" path="res://scripts/main.gd" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://bctpagkgq0qgi" path="res://scripts/code_edit.gd" id="2_0xm2m"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -11,21 +12,11 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ig7tw")
 
-[node name="RichTextLabel" type="RichTextLabel" parent="."]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 72.0
-grow_horizontal = 2
-size_flags_vertical = 8
-theme_override_font_sizes/normal_font_size = 30
-
 [node name="Editor" type="CodeEdit" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 100.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -38,6 +29,7 @@ highlight_current_line = true
 gutters_draw_line_numbers = true
 code_completion_enabled = true
 auto_brace_completion_enabled = true
+script = ExtResource("2_0xm2m")
 
 [node name="ItemList" type="ItemList" parent="."]
 layout_mode = 1
