@@ -8,7 +8,6 @@ var cur_ind = 0
 func get_extension(stri : String, char_to_split_around : String):
 	while true:
 		if stri[0] == char_to_split_around:
-			stri = stri.erase(0)
 			return stri
 		stri = stri.erase(0)
 
@@ -42,11 +41,11 @@ func _input(_event: InputEvent) -> void:
 		editor.editable = false
 		is_open_file_picker = true
 	elif Input.is_action_just_pressed("ui_open") and is_open_file_picker:
-		item_list.position.x = -162
+		item_list.position.x = -261
 		is_open_file_picker = false
-	elif Input.is_action_pressed("ui_up") and cur_ind > 0:
+	elif Input.is_action_pressed("ui_up") and cur_ind > 0 and is_open_file_picker:
 		cur_ind -= 1
-	elif Input.is_action_pressed("ui_down") and cur_ind < item_list.get_item_count() - 1:
+	elif Input.is_action_pressed("ui_down") and cur_ind < item_list.get_item_count() - 1 and is_open_file_picker:
 		cur_ind += 1
 	elif Input.is_action_just_pressed("save"):
 		var full_path = dir.get_current_dir().path_join(item_list.get_item_text(cur_ind))
@@ -69,7 +68,7 @@ func _input(_event: InputEvent) -> void:
 				editor.setup_highlighter()
 				editor.text = file.get_as_text()
 				editor.editable = true
-				item_list.position.x = -162
+				item_list.position.x = -216
 				is_open_file_picker = false
 			file.close()
 	item_list.select(cur_ind)

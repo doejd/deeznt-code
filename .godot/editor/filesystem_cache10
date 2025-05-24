@@ -1,8 +1,8 @@
 ea4bc82a6ad023ab7ee23ee620429895
-::res://::1748030126
+::res://::1748072445
 icon.svg::CompressedTexture2D/CompressedTexture2D::3026309015300646986::1747031152::1747031160::1::::<><><>0<>0<>648a7dc57739bb55a5cd2d9430a92c6d<>res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex::
-intro.tscn::PackedScene::6381515218128312061::1748028363::0::1::::<><><>0<>0<><>::uid://cj8h151f54500::::res://scripts/intro.gd
-main.tscn::PackedScene::6379170124167801123::1748028363::0::1::::<><><>0<>0<><>::uid://d3mjdab1o1wqs::::res://scripts/main.gd<>uid://bctpagkgq0qgi::::res://scripts/edit.gd
+intro.tscn::PackedScene::6381515218128312061::1748070863::0::1::::<><><>0<>0<><>::uid://cj8h151f54500::::res://scripts/intro.gd
+main.tscn::PackedScene::6379170124167801123::1748070863::0::1::::<><><>0<>0<><>::uid://d3mjdab1o1wqs::::res://scripts/main.gd<>uid://bctpagkgq0qgi::::res://scripts/edit.gd
 ::res://addons/::1747851025
 ::res://addons/luaAPI/::1747851026
 luaAPI.gdextension::GDExtension/GDExtension::9001190987710784449::1747851025::0::1::::<><><>0<>0<><>::
@@ -10,7 +10,7 @@ README.md::TextFile/TextFile::-1::1747851025::0::1::::<><><>0<>0<><>::
 ::res://langs/::1747997663
 ::res://music/::1747632448
 intro.wav::AudioStreamWAV/AudioStreamWAV::8298244751247742337::1747126885::1747632448::1::::<><><>0<>0<>a6fb07cd84e453e1c1f2fc21bc090b47<>res://.godot/imported/intro.wav-1eab100ca2c40579cdd11982ddd6a75f.sample::
-::res://scripts/::1748028337
-edit.gd::GDScript::2566932634070938780::1748028337::0::1::::<>CodeEdit<><>0<>0<><>::
-intro.gd::GDScript::5473138491737220427::1748025996::0::1::::<>Control<><>0<>0<><>::
-main.gd::GDScript::9149874019055422138::1748028086::0::1::::<>Control<><>0<>0<><>::
+::res://scripts/::1748070862
+edit.gd::GDScript::2566932634070938780::1748070518::0::1::::<>CodeEdit<><>0<>0<><>::
+intro.gd::GDScript/GDScript::5473138491737220427::1748025996::0::1::::<>Control<><>0<>0<><>::
+main.gd::GDScript::9149874019055422138::1748070862::0::1::::<>Control<><>0<>0<><>::

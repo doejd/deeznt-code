@@ -1,10 +1,10 @@
+HBoxContainer
 RichTextLabel
 VBoxContainer
 ItemList
 Tree
 CodeEdit
 Label
-HBoxContainer
 Timer
 AudioStreamPlayer
 AudioStreamPlayer2D
@@ -12,4 +12,3 @@ ColorRect
 GridContainer
 Control
 Button
-FileDialog
