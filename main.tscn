@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cw5d886rkrgad"]
 
 [ext_resource type="Script" uid="uid://d3mjdab1o1wqs" path="res://scripts/main.gd" id="1_ig7tw"]
-[ext_resource type="Script" uid="uid://bctpagkgq0qgi" path="res://scripts/code_edit.gd" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://bctpagkgq0qgi" path="res://scripts/edit.gd" id="2_0xm2m"]
 
 [node name="Control" type="Control"]
 layout_mode = 3

@@ -2,6 +2,7 @@ extends CodeEdit
 var lua : LuaAPI = LuaAPI.new()
 var keywords_to_highlight: Dictionary = {}
 var color_regions_to_highlight: Array = []
+var comments_to_highlight: Array = []
 var keywords: Dictionary = {
 	"reserved":   str_to_clr("c678cc"),
 	"annotation": str_to_clr("a2b429"),
@@ -39,7 +40,7 @@ func set_up_extensions(extension):
 	lua.bind_libraries(["base", "table", "string"])
 	lua.push_variant("highlight", highlight)
 	lua.push_variant("highlight_region", highlight_region)
-	var error = lua.do_file("res://langs" + extension + ".lua")
+	var error = lua.do_file("res://langs/" + extension + ".lua")
 	if error is LuaError:
 		print("ERROR %d: %s" % [error.type, error.message])
 		return
@@ -64,6 +65,3 @@ func setup_highlighter() -> void:
 		if CH.has_color_region(entry[0]): continue
 
 		CH.add_color_region(entry[0], entry[1], keywords[entry[2]], entry[3])
-		
-func _ready() -> void:
-	setup_highlighter()

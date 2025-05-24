@@ -1,7 +1,7 @@
 extends Control
 @onready var player = $AudioStreamPlayer
 @onready var timer = $Timer
-var sound = preload("res://intro.wav")
+var sound = preload("res://music/intro.wav")
 
 func _ready():
 	player.stream = sound
