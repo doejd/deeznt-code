@@ -1,5 +1,6 @@
 extends CodeEdit
 var lua : LuaAPI = LuaAPI.new()
+var lua_theme : LuaAPI = LuaAPI.new()
 var keywords_to_highlight: Dictionary = {}
 var color_regions_to_highlight: Array = []
 var keywords: Dictionary = {
@@ -72,20 +73,34 @@ func setup_highlighter() -> void:
 func set_keywords(keyword : String, color : String):
 	keywords[keyword] = str_to_clr(color)
 	
-func set_gui(property : String, new_color : String):
-	if not (property in GUI.keys()):
-		print("ERROR: provided color property (\"%s\") in theme (GUI) is invalid." % [property])
+func set_gui(keyword : String, color : String):
+	if not (keyword in GUI.keys()):
+		print("Nope, nobody's here")
 		return
-		
-	GUI[property] = str_to_clr(new_color)
-
-func setup_theme():
-	lua.push_variant("set_keywords", set_keywords)
-	lua.push_variant("set_gui", set_gui)
-	var error = lua.do_file("res://Lua/themes/One Dark Pro Darker.lua")
+	
+	GUI[keyword] = str_to_clr(color)
+	
+func setup_themes():
+	lua_theme.bind_libraries(["base", "table", "string"])
+	lua_theme.push_variant("set_keywords", set_keywords)
+	lua_theme.push_variant("set_gui", set_gui)
+	var error = lua_theme.do_file("res://Lua/themes/One Dark Pro Darker.lua")
 	if error is LuaError:
 		print("ERROR %d: %s" % [error.type, error.message])
 		return
-
+		
+func setup_theme():
+	var THEME : Theme = Theme.new()
+	theme = THEME
+	add_theme_color_override("background_color", GUI.background_color)
+	add_theme_color_override("current_line_color", GUI.current_line_color)
+	add_theme_color_override("selection_color", GUI.selection_color)
+	add_theme_color_override("font_color", GUI.font_color)
+	add_theme_color_override("word_highlighted_color", GUI.word_highlighted_color)
+	add_theme_color_override("completion_background_color", GUI.completion_background_color)
+	add_theme_color_override("completion_selected_color", GUI.completion_selected_color)
+	add_theme_color_override("caret_color", GUI.caret_color)
+	
 func _ready() -> void:
+	setup_themes()
 	setup_theme()
