@@ -1,5 +1,6 @@
-HBoxContainer
+MenuButton
 RichTextLabel
+HBoxContainer
 VBoxContainer
 ItemList
 Tree

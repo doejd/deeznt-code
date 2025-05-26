@@ -80,18 +80,16 @@ func set_gui(keyword : String, color : String):
 	
 	GUI[keyword] = str_to_clr(color)
 	
-func setup_themes():
+func setup_cur_theme(cur_theme : String):
 	lua_theme.bind_libraries(["base", "table", "string"])
 	lua_theme.push_variant("set_keywords", set_keywords)
 	lua_theme.push_variant("set_gui", set_gui)
-	var error = lua_theme.do_file("res://Lua/themes/One Dark Pro Darker.lua")
+	var error = lua_theme.do_file("res://Lua/themes/" + cur_theme + ".lua")
 	if error is LuaError:
 		print("ERROR %d: %s" % [error.type, error.message])
 		return
 		
 func setup_theme():
-	var THEME : Theme = Theme.new()
-	theme = THEME
 	add_theme_color_override("background_color", GUI.background_color)
 	add_theme_color_override("current_line_color", GUI.current_line_color)
 	add_theme_color_override("selection_color", GUI.selection_color)
@@ -102,5 +100,5 @@ func setup_theme():
 	add_theme_color_override("caret_color", GUI.caret_color)
 	
 func _ready() -> void:
-	setup_themes()
+	setup_cur_theme("One Dark Pro Darker")
 	setup_theme()
