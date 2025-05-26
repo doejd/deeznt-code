@@ -37,11 +37,11 @@ func diplay_items(items: Array) -> void:
 
 func _input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("ui_open") and not is_open_file_picker:
-		item_list.position.x = 0
+		item_list.visible = true
 		editor.editable = false
 		is_open_file_picker = true
 	elif Input.is_action_just_pressed("ui_open") and is_open_file_picker:
-		item_list.position.x = -261
+		item_list.visible = false
 		is_open_file_picker = false
 	elif Input.is_action_pressed("ui_up") and cur_ind > 0 and is_open_file_picker:
 		cur_ind -= 1
@@ -68,7 +68,7 @@ func _input(_event: InputEvent) -> void:
 				editor.setup_highlighter()
 				editor.text = file.get_as_text()
 				editor.editable = true
-				item_list.position.x = -216
+				item_list.visible = false
 				is_open_file_picker = false
 			file.close()
 	item_list.select(cur_ind)

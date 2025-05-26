@@ -30,7 +30,6 @@ var GUI : Dictionary = {
 func str_to_clr(string: String) -> Color:
 	return Color.from_string(string, "#ff0000")
 	
-	
 func highlight(kword : String, color : String):
 	if not (color in keywords.keys()):
 		print("Dumbass")
@@ -100,5 +99,5 @@ func setup_theme():
 	add_theme_color_override("caret_color", GUI.caret_color)
 	
 func _ready() -> void:
-	setup_cur_theme("One Dark Pro Darker")
+	setup_cur_theme("GitHub Dark")
 	setup_theme()
