@@ -45,11 +45,10 @@ func highlight_region(start : String, end : String, color : String, single_line 
 	color_regions_to_highlight.append([start, end, color, single_line])
 	
 func set_up_extensions(extension : String):
-	extension = extension.erase(0)
 	lua.bind_libraries(["base", "table", "string"])
 	lua.push_variant("highlight", highlight)
 	lua.push_variant("highlight_region", highlight_region)
-	var error = lua.do_file("res://Lua/langs/" + extension + ".lua")
+	var error = lua.do_file("user://Lua/langs/" + extension + ".lua")
 	if error is LuaError:
 		print("ERROR %d: %s" % [error.type, error.message])
 		return
@@ -83,7 +82,7 @@ func setup_cur_theme(cur_theme : String):
 	lua_theme.bind_libraries(["base", "table", "string"])
 	lua_theme.push_variant("set_keywords", set_keywords)
 	lua_theme.push_variant("set_gui", set_gui)
-	var error = lua_theme.do_file("res://Lua/themes/" + cur_theme + ".lua")
+	var error = lua_theme.do_file("user://Lua/themes/" + cur_theme + ".lua")
 	if error is LuaError:
 		print("ERROR %d: %s" % [error.type, error.message])
 		return

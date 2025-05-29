@@ -5,11 +5,11 @@ var is_open_file_picker = false
 var dir = DirAccess.open(OS.get_environment("USERPROFILE"))
 var cur_ind = 0
 
-func get_extension(stri : String, char_to_split_around : String):
-	while true:
-		if stri[0] == char_to_split_around:
-			return stri
-		stri = stri.erase(0)
+func get_extension(stri : String) -> String:
+	var dot_index = stri.rfind(".")
+	if dot_index != -1 and dot_index < stri.length() - 1:
+		return stri.substr(dot_index + 1)
+	return ""
 
 func get_dir_contents() -> Array:
 	var items = []
@@ -23,6 +23,12 @@ func get_dir_contents() -> Array:
 	else:
 		print("An error has been encountered")
 		return []
+		
+func _refocus_editor():
+	editor.grab_focus()
+	editor.set_caret_line(0)
+	editor.set_caret_column(0)
+	editor.set_caret_blink_enabled(true)
 		
 func _ready():
 	editor.editable = false
@@ -64,11 +70,13 @@ func _input(_event: InputEvent) -> void:
 		else:
 			var file = FileAccess.open(full_path, FileAccess.READ)
 			if file:
-				editor.set_up_extensions(get_extension(selected_name, "."))
+				editor.show()
+				editor.set_up_extensions(get_extension(selected_name))
 				editor.setup_highlighter()
-				editor.text = file.get_as_text()
 				editor.editable = true
 				item_list.visible = false
 				is_open_file_picker = false
+				editor.text = file.get_as_text()
 			file.close()
+			call_deferred("_refocus_editor")
 	item_list.select(cur_ind)

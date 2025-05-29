@@ -1,3 +1,4 @@
+AnimationPlayer
 MenuButton
 RichTextLabel
 HBoxContainer
@@ -12,4 +13,3 @@ AudioStreamPlayer2D
 ColorRect
 GridContainer
 Control
-Button
