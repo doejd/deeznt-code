@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://cw5d886rkrgad"]
+[gd_scene load_steps=4 format=3 uid="uid://cw5d886rkrgad"]
 
 [ext_resource type="Script" uid="uid://d3mjdab1o1wqs" path="res://scripts/main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://bctpagkgq0qgi" path="res://scripts/edit.gd" id="2_0xm2m"]
+[ext_resource type="FontFile" uid="uid://cdwg8qm3yqrx2" path="res://Font/FiraCodeNerdFont-Regular.ttf" id="2_h2yge"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -42,6 +43,7 @@ offset_top = -3.888
 offset_right = -4.00801
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_fonts/font = ExtResource("2_h2yge")
 theme_override_font_sizes/font_size = 30
 auto_width = true
 auto_height = true
