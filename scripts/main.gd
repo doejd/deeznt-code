@@ -53,6 +53,7 @@ func _input(_event: InputEvent) -> void:
 		is_open_file_picker = true
 	elif Input.is_action_just_pressed("ui_open") and is_open_file_picker:
 		item_list.visible = false
+		editor.editable = true
 		is_open_file_picker = false
 	elif Input.is_action_pressed("ui_up") and cur_ind > 0 and is_open_file_picker:
 		cur_ind -= 1
@@ -77,12 +78,17 @@ func _input(_event: InputEvent) -> void:
 			if file:
 				editor.show()
 				editor.set_up_extensions(get_extension(selected_name))
-				editor.setup_highlighter()
-				editor.editable = true
 				item_list.visible = false
+				editor.editable = true
 				is_open_file_picker = false
 				cur_opened_file = str(full_path)
 				editor.text = file.get_as_text()
 			file.close()
 			call_deferred("_refocus_editor")
+		get_viewport().set_input_as_handled()
 	item_list.select(cur_ind)
+
+
+func _on_editor_gui_input(_event: InputEvent) -> void:
+	if not Input.is_action_just_pressed("ui_open"): return
+	editor.accept_event()

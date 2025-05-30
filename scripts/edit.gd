@@ -1,5 +1,4 @@
 extends CodeEdit
-var lua : LuaAPI = LuaAPI.new()
 var lua_theme : LuaAPI = LuaAPI.new()
 var keywords_to_highlight: Dictionary = {}
 var color_regions_to_highlight: Array = []
@@ -45,6 +44,9 @@ func highlight_region(start : String, end : String, color : String, single_line 
 	color_regions_to_highlight.append([start, end, color, single_line])
 	
 func set_up_extensions(extension : String):
+	keywords_to_highlight.clear()
+	color_regions_to_highlight.clear()
+	var lua = LuaAPI.new()
 	lua.bind_libraries(["base", "table", "string"])
 	lua.push_variant("highlight", highlight)
 	lua.push_variant("highlight_region", highlight_region)
@@ -52,16 +54,17 @@ func set_up_extensions(extension : String):
 	if error is LuaError:
 		print("ERROR %d: %s" % [error.type, error.message])
 		return
+	setup_highlighter()
 		
 func setup_highlighter() -> void:
-	var CH: CodeHighlighter = CodeHighlighter.new();
-	syntax_highlighter = CH;
-	CH.number_color = keywords.binary;
-	CH.symbol_color = keywords.symbol;
-	CH.function_color = keywords.function;
-	CH.member_variable_color = keywords.member;
-	var kth = keywords_to_highlight;
-	var crth = color_regions_to_highlight;
+	var CH: CodeHighlighter = CodeHighlighter.new()
+	syntax_highlighter = CH
+	CH.number_color = keywords.binary
+	CH.symbol_color = keywords.symbol
+	CH.function_color = keywords.function
+	CH.member_variable_color = keywords.member
+	var kth = keywords_to_highlight
+	var crth = color_regions_to_highlight
 	for key in kth:
 		CH.add_keyword_color(key, keywords[kth[key]])
 	for entry in crth:

@@ -29,6 +29,8 @@ empty_selection_clipboard_enabled = false
 highlight_current_line = true
 gutters_draw_line_numbers = true
 code_completion_enabled = true
+indent_use_spaces = true
+indent_automatic = true
 auto_brace_completion_enabled = true
 script = ExtResource("2_0xm2m")
 
@@ -47,3 +49,5 @@ theme_override_fonts/font = ExtResource("2_h2yge")
 theme_override_font_sizes/font_size = 30
 auto_width = true
 auto_height = true
+
+[connection signal="gui_input" from="Editor" to="." method="_on_editor_gui_input"]
