@@ -1,4 +1,7 @@
 extends CodeEdit
+@onready var theme_select : OptionButton = get_node("../OptionButton")
+@onready var animation_player : AnimationPlayer = $AnimationPlayer
+var opened_theme_switch = false
 var lua_theme : LuaAPI = LuaAPI.new()
 var keywords_to_highlight: Dictionary = {}
 var color_regions_to_highlight: Array = []
@@ -55,7 +58,7 @@ func set_up_extensions(extension : String):
 		print("ERROR %d: %s" % [error.type, error.message])
 		return
 	setup_highlighter()
-		
+	
 func setup_highlighter() -> void:
 	var CH: CodeHighlighter = CodeHighlighter.new()
 	syntax_highlighter = CH
@@ -89,6 +92,7 @@ func setup_cur_theme(cur_theme : String):
 	if error is LuaError:
 		print("ERROR %d: %s" % [error.type, error.message])
 		return
+	setup_theme()
 		
 func setup_theme():
 	add_theme_color_override("background_color", GUI.background_color)
@@ -100,6 +104,21 @@ func setup_theme():
 	add_theme_color_override("completion_selected_color", GUI.completion_selected_color)
 	add_theme_color_override("caret_color", GUI.caret_color)
 	
+	
 func _ready() -> void:
-	setup_cur_theme("GitHub Dark")
-	setup_theme()
+	setup_cur_theme("Github Dark")
+	theme_select.select(0)
+	
+func _input(_event : InputEvent):
+	if Input.is_action_just_pressed("theme_switch") and not opened_theme_switch:
+		animation_player.play("Open Theme Select")
+		editable = false
+		opened_theme_switch = true
+	elif Input.is_action_just_pressed("theme_switch") and opened_theme_switch:
+		animation_player.play("Close Theme Select")
+		editable = true
+		opened_theme_switch = false
+
+
+func _on_option_button_item_selected(index: int) -> void:
+	setup_cur_theme(theme_select.get_item_text(index))

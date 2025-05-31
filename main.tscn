@@ -1,8 +1,98 @@
-[gd_scene load_steps=4 format=3 uid="uid://cw5d886rkrgad"]
+[gd_scene load_steps=8 format=3 uid="uid://cw5d886rkrgad"]
 
 [ext_resource type="Script" uid="uid://d3mjdab1o1wqs" path="res://scripts/main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://bctpagkgq0qgi" path="res://scripts/edit.gd" id="2_0xm2m"]
 [ext_resource type="FontFile" uid="uid://cdwg8qm3yqrx2" path="res://Font/FiraCodeNerdFont-Regular.ttf" id="2_h2yge"]
+
+[sub_resource type="Animation" id="Animation_h2yge"]
+resource_name = "Open Theme Select"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(234, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../OptionButton:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(-234, 0), Vector2(0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_1bvp3"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../OptionButton:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-351, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_lquwl"]
+resource_name = "Close Theme Select"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(234, 0), Vector2(0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../OptionButton:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(-234, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_7mycd"]
+_data = {
+&"Close Theme Select": SubResource("Animation_lquwl"),
+&"Open Theme Select": SubResource("Animation_h2yge"),
+&"RESET": SubResource("Animation_1bvp3")
+}
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -12,6 +102,19 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ig7tw")
+
+[node name="OptionButton" type="OptionButton" parent="."]
+layout_mode = 1
+offset_left = -351.0
+offset_right = -117.0
+offset_bottom = 40.0
+theme_override_font_sizes/font_size = 20
+alignment = 1
+item_count = 2
+popup/item_0/text = "Github Dark"
+popup/item_0/id = 0
+popup/item_1/text = "One Dark Pro Darker"
+popup/item_1/id = 1
 
 [node name="Editor" type="CodeEdit" parent="."]
 layout_mode = 1
@@ -27,12 +130,18 @@ emoji_menu_enabled = false
 deselect_on_focus_loss_enabled = false
 empty_selection_clipboard_enabled = false
 highlight_current_line = true
+draw_tabs = true
 gutters_draw_line_numbers = true
 code_completion_enabled = true
 indent_use_spaces = true
 indent_automatic = true
 auto_brace_completion_enabled = true
 script = ExtResource("2_0xm2m")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Editor"]
+libraries = {
+&"": SubResource("AnimationLibrary_7mycd")
+}
 
 [node name="ItemList" type="ItemList" parent="."]
 visible = false
@@ -50,4 +159,5 @@ theme_override_font_sizes/font_size = 30
 auto_width = true
 auto_height = true
 
+[connection signal="item_selected" from="OptionButton" to="Editor" method="_on_option_button_item_selected"]
 [connection signal="gui_input" from="Editor" to="." method="_on_editor_gui_input"]

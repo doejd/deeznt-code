@@ -2,7 +2,6 @@ extends Control
 @onready var editor = $Editor
 @onready var item_list = $ItemList
 @onready var icons = Icons.new()
-var is_open_file_picker = false
 var cur_opened_file = ""
 var dir = DirAccess.open(OS.get_environment("USERPROFILE"))
 var cur_ind = 0
@@ -31,6 +30,13 @@ func _refocus_editor():
 	editor.set_caret_line(0)
 	editor.set_caret_column(0)
 	editor.set_caret_blink_enabled(true)
+	
+func save():
+	var file = FileAccess.open(cur_opened_file, FileAccess.WRITE)
+	if file:
+		file.store_string(editor.text)
+		file.flush()
+		file.close()
 		
 func _ready():
 	editor.editable = false
@@ -47,25 +53,19 @@ func diplay_items(items: Array) -> void:
 			item_list.add_item(icons.get_icon_data(get_extension(item)) + " " + item)
 
 func _input(_event: InputEvent) -> void:
-	if Input.is_action_just_pressed("ui_open") and not is_open_file_picker:
+	if Input.is_action_just_pressed("ui_open") and not item_list.visible:
 		item_list.visible = true
 		editor.editable = false
-		is_open_file_picker = true
-	elif Input.is_action_just_pressed("ui_open") and is_open_file_picker:
+	elif Input.is_action_just_pressed("ui_open") and item_list.visible:
 		item_list.visible = false
 		editor.editable = true
-		is_open_file_picker = false
-	elif Input.is_action_pressed("ui_up") and cur_ind > 0 and is_open_file_picker:
+	elif Input.is_action_pressed("ui_up") and cur_ind > 0 and item_list.visible:
 		cur_ind -= 1
-	elif Input.is_action_pressed("ui_down") and cur_ind < item_list.get_item_count() - 1 and is_open_file_picker:
+	elif Input.is_action_pressed("ui_down") and cur_ind < item_list.get_item_count() - 1 and item_list.visible:
 		cur_ind += 1
 	elif Input.is_action_just_pressed("save"):
-		var file = FileAccess.open(cur_opened_file, FileAccess.WRITE)
-		if file:
-			file.store_string(editor.text)
-			file.flush()
-			file.close()
-	elif Input.is_action_just_pressed("enter") and is_open_file_picker:
+		save()
+	elif Input.is_action_just_pressed("enter") and item_list.visible:
 		var selected_name = item_list.get_item_text(cur_ind)
 		if not selected_name == "..": selected_name = selected_name.erase(0, 2)
 		var full_path = dir.get_current_dir().path_join(selected_name)
@@ -74,20 +74,19 @@ func _input(_event: InputEvent) -> void:
 			diplay_items(get_dir_contents())
 			cur_ind = 0
 		else:
+			save()
 			var file = FileAccess.open(full_path, FileAccess.READ)
 			if file:
 				editor.show()
 				editor.set_up_extensions(get_extension(selected_name))
 				item_list.visible = false
 				editor.editable = true
-				is_open_file_picker = false
 				cur_opened_file = str(full_path)
 				editor.text = file.get_as_text()
 			file.close()
 			call_deferred("_refocus_editor")
 		get_viewport().set_input_as_handled()
 	item_list.select(cur_ind)
-
 
 func _on_editor_gui_input(_event: InputEvent) -> void:
 	if not Input.is_action_just_pressed("ui_open"): return
