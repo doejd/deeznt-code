@@ -1,10 +1,10 @@
 ea4bc82a6ad023ab7ee23ee620429895
-::res://::1748718378
-Deeznt Code.ico::OtherFile/OtherFile::-1::1748544479::0::1::::<><><>0<>0<><>::
-Deeznt Code.png::CompressedTexture2D/CompressedTexture2D::7246204877971567333::1748456929::1748544309::1::::<><><>0<>0<>06d3466724ce6985ef6ab21a450b1375<>res://.godot/imported/Deeznt Code.png-d4ca7f7dd834bf3be9761ae06cd389a3.ctex::
-export_presets.cfg::TextFile/TextFile::-1::1748686817::0::1::::<><><>0<>0<><>::
-intro.tscn::PackedScene::6381515218128312061::1748711466::0::1::::<><><>0<>0<><>::uid://cj8h151f54500::::res://scripts/intro.gd
-main.tscn::PackedScene::6379170124167801123::1748711541::0::1::::<><><>0<>0<><>::uid://d3mjdab1o1wqs::::res://scripts/main.gd<>uid://bctpagkgq0qgi::::res://scripts/edit.gd<>uid://cdwg8qm3yqrx2::::res://Font/FiraCodeNerdFont-Regular.ttf
+::res://::1749239027
+Deezn't Code.ico::OtherFile/OtherFile::-1::1749059559::0::1::::<><><>0<>0<><>::
+Deezn't Code.png::CompressedTexture2D/CompressedTexture2D::632411159394439717::1749059559::1749237559::1::::<><><>0<>0<>1642d16a8694effb560e3c6f53001105<>res://.godot/imported/Deezn't Code.png-85c088ecef0a8d418932a05bd9f1a3f0.ctex::
+export_presets.cfg::TextFile::-1::1749237619::0::1::::<><><>0<>0<><>::
+intro.tscn::PackedScene::6381515218128312061::1749238086::0::1::::<><><>0<>0<><>::uid://cj8h151f54500::::res://scripts/intro.gd
+main.tscn::PackedScene::6379170124167801123::1749238086::0::1::::<><><>0<>0<><>::uid://d3mjdab1o1wqs::::res://scripts/main.gd<>uid://bctpagkgq0qgi::::res://scripts/edit.gd<>uid://cdwg8qm3yqrx2::::res://Font/FiraCodeNerdFont-Regular.ttf
 ::res://addons/::1747851025
 ::res://addons/luaAPI/::1747851026
 luaAPI.gdextension::GDExtension/GDExtension::9001190987710784449::1747851025::0::1::::<><><>0<>0<><>::
@@ -16,8 +16,8 @@ FiraCodeNerdFont-Regular.ttf::FontFile/FontFile::5029248302261243245::1748509867
 ::res://Lua/themes/::1748595869
 ::res://music/::1747632448
 intro.wav::AudioStreamWAV/AudioStreamWAV::8298244751247742337::1747126885::1747632448::1::::<><><>0<>0<>a6fb07cd84e453e1c1f2fc21bc090b47<>res://.godot/imported/intro.wav-1eab100ca2c40579cdd11982ddd6a75f.sample::
-::res://scripts/::1748711541
-edit.gd::GDScript/GDScript::2566932634070938780::1748686570::0::1::::<>CodeEdit<><>0<>0<><>::
+::res://scripts/::1749027180
+edit.gd::GDScript/GDScript::2566932634070938780::1749027180::0::1::::<>CodeEdit<><>0<>0<><>::
 icons.gd::GDScript/GDScript::3862572765667490895::1748538164::0::1::::Icons<>Node<><>0<>0<><>::
 intro.gd::GDScript/GDScript::5473138491737220427::1748025996::0::1::::<>Control<><>0<>0<><>::
-main.gd::GDScript::9149874019055422138::1748711541::0::1::::<>Control<><>0<>0<><>::
+main.gd::GDScript/GDScript::9149874019055422138::1748711541::0::1::::<>Control<><>0<>0<><>::

@@ -1,4 +1,7 @@
 AnimationPlayer
+CheckButton
+RichTextLabel
+ColorRect
 OptionButton
 PopupMenu
 MenuButton
@@ -9,6 +12,3 @@ ColorPickerButton
 CheckBox
 SpinBox
 VBoxContainer
-CheckButton
-HSlider
-GridContainer

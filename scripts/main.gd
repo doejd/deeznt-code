@@ -87,6 +87,7 @@ func _input(_event: InputEvent) -> void:
 			call_deferred("_refocus_editor")
 		get_viewport().set_input_as_handled()
 	item_list.select(cur_ind)
+	item_list.ensure_current_is_visible()
 
 func _on_editor_gui_input(_event: InputEvent) -> void:
 	if not Input.is_action_just_pressed("ui_open"): return

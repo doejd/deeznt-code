@@ -156,8 +156,6 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_fonts/font = ExtResource("2_h2yge")
 theme_override_font_sizes/font_size = 30
-auto_width = true
-auto_height = true
 
 [connection signal="item_selected" from="OptionButton" to="Editor" method="_on_option_button_item_selected"]
 [connection signal="gui_input" from="Editor" to="." method="_on_editor_gui_input"]
