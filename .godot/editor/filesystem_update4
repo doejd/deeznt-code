@@ -1,3 +1,7 @@
 res://main.tscn
+res://scripts/edit.gd
 res://scripts/main.gd
-res://intro.tscn
+res://editor_container.gd
+res://v_box_container.gd
+res://scripts/editor_container.gd
+res://scripts/theme_select.gd

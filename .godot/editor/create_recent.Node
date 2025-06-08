@@ -1,6 +1,10 @@
 AnimationPlayer
-CheckButton
+VBoxContainer
+HBoxContainer
 RichTextLabel
+CanvasLayer
+GridContainer
+CheckButton
 ColorRect
 OptionButton
 PopupMenu
@@ -8,7 +12,3 @@ MenuButton
 Control
 Container
 MenuBar
-ColorPickerButton
-CheckBox
-SpinBox
-VBoxContainer
