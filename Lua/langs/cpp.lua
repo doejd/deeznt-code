@@ -156,3 +156,32 @@ highlight_region("'", "'", "string")
 --- Comments
 highlight_region("//", "", "comments", true)
 highlight_region("/*", "*/", "comments", false)
+
+function detect_functions(content)
+    local function_names = {}
+
+    for line in content:gmatch("[^\r\n]+") do
+        local name = line:match("^%s*[%w_:<>*&]+%s+([%w_:~]+)%s*%b()")
+        if name then
+            table.insert(function_names, name)
+        end
+    end
+
+    return function_names
+end
+
+
+function detect_variables(content)
+    local variable_names = {}
+
+    for line in content:gmatch("[^\r\n]+") do
+        if not line:find("%b()") then
+            local name = line:match("^%s*[%w_:<>*&]+%s+([%w_:]+)%s*[=;]")
+            if name then
+                table.insert(variable_names, name)
+            end
+        end
+    end
+
+    return variable_names
+end

@@ -1,4 +1,5 @@
 extends CodeEdit
+var lua = LuaAPI.new()
 var lua_theme : LuaAPI = LuaAPI.new()
 var keywords_to_highlight: Dictionary = {}
 var color_regions_to_highlight: Array = []
@@ -46,7 +47,6 @@ func highlight_region(start : String, end : String, color : String, single_line 
 func set_up_extensions(extension : String):
 	keywords_to_highlight.clear()
 	color_regions_to_highlight.clear()
-	var lua = LuaAPI.new()
 	lua.bind_libraries(["base", "table", "string"])
 	lua.push_variant("highlight", highlight)
 	lua.push_variant("highlight_region", highlight_region)
@@ -108,3 +108,28 @@ func _ready() -> void:
 
 func _on_option_button_on_theme_change(cur_theme: Variant) -> void:
 	setup_cur_theme(cur_theme)
+	
+func unique_array(arr: Array) -> Array:
+	var out := {}
+	for element in arr:
+		out[element] = element
+	return out.values()
+	
+
+
+func _on_code_completion_requested() -> void:
+	var function_names = lua.call_function("detect_functions", [text, get_caret_line(), get_caret_column()])
+	var variable_names = lua.call_function("detect_variables", [text, get_caret_line(), get_caret_column()])
+
+	if typeof(function_names) == Variant.Type.TYPE_ARRAY:
+		for each in unique_array(function_names):
+			add_code_completion_option(CodeEdit.KIND_FUNCTION, each, each+"()", keywords.function)
+	if typeof(variable_names) == Variant.Type.TYPE_ARRAY:
+		for each in unique_array(variable_names):
+			add_code_completion_option(CodeEdit.KIND_VARIABLE, each, each, keywords.variable)
+
+	update_code_completion_options(true)
+
+
+func _on_text_changed() -> void:
+	request_code_completion()

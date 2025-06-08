@@ -133,3 +133,18 @@ highlight(">", "binary")
 
 --- User Comments
 highlight_region("<!--", "-->", "comments", false)
+
+function detect_variables(content)
+    local variable_names = {}
+    local lines = content:gmatch("[^\r\n]+")
+
+    for line in lines do
+        local tag = line:match("<(.-)[%(>]")
+        if tag then
+            tag_done = "</" .. tag .. ">"
+            table.insert(variable_names, tag_done)
+        end
+    end
+
+    return variable_names
+end
