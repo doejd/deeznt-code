@@ -14,7 +14,7 @@ var keywords: Dictionary = {
 	"comments":   str_to_clr("5c6370"),
 	"error":      str_to_clr("ff5370"),
 	"function":   str_to_clr("82aaff"),
-	"member":     str_to_clr("c792ea")
+	"member":     str_to_clr("c792ea"),
 }
 var GUI : Dictionary = {
 	"background_color": str_to_clr("23272e"),
@@ -127,7 +127,7 @@ func _on_code_completion_requested() -> void:
 	if typeof(variable_names) == Variant.Type.TYPE_ARRAY:
 		for each in unique_array(variable_names):
 			add_code_completion_option(CodeEdit.KIND_VARIABLE, each, each, keywords.variable)
-
+	
 	update_code_completion_options(true)
 
 
