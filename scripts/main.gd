@@ -1,6 +1,6 @@
 extends Control
-@onready var editor = $HBoxContainer/VBoxContainer/Editor
-@onready var item_list = $HBoxContainer/ItemList
+@onready var editor = $Control/Editor
+@onready var item_list = $Control/ItemList
 @onready var icons = Icons.new()
 var cur_opened_file = ""
 var dir = DirAccess.open(OS.get_environment("USERPROFILE"))

@@ -1,6 +1,8 @@
 extends CodeEdit
+@onready var animation_player = $AnimationPlayer
 var lua = LuaAPI.new()
 var lua_theme : LuaAPI = LuaAPI.new()
+var open_theme_select = false
 var keywords_to_highlight: Dictionary = {}
 var color_regions_to_highlight: Array = []
 var keywords: Dictionary = {
@@ -105,6 +107,15 @@ func setup_theme():
 func _ready() -> void:
 	setup_cur_theme("Github Dark")
 
+func _input(_event: InputEvent) -> void:
+	if Input.is_action_just_pressed("theme_switch") and not open_theme_select:
+		animation_player.play("open_theme_select")
+		open_theme_select = true
+		get_viewport().set_input_as_handled()
+	elif Input.is_action_just_pressed("theme_switch") and open_theme_select:
+		animation_player.play("close_theme_select")
+		open_theme_select = false
+		get_viewport().set_input_as_handled()
 
 func _on_option_button_on_theme_change(cur_theme: Variant) -> void:
 	setup_cur_theme(cur_theme)

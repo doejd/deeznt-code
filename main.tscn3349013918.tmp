@@ -1,9 +1,11 @@
-[gd_scene load_steps=10 format=3 uid="uid://cw5d886rkrgad"]
+[gd_scene load_steps=12 format=3 uid="uid://cw5d886rkrgad"]
 
 [ext_resource type="Script" uid="uid://d3mjdab1o1wqs" path="res://scripts/main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://bctpagkgq0qgi" path="res://scripts/edit.gd" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://cch4vxmte3nv" path="res://scripts/editor_container.gd" id="2_1bvp3"]
 [ext_resource type="Script" uid="uid://dsf42r8isrgph" path="res://scripts/theme_select.gd" id="2_272bh"]
 [ext_resource type="FontFile" uid="uid://cdwg8qm3yqrx2" path="res://Font/FiraCodeNerdFont-Regular.ttf" id="2_h2yge"]
+[ext_resource type="Script" uid="uid://d4hcdmojcegco" path="res://scripts/v_box_container.gd" id="4_lquwl"]
 [ext_resource type="FontFile" uid="uid://cec71sm45a2b4" path="res://Font/Inconsolata-Regular.ttf" id="5_7mycd"]
 
 [sub_resource type="Animation" id="Animation_272bh"]
@@ -11,7 +13,7 @@ length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("..:position")
+tracks/0/path = NodePath(".:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -23,14 +25,14 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../../OptionButton:position")
+tracks/1/path = NodePath("../OptionButton:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(-234, 0)]
+"values": [Vector2(-240, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_5vw27"]
@@ -38,24 +40,24 @@ resource_name = "close_theme_select"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("..:position")
+tracks/0/path = NodePath(".:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(3.5, 1),
+"transitions": PackedFloat32Array(4, 1),
 "update": 0,
 "values": [Vector2(234, 0), Vector2(0, 0)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../../OptionButton:position")
+tracks/1/path = NodePath("../OptionButton:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(8, 1),
+"transitions": PackedFloat32Array(5, 1),
 "update": 0,
 "values": [Vector2(0, 0), Vector2(-234, 0)]
 }
@@ -65,24 +67,24 @@ resource_name = "open_theme_select"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("..:position")
+tracks/0/path = NodePath(".:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(3.5, 1),
+"transitions": PackedFloat32Array(4, 1),
 "update": 0,
 "values": [Vector2(0, 0), Vector2(234, 0)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../../OptionButton:position")
+tracks/1/path = NodePath("../OptionButton:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(8, 1),
+"transitions": PackedFloat32Array(5, 1),
 "update": 0,
 "values": [Vector2(-234, 0), Vector2(0, 0)]
 }
@@ -107,7 +109,8 @@ script = ExtResource("1_ig7tw")
 layout_mode = 1
 anchors_preset = -1
 anchor_bottom = 0.062
-offset_left = -234.0
+offset_left = -240.0
+offset_right = -6.0
 offset_bottom = -0.176003
 theme_override_font_sizes/font_size = 20
 alignment = 1
@@ -118,26 +121,38 @@ popup/item_1/text = "One Dark Pro Darker"
 popup/item_1/id = 1
 script = ExtResource("2_272bh")
 
-[node name="Control" type="Control" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("2_1bvp3")
+metadata/_edit_use_anchors_ = true
 
-[node name="Editor" type="CodeEdit" parent="Control"]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.169
-anchor_top = 0.006
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 0.311981
-offset_top = -3.888
-offset_right = -4.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="ItemList" type="ItemList" parent="HBoxContainer"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_fonts/font = ExtResource("2_h2yge")
+theme_override_font_sizes/font_size = 30
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("4_lquwl")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_font_sizes/normal_font_size = 30
+text_direction = 1
+
+[node name="Editor" type="CodeEdit" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("5_7mycd")
@@ -153,24 +168,15 @@ indent_automatic = true
 auto_brace_completion_enabled = true
 script = ExtResource("2_0xm2m")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Control/Editor"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="HBoxContainer"]
 libraries = {
 &"": SubResource("AnimationLibrary_kek77")
 }
 
-[node name="ItemList" type="ItemList" parent="Control"]
-custom_minimum_size = Vector2(100, 100)
-layout_mode = 2
-anchor_right = 0.169
-anchor_bottom = 1.0
-offset_right = 4.31198
-size_flags_horizontal = 0
-theme_override_fonts/font = ExtResource("2_h2yge")
-theme_override_font_sizes/font_size = 30
-
+[connection signal="opened_file" from="." to="HBoxContainer/VBoxContainer" method="_on_control_opened_file"]
 [connection signal="item_selected" from="OptionButton" to="OptionButton" method="_on_item_selected"]
-[connection signal="on_theme_change" from="OptionButton" to="Control/Editor" method="_on_option_button_on_theme_change"]
-[connection signal="code_completion_requested" from="Control/Editor" to="Control/Editor" method="_on_code_completion_requested"]
-[connection signal="gui_input" from="Control/Editor" to="." method="_on_editor_gui_input"]
-[connection signal="text_changed" from="Control/Editor" to="Control/Editor" method="_on_text_changed"]
-[connection signal="item_clicked" from="Control/ItemList" to="." method="_on_item_list_item_clicked"]
+[connection signal="on_theme_change" from="OptionButton" to="HBoxContainer/VBoxContainer/Editor" method="_on_option_button_on_theme_change"]
+[connection signal="item_clicked" from="HBoxContainer/ItemList" to="." method="_on_item_list_item_clicked"]
+[connection signal="code_completion_requested" from="HBoxContainer/VBoxContainer/Editor" to="HBoxContainer/VBoxContainer/Editor" method="_on_code_completion_requested"]
+[connection signal="gui_input" from="HBoxContainer/VBoxContainer/Editor" to="." method="_on_editor_gui_input"]
+[connection signal="text_changed" from="HBoxContainer/VBoxContainer/Editor" to="HBoxContainer/VBoxContainer/Editor" method="_on_text_changed"]

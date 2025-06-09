@@ -10,6 +10,7 @@ highlight("class", "reserved")
 highlight("return", "reserved")
 highlight("def", "reserved")
 highlight("for", "reserved")
+highlight("pass", "reserved")
 
 highlight("False", "binary")
 highlight("True", "binary")

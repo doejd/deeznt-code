@@ -1,3 +1,6 @@
+Control
+VSplitContainer
+HSplitContainer
 AnimationPlayer
 VBoxContainer
 HBoxContainer
@@ -9,6 +12,3 @@ ColorRect
 OptionButton
 PopupMenu
 MenuButton
-Control
-Container
-MenuBar
