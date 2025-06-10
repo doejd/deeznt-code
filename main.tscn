@@ -135,10 +135,11 @@ theme_override_font_sizes/font_size = 30
 
 [node name="VSplitContainer" type="VSplitContainer" parent="HSplitContainer"]
 layout_mode = 2
-split_offset = 20
+split_offset = 40
 
 [node name="RichTextLabel" type="RichTextLabel" parent="HSplitContainer/VSplitContainer"]
 layout_mode = 2
+theme_override_font_sizes/normal_font_size = 30
 
 [node name="Editor" type="CodeEdit" parent="HSplitContainer/VSplitContainer"]
 layout_mode = 2
@@ -162,6 +163,7 @@ libraries = {
 &"": SubResource("AnimationLibrary_kek77")
 }
 
+[connection signal="opened_file" from="." to="HSplitContainer/VSplitContainer/Editor" method="_on_control_opened_file"]
 [connection signal="item_selected" from="OptionButton" to="OptionButton" method="_on_item_selected"]
 [connection signal="on_theme_change" from="OptionButton" to="HSplitContainer/VSplitContainer/Editor" method="_on_option_button_on_theme_change"]
 [connection signal="item_clicked" from="HSplitContainer/ItemList" to="." method="_on_item_list_item_clicked"]

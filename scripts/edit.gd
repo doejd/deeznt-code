@@ -1,5 +1,6 @@
 extends CodeEdit
 @onready var animation_player = $AnimationPlayer
+@onready var label = get_node("../RichTextLabel")
 var lua = LuaAPI.new()
 var lua_theme : LuaAPI = LuaAPI.new()
 var open_theme_select = false
@@ -144,3 +145,7 @@ func _on_code_completion_requested() -> void:
 
 func _on_text_changed() -> void:
 	request_code_completion()
+
+
+func _on_control_opened_file(file_name: Variant) -> void:
+	label.text = file_name

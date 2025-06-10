@@ -1,6 +1,9 @@
 extends Control
 @onready var editor = $HSplitContainer/VSplitContainer/Editor
 @onready var item_list = $HSplitContainer/ItemList
+@onready var label = $HSplitContainer/VSplitContainer/RichTextLabel
+@onready var H_container = $HSplitContainer
+@onready var V_container = $HSplitContainer/VSplitContainer
 @onready var icons = Icons.new()
 var cur_opened_file = ""
 var dir = DirAccess.open(OS.get_environment("USERPROFILE"))
@@ -42,6 +45,7 @@ func save() -> void:
 func _ready() -> void:
 	diplay_items(get_dir_contents())
 	item_list.select(cur_ind)
+	get_tree().root.size_changed.connect(resize)
 
 func diplay_items(items: Array) -> void:
 	item_list.clear()
@@ -97,3 +101,11 @@ func _on_item_list_item_clicked(index: int, _at_position: Vector2, mouse_button_
 		open()
 	if mouse_button_index == 1 and not index == cur_ind:
 		cur_ind = index
+
+func resize() -> void:
+	var win_size = DisplayServer.window_get_size()
+	var left_side_spacing = 0.25
+	var label_spacing = 0.01
+	H_container.split_offset = win_size.y * left_side_spacing
+	V_container.split_offset = win_size.x * label_spacing
+	label.add_theme_font_size_override("normal_font_size", win_size.y * label_spacing * 1.5)

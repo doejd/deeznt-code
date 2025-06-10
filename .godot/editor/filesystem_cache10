@@ -1,9 +1,9 @@
 ea4bc82a6ad023ab7ee23ee620429895
-::res://::1749498350
+::res://::1749533764
 Deezn't Code.ico::OtherFile/OtherFile::-1::1749059559::0::1::::<><><>0<>0<><>::
 Deezn't Code.png::CompressedTexture2D/CompressedTexture2D::632411159394439717::1749059559::1749237559::1::::<><><>0<>0<>1642d16a8694effb560e3c6f53001105<>res://.godot/imported/Deezn't Code.png-85c088ecef0a8d418932a05bd9f1a3f0.ctex::
-export_presets.cfg::TextFile::-1::1749495570::0::1::::<><><>0<>0<><>::
-main.tscn::PackedScene/PackedScene::6379170124167801123::1749495317::0::1::::<><><>0<>0<><>::uid://d3mjdab1o1wqs::::res://scripts/main.gd<>uid://bctpagkgq0qgi::::res://scripts/edit.gd<>uid://dsf42r8isrgph::::res://scripts/theme_select.gd<>uid://cdwg8qm3yqrx2::::res://Font/FiraCodeNerdFont-Regular.ttf<>uid://cec71sm45a2b4::::res://Font/Inconsolata-Regular.ttf
+export_presets.cfg::TextFile/TextFile::-1::1749495570::0::1::::<><><>0<>0<><>::
+main.tscn::PackedScene::6379170124167801123::1749533162::0::1::::<><><>0<>0<><>::uid://d3mjdab1o1wqs::::res://scripts/main.gd<>uid://bctpagkgq0qgi::::res://scripts/edit.gd<>uid://dsf42r8isrgph::::res://scripts/theme_select.gd<>uid://cdwg8qm3yqrx2::::res://Font/FiraCodeNerdFont-Regular.ttf<>uid://cec71sm45a2b4::::res://Font/Inconsolata-Regular.ttf
 ::res://addons/::1747851025
 ::res://addons/luaAPI/::1747851026
 luaAPI.gdextension::GDExtension/GDExtension::9001190987710784449::1747851025::0::1::::<><><>0<>0<><>::
@@ -16,8 +16,8 @@ Inconsolata-Regular.ttf::FontFile/FontFile::5059715837172209579::1749373495::174
 ::res://Lua/themes/::1749397982
 ::res://music/::1747632448
 intro.wav::AudioStreamWAV/AudioStreamWAV::8298244751247742337::1747126885::1747632448::1::::<><><>0<>0<>a6fb07cd84e453e1c1f2fc21bc090b47<>res://.godot/imported/intro.wav-1eab100ca2c40579cdd11982ddd6a75f.sample::
-::res://scripts/::1749495246
-edit.gd::GDScript/GDScript::2566932634070938780::1749495246::0::1::::<>CodeEdit<><>0<>0<><>::
+::res://scripts/::1749529659
+edit.gd::GDScript/GDScript::2566932634070938780::1749529659::0::1::::<>CodeEdit<><>0<>0<><>::
 icons.gd::GDScript/GDScript::3862572765667490895::1748538164::0::1::::Icons<>Node<><>0<>0<><>::
-main.gd::GDScript/GDScript::9149874019055422138::1749495027::0::1::::<>Control<><>0<>0<><>::
+main.gd::GDScript/GDScript::9149874019055422138::1749529057::0::1::::<>Control<><>0<>0<><>::
 theme_select.gd::GDScript/GDScript::8434793078823555845::1749377075::0::1::::<>OptionButton<><>0<>0<><>::
