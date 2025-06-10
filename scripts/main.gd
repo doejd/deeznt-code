@@ -1,6 +1,6 @@
 extends Control
-@onready var editor = $Control/Editor
-@onready var item_list = $Control/ItemList
+@onready var editor = $HSplitContainer/VSplitContainer/Editor
+@onready var item_list = $HSplitContainer/ItemList
 @onready var icons = Icons.new()
 var cur_opened_file = ""
 var dir = DirAccess.open(OS.get_environment("USERPROFILE"))

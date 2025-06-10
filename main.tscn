@@ -11,7 +11,7 @@ length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("..:position")
+tracks/0/path = NodePath("../..:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -23,7 +23,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../../OptionButton:position")
+tracks/1/path = NodePath("../../../OptionButton:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -38,19 +38,19 @@ resource_name = "close_theme_select"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("..:position")
+tracks/0/path = NodePath("../..:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(3.5, 1),
+"transitions": PackedFloat32Array(3, 1),
 "update": 0,
 "values": [Vector2(234, 0), Vector2(0, 0)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../../OptionButton:position")
+tracks/1/path = NodePath("../../../OptionButton:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -65,7 +65,7 @@ resource_name = "open_theme_select"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("..:position")
+tracks/0/path = NodePath("../..:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -77,7 +77,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../../OptionButton:position")
+tracks/1/path = NodePath("../../../OptionButton:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -118,26 +118,30 @@ popup/item_1/text = "One Dark Pro Darker"
 popup/item_1/id = 1
 script = ExtResource("2_272bh")
 
-[node name="Control" type="Control" parent="."]
+[node name="HSplitContainer" type="HSplitContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+split_offset = 288
 
-[node name="Editor" type="CodeEdit" parent="Control"]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.169
-anchor_top = 0.006
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 0.311981
-offset_top = -3.888
-offset_right = -4.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="ItemList" type="ItemList" parent="HSplitContainer"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_h2yge")
+theme_override_font_sizes/font_size = 30
+
+[node name="VSplitContainer" type="VSplitContainer" parent="HSplitContainer"]
+layout_mode = 2
+split_offset = 20
+
+[node name="RichTextLabel" type="RichTextLabel" parent="HSplitContainer/VSplitContainer"]
+layout_mode = 2
+
+[node name="Editor" type="CodeEdit" parent="HSplitContainer/VSplitContainer"]
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("5_7mycd")
@@ -153,24 +157,14 @@ indent_automatic = true
 auto_brace_completion_enabled = true
 script = ExtResource("2_0xm2m")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Control/Editor"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="HSplitContainer/VSplitContainer/Editor"]
 libraries = {
 &"": SubResource("AnimationLibrary_kek77")
 }
 
-[node name="ItemList" type="ItemList" parent="Control"]
-custom_minimum_size = Vector2(100, 100)
-layout_mode = 2
-anchor_right = 0.169
-anchor_bottom = 1.0
-offset_right = 4.31198
-size_flags_horizontal = 0
-theme_override_fonts/font = ExtResource("2_h2yge")
-theme_override_font_sizes/font_size = 30
-
 [connection signal="item_selected" from="OptionButton" to="OptionButton" method="_on_item_selected"]
-[connection signal="on_theme_change" from="OptionButton" to="Control/Editor" method="_on_option_button_on_theme_change"]
-[connection signal="code_completion_requested" from="Control/Editor" to="Control/Editor" method="_on_code_completion_requested"]
-[connection signal="gui_input" from="Control/Editor" to="." method="_on_editor_gui_input"]
-[connection signal="text_changed" from="Control/Editor" to="Control/Editor" method="_on_text_changed"]
-[connection signal="item_clicked" from="Control/ItemList" to="." method="_on_item_list_item_clicked"]
+[connection signal="on_theme_change" from="OptionButton" to="HSplitContainer/VSplitContainer/Editor" method="_on_option_button_on_theme_change"]
+[connection signal="item_clicked" from="HSplitContainer/ItemList" to="." method="_on_item_list_item_clicked"]
+[connection signal="code_completion_requested" from="HSplitContainer/VSplitContainer/Editor" to="HSplitContainer/VSplitContainer/Editor" method="_on_code_completion_requested"]
+[connection signal="gui_input" from="HSplitContainer/VSplitContainer/Editor" to="." method="_on_editor_gui_input"]
+[connection signal="text_changed" from="HSplitContainer/VSplitContainer/Editor" to="HSplitContainer/VSplitContainer/Editor" method="_on_text_changed"]
