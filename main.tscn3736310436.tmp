@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://cw5d886rkrgad"]
+[gd_scene load_steps=11 format=3 uid="uid://cw5d886rkrgad"]
 
 [ext_resource type="Script" uid="uid://d3mjdab1o1wqs" path="res://scripts/main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://bctpagkgq0qgi" path="res://scripts/edit.gd" id="2_0xm2m"]
@@ -95,58 +95,6 @@ _data = {
 &"open_theme_select": SubResource("Animation_7mycd")
 }
 
-[sub_resource type="Animation" id="Animation_kek77"]
-resource_name = "open_terminal"
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Terminal:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(7, 1),
-"update": 0,
-"values": [Vector2(-1152, 0), Vector2(0, 0)]
-}
-
-[sub_resource type="Animation" id="Animation_4c57u"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Terminal:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(-1155, 0)]
-}
-
-[sub_resource type="Animation" id="Animation_efxa6"]
-resource_name = "close_terminal"
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Terminal:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(7, 1),
-"update": 0,
-"values": [Vector2(0, 0), Vector2(-1152, 0)]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_dg77c"]
-_data = {
-&"RESET": SubResource("Animation_4c57u"),
-&"close_terminal": SubResource("Animation_efxa6"),
-&"open_terminal": SubResource("Animation_kek77")
-}
-
 [node name="Control" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -218,12 +166,9 @@ libraries = {
 
 [node name="Terminal" type="VSplitContainer" parent="."]
 layout_mode = 1
-anchors_preset = -1
-anchor_left = -1.0
-anchor_bottom = 1.006
-offset_left = -3.0
-offset_right = -3.0
-offset_bottom = -3.888
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 split_offset = 500
@@ -237,11 +182,7 @@ size_flags_vertical = 3
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_dg77c")
-}
-
+[connection signal="changed_dir" from="." to="Terminal" method="_on_control_changed_dir"]
 [connection signal="opened_file" from="." to="Editor_Container/VSplitContainer/Editor" method="_on_control_opened_file"]
 [connection signal="item_selected" from="OptionButton" to="OptionButton" method="_on_item_selected"]
 [connection signal="on_theme_change" from="OptionButton" to="Editor_Container/VSplitContainer/Editor" method="_on_option_button_on_theme_change"]

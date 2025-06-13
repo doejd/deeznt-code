@@ -1,11 +1,16 @@
 extends Control
-@onready var editor = $HSplitContainer/VSplitContainer/Editor
-@onready var item_list = $HSplitContainer/ItemList
-@onready var label = $HSplitContainer/VSplitContainer/RichTextLabel
-@onready var H_container = $HSplitContainer
-@onready var V_container = $HSplitContainer/VSplitContainer
+@onready var editor = $Editor_Container/VSplitContainer/Editor
+@onready var item_list = $Editor_Container/ItemList
+@onready var label = $Editor_Container/VSplitContainer/RichTextLabel
+@onready var H_container = $Editor_Container
+@onready var V_container = $Editor_Container/VSplitContainer
+@onready var terminal = $Terminal
+@onready var input_terminal = $Terminal/LineEdit
+@onready var output_terminal = $Terminal/TextEdit
+@onready var anim_player = $AnimationPlayer
 @onready var icons = Icons.new()
 var cur_opened_file = ""
+var open_terminal  : bool = false
 var dir = DirAccess.open(OS.get_environment("USERPROFILE"))
 var cur_ind = 0
 signal opened_file(file_name)
@@ -91,7 +96,13 @@ func _input(_event: InputEvent) -> void:
 		item_list.ensure_current_is_visible()
 	if Input.is_action_just_pressed("save"):
 		save()
-
+	if Input.is_action_just_pressed("terminal") and not open_terminal:
+		anim_player.play("open_terminal")
+		open_terminal = true
+	elif Input.is_action_just_pressed("terminal") and open_terminal:
+		anim_player.play("close_terminal")
+		open_terminal = false
+	
 func _on_editor_gui_input(_event: InputEvent) -> void:
 	if not Input.is_action_just_pressed("ui_open"): return
 	editor.accept_event()
@@ -108,4 +119,11 @@ func resize() -> void:
 	var label_spacing = 0.01
 	H_container.split_offset = win_size.y * left_side_spacing
 	V_container.split_offset = win_size.x * label_spacing
+	terminal.split_offset = win_size.y * 0.5
 	label.add_theme_font_size_override("normal_font_size", win_size.y * label_spacing * 1.5)
+	input_terminal.add_theme_font_size_override("font_size", win_size.y * label_spacing * 2)
+	output_terminal.add_theme_font_size_override("font_size", win_size.y * label_spacing * 2)
+	var animation : Animation = anim_player.get_animation("open_terminal")
+	animation.track_set_key_value(0, 0, Vector2(-terminal.size.x, 0))
+	animation = anim_player.get_animation("close_terminal")
+	animation.track_set_key_value(0,1, Vector2(-terminal.size.x, 0))

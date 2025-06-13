@@ -1,3 +1,4 @@
-res://scripts/edit.gd
 res://main.tscn
+res://scripts/terminal.gd
 res://scripts/main.gd
+res://scripts/edit.gd
