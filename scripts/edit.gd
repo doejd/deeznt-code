@@ -1,6 +1,8 @@
 extends CodeEdit
 @onready var animation_player = $AnimationPlayer
 @onready var label = get_node("../RichTextLabel")
+var function = preload("res://Images/function.png")
+var variable = preload("res://Images/variable.png")
 var lua = LuaAPI.new()
 var lua_theme : LuaAPI = LuaAPI.new()
 var open_theme_select = false
@@ -133,10 +135,10 @@ func _on_code_completion_requested() -> void:
 
 	if typeof(function_names) == Variant.Type.TYPE_ARRAY:
 		for each in unique_array(function_names):
-			add_code_completion_option(CodeEdit.KIND_FUNCTION, each, each+"()", keywords.function)
+			add_code_completion_option(CodeEdit.KIND_FUNCTION, each, each+"()", keywords.function, function)
 	if typeof(variable_names) == Variant.Type.TYPE_ARRAY:
 		for each in unique_array(variable_names):
-			add_code_completion_option(CodeEdit.KIND_VARIABLE, each, each, keywords.variable)
+			add_code_completion_option(CodeEdit.KIND_VARIABLE, each, each, keywords.variable, variable)
 	
 	update_code_completion_options(true)
 

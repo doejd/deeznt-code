@@ -14,9 +14,9 @@ config/name="Deezn't Code"
 config/version="1.0.0.0"
 run/main_scene="uid://cw5d886rkrgad"
 config/features=PackedStringArray("4.4", "Forward Plus")
-boot_splash/image="uid://dbid62vblxooj"
+boot_splash/image="uid://jalypvirqvpd"
 config/icon="uid://jalypvirqvpd"
-config/windows_native_icon="res://Deezn't Code.ico"
+config/windows_native_icon="res://Images/Deezn't Code.ico"
 
 [input]
 
