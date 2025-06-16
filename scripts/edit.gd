@@ -106,7 +106,6 @@ func setup_theme():
 	add_theme_color_override("completion_selected_color", GUI.completion_selected_color)
 	add_theme_color_override("caret_color", GUI.caret_color)
 	
-	
 func _ready() -> void:
 	setup_cur_theme("Github Dark")
 
@@ -120,6 +119,7 @@ func _input(_event: InputEvent) -> void:
 
 func _on_option_button_on_theme_change(cur_theme: Variant) -> void:
 	setup_cur_theme(cur_theme)
+	setup_highlighter()
 	
 func unique_array(arr: Array) -> Array:
 	var out := {}
@@ -127,8 +127,6 @@ func unique_array(arr: Array) -> Array:
 		out[element] = element
 	return out.values()
 	
-
-
 func _on_code_completion_requested() -> void:
 	var function_names = lua.call_function("detect_functions", [text, get_caret_line(), get_caret_column()])
 	var variable_names = lua.call_function("detect_variables", [text, get_caret_line(), get_caret_column()])
@@ -139,13 +137,7 @@ func _on_code_completion_requested() -> void:
 	if typeof(variable_names) == Variant.Type.TYPE_ARRAY:
 		for each in unique_array(variable_names):
 			add_code_completion_option(CodeEdit.KIND_VARIABLE, each, each, keywords.variable, variable)
-	
 	update_code_completion_options(true)
-
-
-func _on_text_changed() -> void:
-	request_code_completion()
-
 
 func _on_control_opened_file(file_name: Variant) -> void:
 	label.text = file_name
