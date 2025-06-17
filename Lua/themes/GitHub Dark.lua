@@ -8,6 +8,7 @@ set_keywords("comments", "8b949e")
 set_keywords("error", "d31820")
 set_keywords("function", "d2a8ff")
 set_keywords("member", "79c0ff")
+set_keywords("import", "addb67")
 
 
 set_gui("background_color", "0d1117")

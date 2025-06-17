@@ -3,6 +3,8 @@ extends CodeEdit
 @onready var label = get_node("../RichTextLabel")
 var function = preload("res://Images/function.png")
 var variable = preload("res://Images/variable.png")
+var import = preload("res://Images/import.png")
+var CH: CodeHighlighter = CodeHighlighter.new()
 var lua = LuaAPI.new()
 var lua_theme : LuaAPI = LuaAPI.new()
 var open_theme_select = false
@@ -20,6 +22,7 @@ var keywords: Dictionary = {
 	"error":      str_to_clr("ff5370"),
 	"function":   str_to_clr("82aaff"),
 	"member":     str_to_clr("c792ea"),
+	"import":     str_to_clr("addb67")
 }
 var GUI : Dictionary = {
 	"background_color": str_to_clr("23272e"),
@@ -62,7 +65,6 @@ func set_up_extensions(extension : String):
 	setup_highlighter()
 	
 func setup_highlighter() -> void:
-	var CH: CodeHighlighter = CodeHighlighter.new()
 	syntax_highlighter = CH
 	CH.number_color = keywords.binary
 	CH.symbol_color = keywords.symbol
@@ -130,13 +132,16 @@ func unique_array(arr: Array) -> Array:
 func _on_code_completion_requested() -> void:
 	var function_names = lua.call_function("detect_functions", [text, get_caret_line(), get_caret_column()])
 	var variable_names = lua.call_function("detect_variables", [text, get_caret_line(), get_caret_column()])
-
+	var import_names = lua.call_function("detect_imports", [text, get_caret_line(), get_caret_column()])
 	if typeof(function_names) == Variant.Type.TYPE_ARRAY:
 		for each in unique_array(function_names):
 			add_code_completion_option(CodeEdit.KIND_FUNCTION, each, each+"()", keywords.function, function)
 	if typeof(variable_names) == Variant.Type.TYPE_ARRAY:
 		for each in unique_array(variable_names):
 			add_code_completion_option(CodeEdit.KIND_VARIABLE, each, each, keywords.variable, variable)
+	if typeof(import_names) == Variant.Type.TYPE_ARRAY:
+		for each in unique_array(import_names):
+			add_code_completion_option(CodeEdit.KIND_PLAIN_TEXT, each, each, keywords.import, import)
 	update_code_completion_options(true)
 
 func _on_control_opened_file(file_name: Variant) -> void:

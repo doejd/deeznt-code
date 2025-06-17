@@ -91,8 +91,6 @@ func _input(_event: InputEvent) -> void:
 		item_list.ensure_current_is_visible()
 	if Input.is_action_just_pressed("save"):
 		save()
-	if Input.is_action_just_pressed("terminal"):
-		OS.create_process("cmd.exe", [], true)
 	
 func _on_editor_gui_input(_event: InputEvent) -> void:
 	if not Input.is_action_just_pressed("ui_open"): return

@@ -182,6 +182,19 @@ function detect_variables(content)
             end
         end
     end
-
     return variable_names
+end
+
+function detect_imports(content)
+    local import_names = {}
+    for line in content:gmatch("[^\r\n]+") do
+        local import_lib = line:match('#include%s*<%s*([^%s>]+)%s*>')
+        if not import_lib then
+            import_lib = line:match('#include%s*"([^"]+)"')
+        end
+        if import_lib then
+            table.insert(import_names, import_lib)
+        end
+    end
+    return import_names
 end
