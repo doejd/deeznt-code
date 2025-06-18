@@ -4,7 +4,6 @@ extends CodeEdit
 var function = preload("res://Images/function.png")
 var variable = preload("res://Images/variable.png")
 var import = preload("res://Images/import.png")
-var CH: CodeHighlighter = CodeHighlighter.new()
 var lua = LuaAPI.new()
 var lua_theme : LuaAPI = LuaAPI.new()
 var open_theme_select = false
@@ -65,6 +64,7 @@ func set_up_extensions(extension : String):
 	setup_highlighter()
 	
 func setup_highlighter() -> void:
+	var CH: CodeHighlighter = CodeHighlighter.new()
 	syntax_highlighter = CH
 	CH.number_color = keywords.binary
 	CH.symbol_color = keywords.symbol
@@ -77,7 +77,7 @@ func setup_highlighter() -> void:
 	for entry in crth:
 		if CH.has_color_region(entry[0]): continue
 		CH.add_color_region(entry[0], entry[1], keywords[entry[2]], entry[3])
-
+	
 func set_keywords(keyword : String, color : String):
 	keywords[keyword] = str_to_clr(color)
 	
