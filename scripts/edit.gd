@@ -4,6 +4,7 @@ extends CodeEdit
 var function = preload("res://Images/function.png")
 var variable = preload("res://Images/variable.png")
 var import = preload("res://Images/import.png")
+var keyword_img = preload("res://Images/keyword.png")
 var lua = LuaAPI.new()
 var lua_theme : LuaAPI = LuaAPI.new()
 var open_theme_select = false
@@ -133,6 +134,7 @@ func _on_code_completion_requested() -> void:
 	var function_names = lua.call_function("detect_functions", [text, get_caret_line(), get_caret_column()])
 	var variable_names = lua.call_function("detect_variables", [text, get_caret_line(), get_caret_column()])
 	var import_names = lua.call_function("detect_imports", [text, get_caret_line(), get_caret_column()])
+	var lang_keywords = lua.call_function("get_keywords", [text, get_caret_line(), get_caret_column()])
 	if typeof(function_names) == Variant.Type.TYPE_ARRAY:
 		for each in unique_array(function_names):
 			add_code_completion_option(CodeEdit.KIND_FUNCTION, each, each+"()", keywords.function, function)
@@ -142,6 +144,9 @@ func _on_code_completion_requested() -> void:
 	if typeof(import_names) == Variant.Type.TYPE_ARRAY:
 		for each in unique_array(import_names):
 			add_code_completion_option(CodeEdit.KIND_PLAIN_TEXT, each, each, keywords.import, import)
+	if typeof(lang_keywords) == Variant.Type.TYPE_ARRAY:
+		for each in unique_array(lang_keywords):
+			add_code_completion_option(CodeEdit.KIND_PLAIN_TEXT, each, each, keywords.reserved, keyword_img)
 	update_code_completion_options(true)
 
 func _on_control_opened_file(file_name: Variant) -> void:
