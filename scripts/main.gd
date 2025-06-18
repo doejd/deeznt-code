@@ -38,7 +38,7 @@ func _refocus_editor():
 func save() -> void:
 	var file = FileAccess.open(cur_opened_file, FileAccess.WRITE)
 	if file:
-		file.store_string(editor.text)
+		file.store_string(editor.text.replace("\t", "    "))
 		file.flush()
 		file.close()
 		

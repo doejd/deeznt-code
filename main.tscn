@@ -151,7 +151,6 @@ emoji_menu_enabled = false
 deselect_on_focus_loss_enabled = false
 empty_selection_clipboard_enabled = false
 highlight_current_line = true
-draw_tabs = true
 gutters_draw_line_numbers = true
 code_completion_enabled = true
 indent_automatic = true
@@ -169,3 +168,4 @@ libraries = {
 [connection signal="item_clicked" from="Editor_Container/ItemList" to="." method="_on_item_list_item_clicked"]
 [connection signal="code_completion_requested" from="Editor_Container/VSplitContainer/Editor" to="Editor_Container/VSplitContainer/Editor" method="_on_code_completion_requested"]
 [connection signal="gui_input" from="Editor_Container/VSplitContainer/Editor" to="." method="_on_editor_gui_input"]
+[connection signal="text_changed" from="Editor_Container/VSplitContainer/Editor" to="Editor_Container/VSplitContainer/Editor" method="_on_text_changed"]

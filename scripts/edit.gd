@@ -146,3 +146,7 @@ func _on_code_completion_requested() -> void:
 
 func _on_control_opened_file(file_name: Variant) -> void:
 	label.text = file_name
+
+func _on_text_changed() -> void:
+	if Input.is_action_just_pressed("enter"): return
+	call_deferred("_on_code_completion_requested")
