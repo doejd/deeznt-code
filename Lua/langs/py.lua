@@ -92,7 +92,8 @@ function detect_functions(content)
 end
 
 function detect_variables(content)
-    local variable_names = {"self", "__name__", "__annotations__", "__build_class__", "__builtins__", "__cached__", "__dict__", "__doc__", "__file__", "__import__", "__loader__", "__name__", "__package__", "__path__", "__spec__"}
+    local variable_names = {"self", "__name__", "__annotations__", "__build_class__", "__builtins__", 
+    "__cached__", "__dict__", "__doc__", "__file__", "__import__", "__loader__", "__name__", "__package__", "__path__", "__spec__"}
 
     for line in content:gmatch("[^\r\n]+") do
         local assignment = line:match("^%s*([%w_%.]+)%s*=%s*[^=].*")

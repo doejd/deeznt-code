@@ -55,6 +55,10 @@ func highlight_region(start : String, end : String, color : String, single_line 
 func set_up_extensions(extension : String):
 	keywords_to_highlight.clear()
 	color_regions_to_highlight.clear()
+	var pairs : Dictionary = auto_brace_completion_pairs
+	if extension == "html": pairs["<"] = ">"
+	else: pairs.erase("<") 
+	auto_brace_completion_pairs = pairs
 	lua.bind_libraries(["base", "table", "string"])
 	lua.push_variant("highlight", highlight)
 	lua.push_variant("highlight_region", highlight_region)
@@ -98,7 +102,7 @@ func setup_cur_theme(cur_theme : String):
 		print("ERROR %d: %s" % [error.type, error.message])
 		return
 	setup_theme()
-		
+	
 func setup_theme():
 	add_theme_color_override("background_color", GUI.background_color)
 	add_theme_color_override("current_line_color", GUI.current_line_color)

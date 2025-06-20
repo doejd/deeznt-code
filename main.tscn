@@ -1,10 +1,11 @@
-[gd_scene load_steps=10 format=3 uid="uid://cw5d886rkrgad"]
+[gd_scene load_steps=11 format=3 uid="uid://cw5d886rkrgad"]
 
 [ext_resource type="Script" uid="uid://d3mjdab1o1wqs" path="res://scripts/main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://bctpagkgq0qgi" path="res://scripts/edit.gd" id="2_0xm2m"]
 [ext_resource type="Script" uid="uid://dsf42r8isrgph" path="res://scripts/theme_select.gd" id="2_272bh"]
 [ext_resource type="FontFile" uid="uid://cdwg8qm3yqrx2" path="res://Font/FiraCodeNerdFont-Regular.ttf" id="2_h2yge"]
 [ext_resource type="FontFile" uid="uid://cec71sm45a2b4" path="res://Font/Inconsolata-Regular.ttf" id="5_7mycd"]
+[ext_resource type="Script" uid="uid://cincje0fvf7t4" path="res://scripts/settings.gd" id="6_7mycd"]
 
 [sub_resource type="Animation" id="Animation_272bh"]
 length = 0.001
@@ -119,6 +120,7 @@ popup/item_1/id = 1
 script = ExtResource("2_272bh")
 
 [node name="Editor_Container" type="HSplitContainer" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -155,12 +157,370 @@ gutters_draw_line_numbers = true
 code_completion_enabled = true
 indent_automatic = true
 auto_brace_completion_enabled = true
+auto_brace_completion_highlight_matching = true
 script = ExtResource("2_0xm2m")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Editor_Container/VSplitContainer/Editor"]
 libraries = {
 &"": SubResource("AnimationLibrary_kek77")
 }
+
+[node name="Settings" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("6_7mycd")
+
+[node name="ColorRect" type="ColorRect" parent="Settings"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.18359, 0.18359, 0.18359, 1)
+
+[node name="Caret Type" type="VSeparator" parent="Settings"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.833
+anchor_bottom = 0.035
+offset_right = 0.383911
+offset_bottom = 0.32
+grow_horizontal = 2
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="Settings/Caret Type"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+anchor_bottom = 0.043
+offset_bottom = 0.136
+grow_horizontal = 2
+text = "Caret Type"
+
+[node name="OptionButton" type="OptionButton" parent="Settings/Caret Type"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.53
+anchor_right = 0.657
+anchor_bottom = 1.522
+offset_left = 0.199951
+offset_right = 0.279968
+offset_bottom = -4.006
+grow_horizontal = 2
+selected = 0
+item_count = 2
+popup/item_0/text = "Line"
+popup/item_0/id = 0
+popup/item_1/text = "Underscore"
+popup/item_1/id = 1
+
+[node name="Caret Blink" type="VSeparator" parent="Settings"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.054
+anchor_right = 0.833
+anchor_bottom = 0.091
+offset_top = 0.00799942
+offset_right = 0.383911
+offset_bottom = 0.0319977
+grow_horizontal = 2
+
+[node name="Label" type="Label" parent="Settings/Caret Blink"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+text = "Caret Blink"
+
+[node name="CheckButton" type="CheckButton" parent="Settings/Caret Blink"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.522
+anchor_top = 0.208
+anchor_right = 0.568
+anchor_bottom = 1.208
+offset_left = -0.120026
+offset_top = 0.0079999
+offset_right = -0.280029
+offset_bottom = 0.00799942
+button_pressed = true
+
+[node name="Caret Blink Interval" type="VSeparator" parent="Settings"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.105
+anchor_right = 0.833
+anchor_bottom = 0.14
+offset_top = -0.0400009
+offset_right = 0.383911
+offset_bottom = 1.28
+grow_horizontal = 2
+
+[node name="Label" type="Label" parent="Settings/Caret Blink Interval"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+text = "Caret Blink Interval"
+
+[node name="HSlider" type="HSlider" parent="Settings/Caret Blink Interval"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.53
+anchor_right = 0.619
+anchor_bottom = 1.0
+offset_left = 0.199982
+offset_right = -0.23999
+value = 60.0
+
+[node name="Show Line Number" type="VSeparator" parent="Settings"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.159
+anchor_right = 0.833
+anchor_bottom = 0.196
+offset_top = -0.0320053
+offset_right = 0.383911
+offset_bottom = -0.00800323
+grow_horizontal = 2
+
+[node name="Label" type="Label" parent="Settings/Show Line Number"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+text = "Show Line Number"
+
+[node name="CheckButton" type="CheckButton" parent="Settings/Show Line Number"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.522
+anchor_right = 0.568
+anchor_bottom = 0.958
+offset_left = -0.120026
+offset_right = -0.280029
+offset_bottom = 1.008
+button_pressed = true
+
+[node name="Code Completion" type="VSeparator" parent="Settings"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.216
+anchor_right = 0.833
+anchor_bottom = 0.253
+offset_top = 0.0319977
+offset_right = 0.383911
+offset_bottom = 0.0559845
+grow_horizontal = 2
+
+[node name="Label" type="Label" parent="Settings/Code Completion"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+text = "Code Completion"
+
+[node name="CheckButton" type="CheckButton" parent="Settings/Code Completion"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.522
+anchor_right = 0.568
+anchor_bottom = 0.958
+offset_left = -0.120026
+offset_right = -0.280029
+offset_bottom = 1.008
+button_pressed = true
+
+[node name="Indentation Size" type="VSeparator" parent="Settings"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.27
+anchor_right = 0.833
+anchor_bottom = 0.307
+offset_top = 0.0399933
+offset_right = 0.383911
+offset_bottom = 0.0639954
+grow_horizontal = 2
+
+[node name="Label" type="Label" parent="Settings/Indentation Size"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+text = "Indentation Size"
+
+[node name="HSlider" type="HSlider" parent="Settings/Indentation Size"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.53
+anchor_right = 0.607
+anchor_bottom = 1.0
+offset_left = 0.199982
+offset_right = 0.279968
+
+[node name="Automatic Indentation" type="VSeparator" parent="Settings"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.327
+anchor_right = 0.833
+anchor_bottom = 0.364
+offset_top = 0.103989
+offset_right = 0.383911
+offset_bottom = 0.127991
+grow_horizontal = 2
+
+[node name="Label" type="Label" parent="Settings/Automatic Indentation"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+text = "Automatic Indentation"
+
+[node name="CheckButton" type="CheckButton" parent="Settings/Automatic Indentation"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.522
+anchor_right = 0.568
+anchor_bottom = 0.958
+offset_left = -0.120026
+offset_right = -0.280029
+offset_bottom = 1.008
+button_pressed = true
+
+[node name="Indentation Use Spaces" type="VSeparator" parent="Settings"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.38
+anchor_right = 0.833
+anchor_bottom = 0.415
+offset_top = -0.240021
+offset_right = 0.383911
+offset_bottom = 1.07999
+grow_horizontal = 2
+
+[node name="Label" type="Label" parent="Settings/Indentation Use Spaces"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+text = "Indentation: Use Spaces"
+
+[node name="CheckButton" type="CheckButton" parent="Settings/Indentation Use Spaces"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.522
+anchor_right = 0.568
+anchor_bottom = 0.958
+offset_left = -0.120026
+offset_right = -0.280029
+offset_bottom = 1.008
+
+[node name="Auto Brace Completion" type="VSeparator" parent="Settings"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.435
+anchor_right = 0.833
+anchor_bottom = 0.472
+offset_top = 0.119965
+offset_right = 0.383911
+offset_bottom = 0.143982
+grow_horizontal = 2
+
+[node name="Label" type="Label" parent="Settings/Auto Brace Completion"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+text = "Auto Brace Completion"
+
+[node name="CheckButton" type="CheckButton" parent="Settings/Auto Brace Completion"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.522
+anchor_right = 0.568
+anchor_bottom = 0.958
+offset_left = -0.120026
+offset_right = -0.280029
+offset_bottom = 1.008
+button_pressed = true
+
+[node name="Highlight Matching Braces" type="VSeparator" parent="Settings"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.488
+anchor_right = 0.833
+anchor_bottom = 0.523
+offset_top = -0.22403
+offset_right = 0.383911
+offset_bottom = 1.09601
+grow_horizontal = 2
+
+[node name="Label" type="Label" parent="Settings/Highlight Matching Braces"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+text = "Highlight Matching Braces"
+
+[node name="CheckButton" type="CheckButton" parent="Settings/Highlight Matching Braces"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.522
+anchor_right = 0.568
+anchor_bottom = 0.958
+offset_left = -0.120026
+offset_right = -0.280029
+offset_bottom = 1.008
+button_pressed = true
+
+[node name="Scrolling Speed" type="VSeparator" parent="Settings"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.539
+anchor_right = 0.833
+anchor_bottom = 0.576
+offset_top = -0.272034
+offset_right = 0.383911
+offset_bottom = -0.248016
+grow_horizontal = 2
+
+[node name="Label" type="Label" parent="Settings/Scrolling Speed"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+text = "Scrolling Speed"
+
+[node name="HSlider" type="HSlider" parent="Settings/Scrolling Speed"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.53
+anchor_right = 0.607
+anchor_bottom = 1.0
+offset_left = 0.199982
+offset_right = 0.279968
 
 [connection signal="opened_file" from="." to="Editor_Container/VSplitContainer/Editor" method="_on_control_opened_file"]
 [connection signal="item_selected" from="OptionButton" to="OptionButton" method="_on_item_selected"]

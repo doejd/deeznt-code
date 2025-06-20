@@ -141,7 +141,7 @@ function detect_variables(content)
     for line in lines do
         local tag = line:match("<%s*(%w+)")
         if tag then
-            tag_done = "</" .. tag .. ">"
+            tag_done = "/" .. tag
             table.insert(variable_names, tag_done)
         end
     end
