@@ -19,6 +19,8 @@ highlight("continue", "reserved")
 highlight("False", "reserved")
 highlight("True", "reserved")
 highlight("None", "reserved")
+highlight("global", "reserved")
+highlight("local", "reserved")
 
 --- Arithmetic Operators
 highlight("+", "operator")
@@ -74,6 +76,7 @@ highlight_region('"""', '"""', "string")
 --- User Comments
 highlight_region("#", "", "comments", true)
 
+
 function detect_functions(content)
     local functionNames = {}
 
@@ -92,13 +95,21 @@ function detect_functions(content)
 end
 
 function detect_variables(content)
-    local variable_names = {"self", "__name__", "__annotations__", "__build_class__", "__builtins__", 
+    local variable_names = {"__name__", "__annotations__", "__build_class__", "__builtins__", 
     "__cached__", "__dict__", "__doc__", "__file__", "__import__", "__loader__", "__name__", "__package__", "__path__", "__spec__"}
-
     for line in content:gmatch("[^\r\n]+") do
-        local assignment = line:match("^%s*([%w_%.]+)%s*=%s*[^=].*")
-        if assignment then
-            table.insert(variable_names, assignment)
+        -- Handle tuple unpacking assignments like: foo, bar = 800, 600
+        local unpack_vars = line:match("^%s*([%w_%s,]+)%s*=%s*.+")
+        if unpack_vars and unpack_vars:find(",") then
+            for var in unpack_vars:gmatch("([%w_]+)") do
+                table.insert(variable_names, var)
+            end
+        else
+            -- Handle single variable assignment
+            local assignment = line:match("^%s*([%w_%.]+)%s*=%s*[^=].*")
+            if assignment then
+                table.insert(variable_names, assignment)
+            end
         end
     end
     return variable_names
@@ -120,7 +131,6 @@ function detect_imports(content)
                 end
             end
         end
-
         local from_import_as = line:match("^%s*from%s+[%w_%.]+%s+import%s+([%w_%.]+)%s+as%s+([%w_]+)")
         if from_import_as then
             -- Only add the alias, not the original name
@@ -132,15 +142,27 @@ function detect_imports(content)
                 for name in from_import_multi:gmatch("([%w_]+)") do
                     table.insert(import_names, name)
                 end
-            end
-
-            local from_import = line:match("^%s*from%s+[%w_%.]+%s+import%s+([%w_]+)")
-            if from_import then
-                table.insert(import_names, from_import)
+                -- Handle "from foo import bar, foobar as fizz, buzz"
+                -- Split by comma, then check for "as"
+                for item in from_import_multi:gmatch("([^,]+)") do
+                    local name, alias = item:match("^%s*([%w_]+)%s+as%s+([%w_]+)%s*$")
+                    if alias then
+                        table.insert(import_names, alias)
+                    else
+                        local simple_name = item:match("^%s*([%w_]+)%s*$")
+                        if simple_name then
+                            table.insert(import_names, simple_name)
+                        end
+                    end
+                end
             end
         end
+
+        local from_import = line:match("^%s*from%s+[%w_%.]+%s+import%s+([%w_]+)")
+        if from_import then
+            table.insert(import_names, from_import)
+        end
     end
-    
     return import_names
 end
 
