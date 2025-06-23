@@ -1,7 +1,10 @@
 # Godot 4+ specific ignores
 /android/
 /.godot/
+/.vs/
 Deezn't Code.*
 rcedit-x64.exe
 *.dll
 *.tmp
+main.exe
+main.obj
