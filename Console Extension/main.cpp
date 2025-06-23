@@ -4,122 +4,97 @@
 
 #include <windows.h>
 #include <iostream>
-#include <string>
-#include <vector>
-#include <tchar.h>
 
-#pragma comment(lib, "kernel32.lib")
+int main()
+{
+    // make all our handles inheritable
+    SECURITY_ATTRIBUTES sa = { sizeof(sa), NULL, TRUE };
 
-int main() {
-    SECURITY_ATTRIBUTES saAttr = {};
-    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
-    saAttr.bInheritHandle = TRUE; // Make the handles inheritable
-    saAttr.lpSecurityDescriptor = NULL;
-    // Step 1: Create pipes for communication
-    HANDLE hPipePTYIn = nullptr, hPipePTYOut = nullptr;
-    HANDLE hPipeTerminalIn = nullptr, hPipeTerminalOut = nullptr;
+    // ┌───────────┐     ┌────────────┐    ┌───────────┐
+    // │ Parent    │ --> │ child stdin│ -->│ cmd.exe   │
+    // └───────────┘     └────────────┘    └───────────┘
+    HANDLE childStdin_Read,  parentStdin_Write;
+    // ┌───────────┐     ┌────────────┐    ┌───────────┐
+    // │ cmd.exe   │ --> │ child stdout│-->│ Parent    │
+    // └───────────┘     └────────────┘    └───────────┘
+    HANDLE parentStdout_Read, childStdout_Write;
 
-    if (!CreatePipe(&hPipePTYIn, &hPipeTerminalOut, &saAttr, 0)) {
-        std::cerr << "CreatePipe 1 failed.\n";
+    // create the two pipes
+    if (!CreatePipe(&childStdin_Read,  &parentStdin_Write,  &sa, 0) ||
+        !CreatePipe(&parentStdout_Read, &childStdout_Write, &sa, 0))
+    {
+        std::cerr << "CreatePipe failed: " << GetLastError() << "\n";
         return 1;
     }
-    if (!CreatePipe(&hPipeTerminalIn, &hPipePTYOut, &saAttr, 0)) {
-        std::cerr << "CreatePipe 2 failed.\n";
-        return 1;
-    }
 
-    // Step 2: Create the pseudoconsole
+    // build the ConPTY
     HPCON hPC;
-    COORD consoleSize = { 80, 25 };
-    HRESULT hr = CreatePseudoConsole(consoleSize, hPipePTYIn, hPipePTYOut, 0, &hPC);
-    if (FAILED(hr)) {
-        std::cerr << "CreatePseudoConsole failed. HRESULT = 0x" << std::hex << hr << "\n";
+    COORD size{ 80, 25 };
+    if (FAILED(CreatePseudoConsole(size, childStdin_Read, childStdout_Write, 0, &hPC)))
+    {
+        std::cerr << "CreatePseudoConsole failed\n";
         return 1;
     }
 
+    // set up STARTUPINFOEX with the pseudo console handle
+    SIZE_T attrSize = 0;
+    STARTUPINFOEXW si;
+    ZeroMemory(&si, sizeof(si));
+    si.StartupInfo.cb = sizeof(si);
+    InitializeProcThreadAttributeList(NULL, 1, 0, &attrSize);
+    si.lpAttributeList = (LPPROC_THREAD_ATTRIBUTE_LIST)HeapAlloc(GetProcessHeap(), 0, attrSize);
+    InitializeProcThreadAttributeList(si.lpAttributeList, 1, 0, &attrSize);
+    UpdateProcThreadAttribute(si.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, hPC, sizeof(hPC), NULL, NULL);
 
-    // Step 3: Set up STARTUPINFOEX with ConPTY handle
-    STARTUPINFOEXW siEx = { 0 };
-    siEx.StartupInfo.cb = sizeof(STARTUPINFOEXW);
-
-    SIZE_T attrListSize = 0;
-    InitializeProcThreadAttributeList(NULL, 1, 0, &attrListSize);
-    siEx.lpAttributeList = (LPPROC_THREAD_ATTRIBUTE_LIST)HeapAlloc(GetProcessHeap(), 0, attrListSize);
-    InitializeProcThreadAttributeList(siEx.lpAttributeList, 1, 0, &attrListSize);
-
-    UpdateProcThreadAttribute(
-        siEx.lpAttributeList,
-        0,
-        PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE,
-        hPC,
-        sizeof(HPCON),
-        NULL,
-        NULL
-    );
-
-    // Step 4: Create the child process (cmd.exe)
-    PROCESS_INFORMATION pi = { 0 };
+    // spawn cmd.exe with handle inheritance on
+    PROCESS_INFORMATION pi{};
     if (!CreateProcessW(
-        L"C:\\Windows\\System32\\cmd.exe", // or L"powershell.exe"
-        NULL, NULL, NULL, TRUE,
-        EXTENDED_STARTUPINFO_PRESENT,
-        NULL, NULL,
-        &siEx.StartupInfo, &pi)) {
-        std::cerr << "CreateProcessW failed. Error: " << GetLastError() << "\n";
+            L"C:\\Windows\\System32\\cmd.exe",
+            NULL,       // no cmdline args
+            NULL, NULL, // no extra security
+            TRUE,       // inherit handles!
+            EXTENDED_STARTUPINFO_PRESENT,
+            NULL, NULL, // inherit CWD + environment
+            &si.StartupInfo,
+            &pi))
+    {
+        std::cerr << "CreateProcessW failed: " << GetLastError() << "\n";
         return 1;
     }
-    Sleep(100);
-    const char* init = "cd\r\n"; // You can use "cd\r\n" or any other command
-    DWORD written = 0;
-    if (!WriteFile(hPipeTerminalIn, init, strlen(init), &written, NULL)) {
-        std::cerr << "WriteFile to cmd.exe failed: " << GetLastError() << "\n";
-    } else {
-        std::cout << "[+] Sent command to cmd.exe: " << init << "\n";
+
+    // we no longer need these ends in the parent
+    CloseHandle(childStdin_Read);
+    CloseHandle(childStdout_Write);
+
+    // send "dir\r\n" *into* the child’s STDIN
+    const char cmd[] = "cd\r\n";
+    DWORD written;
+    if (!WriteFile(parentStdin_Write, cmd, (DWORD)strlen(cmd), &written, NULL))
+    {
+        std::cerr << "WriteFile to child stdin failed: " << GetLastError() << "\n";
+    }
+    // close the write-end if you’re done sending commands
+    // this will cause the child to see EOF if it reads more
+    //CloseHandle(parentStdin_Write);
+
+    // read the child’s STDOUT
+    CHAR buf[256];
+    DWORD read;
+    while (ReadFile(parentStdout_Read, buf, sizeof(buf) - 1, &read, NULL) && read)
+    {
+        buf[read] = 0;
+        std::cout << buf;
     }
 
-    HANDLE hOutputThread = CreateThread(NULL, 0, [](LPVOID param) -> DWORD {
-    HANDLE hOutput = (HANDLE)param;
-    char buffer[256];
-    DWORD bytesRead;
-
-    while (true) {
-        BOOL success = ReadFile(hOutput, buffer, sizeof(buffer) - 1, &bytesRead, NULL);
-        if (!success || bytesRead == 0) {
-            std::cerr << "[!] ReadFile failed or no bytes. Exiting output thread.\n";
-            std::cerr << "bytesRead: " << bytesRead << "\n";
-            break;
-        }
-
-        buffer[bytesRead] = '\0'; // Null-terminate
-        std::cout << buffer << std::flush; // Ensure output appears immediately
-    }
-
-    return 0;
-}, hPipeTerminalOut, 0, NULL);
-
-    // Step 5.5: Read keyboard input and write to the pseudoconsole
-    HANDLE hInputThread = CreateThread(NULL, 0, [](LPVOID param) -> DWORD {
-        HANDLE hInput = (HANDLE)param;
-        DWORD written;
-        char ch;
-        while ((ch = getchar()) != EOF) {
-            WriteFile(hInput, &ch, 1, &written, NULL);
-        }
-        return 0;
-    }, hPipeTerminalIn, 0, NULL);
-    WaitForSingleObject(hOutputThread, INFINITE);
-    WaitForSingleObject(hInputThread, INFINITE);
-
-    // Step 6: Cleanup
+    // wait, clean up
+    WaitForSingleObject(pi.hProcess, INFINITE);
     ClosePseudoConsole(hPC);
-    CloseHandle(hOutputThread);
-    CloseHandle(hInputThread);
-    DeleteProcThreadAttributeList(siEx.lpAttributeList);
-    HeapFree(GetProcessHeap(), 0, siEx.lpAttributeList);
-    CloseHandle(hPipePTYIn);
-    CloseHandle(hPipePTYOut);
-    CloseHandle(hPipeTerminalIn);
-    CloseHandle(hPipeTerminalOut);
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    DeleteProcThreadAttributeList(si.lpAttributeList);
+    HeapFree(GetProcessHeap(), 0, si.lpAttributeList);
+    CloseHandle(parentStdin_Write);
+    CloseHandle(parentStdout_Read);
 
     return 0;
 }
