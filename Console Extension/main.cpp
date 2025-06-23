@@ -75,7 +75,7 @@ int main()
     }
     // close the write-end if you’re done sending commands
     // this will cause the child to see EOF if it reads more
-    //CloseHandle(parentStdin_Write);
+    CloseHandle(parentStdin_Write);
 
     // read the child’s STDOUT
     CHAR buf[256];
