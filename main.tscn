@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://cw5d886rkrgad"]
+[gd_scene load_steps=10 format=3 uid="uid://d1ed3s622lfi0"]
 
 [ext_resource type="Script" uid="uid://d3mjdab1o1wqs" path="res://scripts/main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://bctpagkgq0qgi" path="res://scripts/edit.gd" id="2_0xm2m"]
@@ -11,26 +11,26 @@ length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("../..:position")
+tracks/0/path = NodePath("../../../../OptionButton:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(0, 0)]
+"values": [Vector2(-234, 0)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../../../OptionButton:position")
+tracks/1/path = NodePath("../../..:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(-234, 0)]
+"values": [Vector2(0, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_5vw27"]
@@ -38,26 +38,26 @@ resource_name = "close_theme_select"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("../..:position")
+tracks/0/path = NodePath("../../../../OptionButton:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(3, 1),
+"transitions": PackedFloat32Array(7, 1),
 "update": 0,
-"values": [Vector2(234, 0), Vector2(0, 0)]
+"values": [Vector2(0, 0), Vector2(-234, 0)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../../../OptionButton:position")
+tracks/1/path = NodePath("../../..:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(8, 1),
+"transitions": PackedFloat32Array(5, 1),
 "update": 0,
-"values": [Vector2(0, 0), Vector2(-234, 0)]
+"values": [Vector2(234, 0), Vector2(0, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_7mycd"]
@@ -65,19 +65,19 @@ resource_name = "open_theme_select"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("../..:position")
+tracks/0/path = NodePath("../../..:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(3.5, 1),
+"transitions": PackedFloat32Array(5, 1),
 "update": 0,
 "values": [Vector2(0, 0), Vector2(234, 0)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../../../OptionButton:position")
+tracks/1/path = NodePath("../../../../OptionButton:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -133,15 +133,19 @@ layout_mode = 2
 theme_override_fonts/font = ExtResource("2_h2yge")
 theme_override_font_sizes/font_size = 30
 
-[node name="VSplitContainer" type="VSplitContainer" parent="Editor_Container"]
+[node name="VSplitContainer2" type="VSplitContainer" parent="Editor_Container"]
 layout_mode = 2
+
+[node name="VSplitContainer" type="VSplitContainer" parent="Editor_Container/VSplitContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
 split_offset = 40
 
-[node name="RichTextLabel" type="RichTextLabel" parent="Editor_Container/VSplitContainer"]
+[node name="RichTextLabel" type="RichTextLabel" parent="Editor_Container/VSplitContainer2/VSplitContainer"]
 layout_mode = 2
 theme_override_font_sizes/normal_font_size = 30
 
-[node name="Editor" type="CodeEdit" parent="Editor_Container/VSplitContainer"]
+[node name="Editor" type="CodeEdit" parent="Editor_Container/VSplitContainer2/VSplitContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -158,15 +162,20 @@ auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
 script = ExtResource("2_0xm2m")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Editor_Container/VSplitContainer/Editor"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Editor_Container/VSplitContainer2/VSplitContainer/Editor"]
 libraries = {
 &"": SubResource("AnimationLibrary_kek77")
 }
 
-[connection signal="opened_file" from="." to="Editor_Container/VSplitContainer/Editor" method="_on_control_opened_file"]
+[node name="CmdHost" type="CmdHost" parent="Editor_Container/VSplitContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 50
+
+[connection signal="opened_file" from="." to="Editor_Container/VSplitContainer2/VSplitContainer/Editor" method="_on_control_opened_file"]
 [connection signal="item_selected" from="OptionButton" to="OptionButton" method="_on_item_selected"]
-[connection signal="on_theme_change" from="OptionButton" to="Editor_Container/VSplitContainer/Editor" method="_on_option_button_on_theme_change"]
+[connection signal="on_theme_change" from="OptionButton" to="Editor_Container/VSplitContainer2/VSplitContainer/Editor" method="_on_option_button_on_theme_change"]
 [connection signal="item_clicked" from="Editor_Container/ItemList" to="." method="_on_item_list_item_clicked"]
-[connection signal="code_completion_requested" from="Editor_Container/VSplitContainer/Editor" to="Editor_Container/VSplitContainer/Editor" method="_on_code_completion_requested"]
-[connection signal="gui_input" from="Editor_Container/VSplitContainer/Editor" to="." method="_on_editor_gui_input"]
-[connection signal="text_changed" from="Editor_Container/VSplitContainer/Editor" to="Editor_Container/VSplitContainer/Editor" method="_on_text_changed"]
+[connection signal="code_completion_requested" from="Editor_Container/VSplitContainer2/VSplitContainer/Editor" to="Editor_Container/VSplitContainer2/VSplitContainer/Editor" method="_on_code_completion_requested"]
+[connection signal="gui_input" from="Editor_Container/VSplitContainer2/VSplitContainer/Editor" to="." method="_on_editor_gui_input"]
+[connection signal="text_changed" from="Editor_Container/VSplitContainer2/VSplitContainer/Editor" to="Editor_Container/VSplitContainer2/VSplitContainer/Editor" method="_on_text_changed"]

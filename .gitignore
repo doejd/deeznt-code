@@ -2,6 +2,8 @@
 /android/
 /.godot/
 /.vs/
+/console-extension/
+/Console Extension src/
 Deezn't Code.*
 rcedit-x64.exe
 *.dll
