@@ -8,7 +8,7 @@ extends Control
 @onready var cmdhost = $Editor_Container/VSplitContainer2/CmdHost
 @onready var icons = Icons.new()
 var cur_opened_file = ""
-var dir = DirAccess.open(OS.get_environment("USERPROFILE"))
+var dir = DirAccess.open(OS.get_user_data_dir())
 var cur_ind = 0
 signal opened_file(file_name)
 
