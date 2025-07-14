@@ -18,9 +18,7 @@ using namespace godot;
 
 CmdHost::CmdHost() {}
 
-CmdHost::~CmdHost() {
-    end_pseudoconsole_session();
-}
+CmdHost::~CmdHost() {}
 
 std::string to_lower(std::string input) {
     for (char &c : input) {
@@ -151,6 +149,10 @@ void CmdHost::write_to_cmd(const String &input){
     std::string utf8_input = full_input.utf8().get_data();
     if (to_lower(utf8_input) == "exit\r\n"){
         utf8_input = "echo Blocked\r\n";
+    }
+    if (to_lower(utf8_input) == "cls\r\n"){
+        utf8_input = "\r\n";
+        set_text("");
     }
     DWORD written = 0;
     BOOL success = WriteFile(

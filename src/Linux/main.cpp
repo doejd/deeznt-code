@@ -24,9 +24,7 @@ using namespace godot;
 
 CmdHost::CmdHost {}
 
-CmdHost::~CmdHost {
-    end_pseudoterminal_session();
-}
+CmdHost::~CmdHost {}
 
 String strip_ansi_sequences(const String &input) {
     std::string utf8_input = input.utf8().get_data();
