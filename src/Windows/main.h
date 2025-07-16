@@ -24,6 +24,8 @@ private:
     SIZE_T attrSize = 0;
     STARTUPINFOEXW si;
     PROCESS_INFORMATION pi{};
+    Vector<String> command_history;
+    int history_ind = -1;
     
 protected:
     static void _bind_methods();
@@ -39,6 +41,7 @@ public:
     void end_pseudoconsole_session();
     void main_loop();
     void write_to_cmd(const String &input);
+    void _replace_current_line(const String &text);
 };
 
 #endif // CMD_HOST_H

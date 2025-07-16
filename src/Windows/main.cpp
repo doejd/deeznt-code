@@ -61,6 +61,7 @@ void CmdHost::edit_text(const String &newtext){
     call_deferred("set_caret_column", last_column);
 }
 
+
 void CmdHost::start_pseudoconsole_session(){
     if(!CreatePipe(&child_stdin_read, &parent_stdin_write, &sa, 0) || 
     !CreatePipe(&parent_stdout_read, &child_stdout_write, &sa, 0)){
@@ -126,7 +127,9 @@ void CmdHost::main_loop(){
 
 void CmdHost::_gui_input(const Ref<InputEvent> &event) {
     Ref<InputEventKey> key_event = event;
-    if (key_event.is_valid() && key_event->is_pressed() && key_event->get_keycode() == Key::KEY_ENTER) {
+    if (!key_event.is_valid() || !key_event->is_pressed()) return;
+    int keycode = key_event->get_keycode();
+    if (keycode == Key::KEY_ENTER) {
         int last_line = get_line_count() - 1;
         String line_text = get_line(last_line);
         std::string utf8_line = line_text.utf8().get_data();
