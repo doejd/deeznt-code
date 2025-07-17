@@ -5,6 +5,7 @@
 
 #include "main.h"
 #include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/input.hpp>
 #include <godot_cpp/classes/input_event.hpp>
@@ -22,9 +23,9 @@
 
 using namespace godot;
 
-CmdHost::CmdHost {}
+CmdHost::CmdHost() {}
 
-CmdHost::~CmdHost {}
+CmdHost::~CmdHost() {}
 
 String strip_ansi_sequences(const String &input) {
     std::string utf8_input = input.utf8().get_data();
@@ -44,8 +45,8 @@ std::string to_lower(std::string input) {
 
 void CmdHost::_bind_methods(){
     ClassDB::bind_method(D_METHOD("edit_text", "new_text"), &CmdHost::edit_text);
-    ClassDB::bind_method(D_METHOD("start_pseudoconsole_session"), &CmdHost::start_pseudoconsole_session);
-    ClassDB::bind_method(D_METHOD("end_pseudoconsole_session"), &CmdHost::end_pseudoconsole_session);
+    ClassDB::bind_method(D_METHOD("start_pseudotermainal_session"), &CmdHost::start_pseudoterminal_session);
+    ClassDB::bind_method(D_METHOD("end_pseudoterminal_session"), &CmdHost::end_pseudoterminal_session);
     ClassDB::bind_method(D_METHOD("write_to_cmd", "input"), &CmdHost::write_to_cmd);
 }
 
@@ -60,7 +61,7 @@ void CmdHost::_exit_tree() {
 }
 
 void CmdHost::_gui_input(const Ref<InputEvent> &event) {
-    Ref<InputEvent> key_event = event;
+    Ref<InputEventKey> key_event = event;
     if (key_event.is_valid() && key_event->is_pressed() && key_event->get_keycode() == Key::KEY_ENTER){
         int last_line = get_line_count() - 1;
         String line_text = get_line(last_line);
@@ -81,8 +82,8 @@ void CmdHost::edit_text(const String &newtext) {
     set_text(get_text() + newtext);
     int last_line = get_line_count() - 1;
     int last_column = get_line(last_line).length();
-    call_defered("set_caret_line", last_line);
-    call_defered("set_caret_column", last_column);
+    call_deferred("set_caret_line", last_line);
+    call_deferred("set_caret_column", last_column);
 }
 
 void CmdHost::main_loop() {
@@ -170,7 +171,11 @@ void CmdHost::write_to_cmd(const String &input) {
     if (master_fd == -1) return;
     std::string input_str = input.utf8().get_data();
     input_str += "\n"; // Add newline to simulate Enter
-    write(master_fd, input_str.c_str(), input_str.size());
+    ssize_t result = write(master_fd, input_str.c_str(), input_str.size());
+    if (result == -1){
+    	UtilityFunctions::print("write failed");
+    }
+
 }
 
 #endif

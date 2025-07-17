@@ -5,6 +5,11 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
+#include <godot_cpp/classes/input.hpp>
+#include <godot_cpp/classes/input_event.hpp>
+#include <godot_cpp/classes/input_event_action.hpp>
+#include <godot_cpp/classes/input_event_key.hpp>
+
 
 using namespace godot;
 
