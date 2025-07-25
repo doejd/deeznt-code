@@ -130,17 +130,20 @@ void CmdHost::_gui_input(const Ref<InputEvent> &event) {
     if (!key_event.is_valid() || !key_event->is_pressed()) return;
     int keycode = key_event->get_keycode();
     if (keycode == Key::KEY_ENTER) {
-        int last_line = get_line_count() - 1;
-        String line_text = get_line(last_line);
-        std::string utf8_line = line_text.utf8().get_data();
+        std::string utf8_line = get_line(get_line_count() - 1).utf8().get_data();
         std::regex prompt_regex(R"(.*[A-Z]:\\[^>]*> ?(.*)$)");
+        std::regex secondary_regex(R"(.*>\s*(.*)$)");
         std::smatch match;
         if (std::regex_match(utf8_line, match, prompt_regex) && match.size() >= 2) {
             std::string cmd_input = match[1];
             write_to_cmd(String::utf8(cmd_input.c_str()));
         }
+        else if (std::regex_match(utf8_line, match, secondary_regex) && match.size() >= 2){
+            std::string cmd_input = match[1];
+            write_to_cmd(String::utf8(cmd_input.c_str()));
+        }
         else {
-            write_to_cmd(line_text);
+            write_to_cmd(get_line(get_line_count() - 1));
         }
     }
 }
@@ -151,7 +154,7 @@ void CmdHost::write_to_cmd(const String &input){
     String full_input = input + String("\r\n");
     std::string utf8_input = full_input.utf8().get_data();
     if (to_lower(utf8_input) == "exit\r\n"){
-        utf8_input = "echo Blocked\r\n";
+        utf8_input = "\r\n";
     }
     if (to_lower(utf8_input) == "cls\r\n"){
         utf8_input = "\r\n";
