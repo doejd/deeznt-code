@@ -10,6 +10,11 @@ extends Control
 var cur_opened_file = ""
 var dir = DirAccess.open(OS.get_user_data_dir())
 var cur_ind = 0
+var cur_ind_focus = 0
+@onready var map : Dictionary = {
+	0 : item_list,
+	1 : editor,
+	2 : cmdhost}
 signal opened_file(file_name)
 
 func get_extension(stri : String) -> String:
@@ -36,6 +41,7 @@ func _refocus_editor():
 	editor.set_caret_line(0)
 	editor.set_caret_column(0)
 	editor.set_caret_blink_enabled(true)
+	cur_ind_focus = 1
 	
 func save() -> void:
 	var file = FileAccess.open(cur_opened_file, FileAccess.WRITE)
@@ -79,6 +85,11 @@ func open() -> void:
 	get_viewport().set_input_as_handled()
 
 func _input(_event: InputEvent) -> void:
+	if Input.is_action_just_pressed("Change Focus"):
+		cur_ind_focus += 1
+		if cur_ind_focus >= 3:
+			cur_ind_focus = 0
+		map[cur_ind_focus].grab_focus()
 	if item_list.has_focus():
 		if Input.is_action_pressed("ui_up"):
 			cur_ind -= 1
@@ -93,16 +104,6 @@ func _input(_event: InputEvent) -> void:
 		item_list.ensure_current_is_visible()
 	if Input.is_action_just_pressed("save"):
 		save()
-	
-func _on_editor_gui_input(_event: InputEvent) -> void:
-	if not Input.is_action_just_pressed("ui_open"): return
-	editor.accept_event()
-
-func _on_item_list_item_clicked(index: int, _at_position: Vector2, mouse_button_index: int) -> void:
-	if index == cur_ind:
-		open()
-	if mouse_button_index == 1 and not index == cur_ind:
-		cur_ind = index
 
 func resize() -> void:
 	var win_size = DisplayServer.window_get_size()
@@ -116,3 +117,22 @@ func resize() -> void:
 	editor.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)
 	item_list.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)
 	cmdhost.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)
+
+func _on_editor_gui_input(_event: InputEvent) -> void:
+	if not Input.is_action_just_pressed("ui_open"): return
+	editor.accept_event()
+
+func _on_item_list_item_clicked(index: int, _at_position: Vector2, mouse_button_index: int) -> void:
+	if index == cur_ind:
+		open()
+	if mouse_button_index == 1 and not index == cur_ind:
+		cur_ind = index
+
+func _on_cmd_host_focus_entered() -> void:
+	cur_ind_focus = 2
+
+func _on_item_list_focus_entered() -> void:
+	cur_ind_focus = 0
+
+func _on_editor_focus_entered() -> void:
+	cur_ind_focus = 1

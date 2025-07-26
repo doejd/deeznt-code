@@ -173,7 +173,7 @@ void CmdHost::write_to_cmd(const String &input) {
     input_str += "\n"; // Add newline to simulate Enter
     ssize_t result = write(master_fd, input_str.c_str(), input_str.size());
     if (result == -1){
-    	UtilityFunctions::print("write failed");
+        UtilityFunctions::print("write failed");
     }
 
 }
