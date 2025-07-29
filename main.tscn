@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://d1ed3s622lfi0"]
+[gd_scene load_steps=13 format=3 uid="uid://d1ed3s622lfi0"]
 
 [ext_resource type="Script" uid="uid://d3mjdab1o1wqs" path="res://scripts/main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://bctpagkgq0qgi" path="res://scripts/edit.gd" id="2_0xm2m"]
@@ -7,6 +7,7 @@
 [ext_resource type="FontFile" uid="uid://cec71sm45a2b4" path="res://Font/Inconsolata-Regular.ttf" id="5_7mycd"]
 [ext_resource type="Script" uid="uid://cads53hj1d2w1" path="res://scripts/intro_window.gd" id="6_7mycd"]
 [ext_resource type="Script" uid="uid://nkw8h3awv1jx" path="res://scripts/never_show_again_button.gd" id="7_272bh"]
+[ext_resource type="Script" uid="uid://kiqlhdva7ov2" path="res://scripts/find_replace_window.gd" id="8_5vw27"]
 
 [sub_resource type="Animation" id="Animation_272bh"]
 length = 0.001
@@ -156,6 +157,7 @@ theme_override_font_sizes/font_size = 30
 emoji_menu_enabled = false
 deselect_on_focus_loss_enabled = false
 empty_selection_clipboard_enabled = false
+caret_blink = true
 highlight_current_line = true
 gutters_draw_line_numbers = true
 code_completion_enabled = true
@@ -176,6 +178,7 @@ theme_override_font_sizes/font_size = 50
 
 [node name="Intro Window" type="Window" parent="."]
 title = "Welcome to Deezn't Code"
+position = Vector2i(0, 36)
 size = Vector2i(500, 500)
 script = ExtResource("6_7mycd")
 
@@ -267,7 +270,7 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3"]
 layout_mode = 2
-text = "Find / Replace"
+text = "Search / Replace"
 
 [node name="Shortcut Item" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section3"]
 layout_mode = 2
@@ -275,7 +278,7 @@ layout_mode = 2
 [node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3/Shortcut Item"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Find"
+text = "Find / Replace"
 
 [node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3/Shortcut Item"]
 layout_mode = 2
@@ -287,7 +290,7 @@ layout_mode = 2
 [node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3/Shortcut Item2"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Replace"
+text = "Help"
 
 [node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3/Shortcut Item2"]
 layout_mode = 2
@@ -319,6 +322,37 @@ size_flags_vertical = 4
 text = "Never Show Again"
 script = ExtResource("7_272bh")
 
+[node name="Find Replace Window" type="Window" parent="."]
+title = "Find/Replace"
+position = Vector2i(600, 36)
+size = Vector2i(500, 150)
+script = ExtResource("8_5vw27")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Find Replace Window"]
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.98
+
+[node name="Find" type="VBoxContainer" parent="Find Replace Window/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Find Replace Window/VBoxContainer/Find"]
+layout_mode = 2
+text = "Find"
+
+[node name="LineEdit" type="LineEdit" parent="Find Replace Window/VBoxContainer/Find"]
+layout_mode = 2
+
+[node name="Replace" type="VBoxContainer" parent="Find Replace Window/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Find Replace Window/VBoxContainer/Replace"]
+layout_mode = 2
+text = "Replace"
+
+[node name="LineEdit2" type="LineEdit" parent="Find Replace Window/VBoxContainer/Replace"]
+layout_mode = 2
+
 [connection signal="opened_file" from="." to="Editor_Container/VSplitContainer2/VSplitContainer/Editor" method="_on_control_opened_file"]
 [connection signal="item_selected" from="OptionButton" to="OptionButton" method="_on_item_selected"]
 [connection signal="on_theme_change" from="OptionButton" to="Editor_Container/VSplitContainer2/VSplitContainer/Editor" method="_on_option_button_on_theme_change"]
@@ -331,3 +365,6 @@ script = ExtResource("7_272bh")
 [connection signal="focus_entered" from="Editor_Container/VSplitContainer2/CmdHost" to="." method="_on_cmd_host_focus_entered"]
 [connection signal="close_requested" from="Intro Window" to="Intro Window" method="_on_close_requested"]
 [connection signal="toggled" from="Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox" to="Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox" method="_on_toggled"]
+[connection signal="close_requested" from="Find Replace Window" to="Find Replace Window" method="_on_close_requested"]
+[connection signal="text_submitted" from="Find Replace Window/VBoxContainer/Find/LineEdit" to="Find Replace Window" method="_on_line_edit_text_submitted"]
+[connection signal="text_submitted" from="Find Replace Window/VBoxContainer/Replace/LineEdit2" to="Find Replace Window" method="_on_line_edit_2_text_submitted"]

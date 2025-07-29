@@ -1,4 +1,6 @@
 extends Control
+@onready var intro_wind = $"Intro Window"
+@onready var find_replace_wind = $"Find Replace Window"
 @onready var editor = $Editor_Container/VSplitContainer2/VSplitContainer/Editor
 @onready var item_list = $Editor_Container/ItemList
 @onready var label = $Editor_Container/VSplitContainer2/VSplitContainer/RichTextLabel
@@ -11,10 +13,12 @@ var cur_opened_file = ""
 var dir = DirAccess.open(OS.get_user_data_dir())
 var cur_ind = 0
 var cur_ind_focus = 0
+@onready var intro_wind_open = intro_wind.visible
+@onready var find_replace_wind_open = find_replace_wind.visible
 @onready var map : Dictionary = {
 	0 : item_list,
 	1 : editor,
-	2 : cmdhost}
+	2 : cmdhost }
 signal opened_file(file_name)
 
 func get_extension(stri : String) -> String:
@@ -104,6 +108,18 @@ func _input(_event: InputEvent) -> void:
 		item_list.ensure_current_is_visible()
 	if Input.is_action_just_pressed("save"):
 		save()
+	if Input.is_action_just_pressed("Help") and not intro_wind_open:
+		intro_wind.show()
+		intro_wind_open = true
+	elif Input.is_action_just_pressed("Help") and intro_wind_open:
+		intro_wind.hide()
+		intro_wind_open = false
+	if Input.is_action_just_pressed("Find") and not find_replace_wind_open:
+		find_replace_wind.show()
+		find_replace_wind_open = true
+	elif Input.is_action_just_pressed("Find") and find_replace_wind_open:
+		find_replace_wind.hide()
+		find_replace_wind_open = false
 
 func resize() -> void:
 	var win_size = DisplayServer.window_get_size()
