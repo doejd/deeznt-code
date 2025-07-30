@@ -340,8 +340,20 @@ layout_mode = 2
 layout_mode = 2
 text = "Find"
 
-[node name="LineEdit" type="LineEdit" parent="Find Replace Window/VBoxContainer/Find"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Find Replace Window/VBoxContainer/Find"]
 layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="Find Replace Window/VBoxContainer/Find/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Up Arrow" type="Button" parent="Find Replace Window/VBoxContainer/Find/HBoxContainer"]
+layout_mode = 2
+text = "↑"
+
+[node name="Down Arrow" type="Button" parent="Find Replace Window/VBoxContainer/Find/HBoxContainer"]
+layout_mode = 2
+text = "↓"
 
 [node name="Replace" type="VBoxContainer" parent="Find Replace Window/VBoxContainer"]
 layout_mode = 2
@@ -366,5 +378,7 @@ layout_mode = 2
 [connection signal="close_requested" from="Intro Window" to="Intro Window" method="_on_close_requested"]
 [connection signal="toggled" from="Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox" to="Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox" method="_on_toggled"]
 [connection signal="close_requested" from="Find Replace Window" to="Find Replace Window" method="_on_close_requested"]
-[connection signal="text_submitted" from="Find Replace Window/VBoxContainer/Find/LineEdit" to="Find Replace Window" method="_on_line_edit_text_submitted"]
+[connection signal="text_submitted" from="Find Replace Window/VBoxContainer/Find/HBoxContainer/LineEdit" to="Find Replace Window" method="_on_line_edit_text_submitted"]
+[connection signal="pressed" from="Find Replace Window/VBoxContainer/Find/HBoxContainer/Up Arrow" to="Find Replace Window" method="_on_up_arrow_pressed"]
+[connection signal="pressed" from="Find Replace Window/VBoxContainer/Find/HBoxContainer/Down Arrow" to="Find Replace Window" method="_on_down_arrow_pressed"]
 [connection signal="text_submitted" from="Find Replace Window/VBoxContainer/Replace/LineEdit2" to="Find Replace Window" method="_on_line_edit_2_text_submitted"]
