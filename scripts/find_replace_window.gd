@@ -1,8 +1,10 @@
 extends Window
-@onready var labels = [$VBoxContainer/Find/Label, $VBoxContainer/Replace/Label2]
+@onready var labels = [$VBoxContainer/Find/Label, $"VBoxContainer/Replace All/Label2", $"VBoxContainer/Replace selected/Label"]
 @onready var find_input = $VBoxContainer/Find/HBoxContainer/LineEdit
-@onready var replace_input = $VBoxContainer/Replace/LineEdit2
+@onready var replace_selected_input = $"VBoxContainer/Replace selected/LineEdit"
+@onready var replace_input = $"VBoxContainer/Replace All/LineEdit2"
 @onready var editor = get_node("../Editor_Container/VSplitContainer2/VSplitContainer/Editor")
+@onready var main = get_node("..")
 @onready var buttons = [$"VBoxContainer/Find/HBoxContainer/Up Arrow", $"VBoxContainer/Find/HBoxContainer/Down Arrow"]
 var all_matches = []
 var cur_selected_match = 0
@@ -13,6 +15,7 @@ func _ready() -> void:
 
 func _on_close_requested() -> void:
 	hide()
+	main.find_replace_wind_open = false
 
 func resize() -> void:
 	var screen_size = DisplayServer.window_get_size()
@@ -21,9 +24,10 @@ func resize() -> void:
 	for button in buttons:
 		button.add_theme_font_size_override("font_size", screen_size.y * 0.015)
 	add_theme_font_size_override("title_font_size", screen_size.y * 0.015)
-	size = Vector2i(screen_size.x / 4, screen_size.y / 10)
+	size = Vector2i(screen_size.x / 4, screen_size.y / 7)
 	position = (screen_size - size) / 2
 	find_input.add_theme_font_size_override("font_size", screen_size.y * 0.01)
+	replace_selected_input.add_theme_font_size_override("font_size", screen_size.y * 0.01)
 	replace_input.add_theme_font_size_override("font_size", screen_size.y * 0.01)
 
 func _on_line_edit_text_submitted(new_text: String) -> void:
@@ -41,10 +45,16 @@ func _on_line_edit_text_submitted(new_text: String) -> void:
 	editor.select(all_matches[0].x, all_matches[0].y, all_matches[0].x, all_matches[0].y + all_matches[0].z, 0)
 
 func _on_line_edit_2_text_submitted(new_text: String) -> void:
+	if find_input.get_text() == "": return 
 	var full_text = editor.get_text()
 	full_text = full_text.replace(find_input.get_text(), new_text)
 	editor.set_text(full_text)
-
+	
+func _on_line_edit3_text_submitted(new_text: String) -> void:
+	if editor.has_selection():
+		editor.delete_selection()
+		editor.insert_text_at_caret(new_text)
+	
 func _on_up_arrow_pressed() -> void:
 	if all_matches.is_empty(): return
 	cur_selected_match -= 1

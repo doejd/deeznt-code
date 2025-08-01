@@ -8,6 +8,8 @@ $"VBoxContainer/Shrotcut Section3/Label", $"VBoxContainer/Shrotcut Section3/Shor
 $"VBoxContainer/Shrotcut Section3/Shortcut Item2/Label", $"VBoxContainer/Shrotcut Section3/Shortcut Item2/Label2",
 $"VBoxContainer/Shrotcut Section3/Shortcut Item3/Label", $"VBoxContainer/Shrotcut Section3/Shortcut Item3/Label2",
 $"VBoxContainer/Never Show Again Dialog/CheckBox"]
+@onready var main = get_node("..")
+
 
 func _ready() -> void:
 	grab_focus()
@@ -33,3 +35,4 @@ func center_resize() -> void:
 
 func _on_close_requested() -> void:
 	hide()
+	main.intro_wind_open = false
