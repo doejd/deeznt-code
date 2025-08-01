@@ -9,6 +9,7 @@
 #include <godot_cpp/classes/input_event.hpp>
 #include <godot_cpp/classes/input_event_action.hpp>
 #include <godot_cpp/classes/input_event_key.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
 #include <windows.h>
 #include <thread>
 #include <string>
@@ -75,8 +76,17 @@ void CmdHost::start_pseudoconsole_session(){
     si.StartupInfo.cb = sizeof(si);
     InitializeProcThreadAttributeList(NULL, 1, 0, &attrSize);
     si.lpAttributeList = (LPPROC_THREAD_ATTRIBUTE_LIST)HeapAlloc(GetProcessHeap(), 0, attrSize);
-    InitializeProcThreadAttributeList(si.lpAttributeList, 1, 0, &attrSize);
-    UpdateProcThreadAttribute(si.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, hPC, sizeof(hPC), NULL, NULL);
+    if (!si.lpAttributeList){
+        UtilityFunctions::print("Failed to allocate memory, HeapAlloc() -> Failed"); 
+        return;
+    }
+    if (!InitializeProcThreadAttributeList(si.lpAttributeList, 1, 0, &attrSize)){
+        UtilityFunctions::print("InitializeProcThreadAttributeList() -> Failed");
+        return;
+    }
+    if(!UpdateProcThreadAttribute(si.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, hPC, sizeof(hPC), NULL, NULL)){
+        UtilityFunctions::print("UpdateProcThreadAttribute() -> Failed");
+    }
     if(!CreateProcessW(
         L"c:\\Windows\\System32\\cmd.exe",
         NULL,
@@ -87,6 +97,7 @@ void CmdHost::start_pseudoconsole_session(){
         NULL,
         &si.StartupInfo,
         &pi)){
+            UtilityFunctions::print("CreateProcessW() -> Failed");
             return;
     }
     CloseHandle(child_stdin_read);
@@ -95,6 +106,13 @@ void CmdHost::start_pseudoconsole_session(){
 
 
 void CmdHost::end_pseudoconsole_session(){
+    running = false;
+    if (reader_thread_handle) {
+    CancelSynchronousIo(reader_thread_handle);
+    CloseHandle(reader_thread_handle); // release handle
+    reader_thread_handle = nullptr;
+    }
+    if (reader_thread.joinable()) reader_thread.join();
     ClosePseudoConsole(hPC);
     CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
@@ -105,12 +123,17 @@ void CmdHost::end_pseudoconsole_session(){
 }
 
 void CmdHost::main_loop(){
-    std::thread reader_thread([this]() {
+    running = true;
+    reader_thread = std::thread([this]() {
         CHAR buf[256];
         DWORD read;
-        while (true) {
+        while (running) {
             BOOL success = ReadFile(parent_stdout_read, buf, sizeof(buf) - 1, &read, NULL);
             if (!success || read == 0) {
+                if (!running){
+                    UtilityFunctions::print("ReadFile returned, shutting down reader thread...");
+                    break;
+                    }
                 std::this_thread::sleep_for(std::chrono::milliseconds(10)); // prevent CPU spin
                 continue;
             }
@@ -120,8 +143,7 @@ void CmdHost::main_loop(){
             call_deferred("edit_text", clean_out);
         }
     });
-
-    reader_thread.detach();
+    reader_thread_handle = OpenThread(THREAD_ALL_ACCESS, FALSE, GetThreadId(static_cast<HANDLE>(reader_thread.native_handle())));
 }
 
 
@@ -169,6 +191,7 @@ void CmdHost::write_to_cmd(const String &input){
         NULL
     );
     if (!success) {
-    DWORD err = GetLastError();
+        UtilityFunctions::print("WriteFile() -> Failed");
+        return;
     }
 }

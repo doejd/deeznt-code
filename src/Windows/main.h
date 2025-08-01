@@ -9,6 +9,8 @@
 #include <godot_cpp/classes/input_event_action.hpp>
 #include <godot_cpp/classes/input_event_key.hpp>
 #include <windows.h>
+#include <atomic>
+#include <thread>
 
 using namespace godot;
 
@@ -19,11 +21,14 @@ private:
     SECURITY_ATTRIBUTES sa{};
     HANDLE child_stdin_read, parent_stdin_write;
     HANDLE parent_stdout_read, child_stdout_write;
+    HANDLE reader_thread_handle = nullptr;
     HPCON hPC;
     COORD size{80, 25};
     SIZE_T attrSize = 0;
     STARTUPINFOEXW si;
     PROCESS_INFORMATION pi{};
+    std::thread reader_thread;
+    std::atomic<bool> running = false;
     
 protected:
     static void _bind_methods();
