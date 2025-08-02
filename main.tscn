@@ -260,7 +260,31 @@ text = "Change Focus"
 
 [node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item"]
 layout_mode = 2
-text = "Shift + Tab"
+text = "Shift + Escape"
+
+[node name="Shortcut Item2" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section2"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Multiple cursors"
+
+[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item2"]
+layout_mode = 2
+text = "Ctrl + Shift + Arrow Keys"
+
+[node name="Shortcut Item3" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section2"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item3"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Change Theme"
+
+[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item3"]
+layout_mode = 2
+text = "Ctrl + T"
 
 [node name="HSeparator3" type="HSeparator" parent="Intro Window/VBoxContainer"]
 layout_mode = 2
@@ -296,18 +320,6 @@ text = "Help"
 layout_mode = 2
 text = "Ctrl + H"
 
-[node name="Shortcut Item3" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section3"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3/Shortcut Item3"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Change Theme"
-
-[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3/Shortcut Item3"]
-layout_mode = 2
-text = "Ctrl + T"
-
 [node name="HSeparator4" type="HSeparator" parent="Intro Window/VBoxContainer"]
 layout_mode = 2
 
@@ -326,6 +338,7 @@ script = ExtResource("7_272bh")
 title = "Find/Replace"
 position = Vector2i(376, 250)
 size = Vector2i(500, 200)
+visible = false
 script = ExtResource("8_5vw27")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Find Replace Window"]

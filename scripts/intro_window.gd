@@ -4,9 +4,10 @@ $"VBoxContainer/Shrotcut Section/Shortcut Item/Label", $"VBoxContainer/Shrotcut 
 $"VBoxContainer/Shrotcut Section/Shortcut Item2/Label", $"VBoxContainer/Shrotcut Section/Shortcut Item2/Label2", 
 $"VBoxContainer/Shrotcut Section/Shortcut Item3/Label", $"VBoxContainer/Shrotcut Section/Shortcut Item3/Label2",
 $"VBoxContainer/Shrotcut Section2/Label", $"VBoxContainer/Shrotcut Section2/Shortcut Item/Label", $"VBoxContainer/Shrotcut Section2/Shortcut Item/Label2",
+$"VBoxContainer/Shrotcut Section2/Shortcut Item2/Label", $"VBoxContainer/Shrotcut Section2/Shortcut Item2/Label2", 
+$"VBoxContainer/Shrotcut Section2/Shortcut Item3/Label", $"VBoxContainer/Shrotcut Section2/Shortcut Item3/Label2",
 $"VBoxContainer/Shrotcut Section3/Label", $"VBoxContainer/Shrotcut Section3/Shortcut Item/Label", $"VBoxContainer/Shrotcut Section3/Shortcut Item/Label2",
 $"VBoxContainer/Shrotcut Section3/Shortcut Item2/Label", $"VBoxContainer/Shrotcut Section3/Shortcut Item2/Label2",
-$"VBoxContainer/Shrotcut Section3/Shortcut Item3/Label", $"VBoxContainer/Shrotcut Section3/Shortcut Item3/Label2",
 $"VBoxContainer/Never Show Again Dialog/CheckBox"]
 @onready var main = get_node("..")
 
