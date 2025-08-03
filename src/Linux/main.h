@@ -30,7 +30,7 @@ public:
     void end_pseudoterminal_session();
     void _gui_input(const Ref<InputEvent> &event);
     void edit_text(const String &newtext);
-    void write_to_trminal(const String &input);
+    void write_to_terminal(const String &input);
 };
 
 #endif // CMD_HOST_H

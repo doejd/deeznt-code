@@ -70,10 +70,10 @@ void CmdHost::_gui_input(const Ref<InputEvent> &event) {
         std::smatch match;
         if (std::regex_match(utf8_line, match, prompt_regex) && match.size() >= 2){
             std::string cmd_input = match[1];
-            write_to_cmd(String::utf8(cmd_input.c_str()));
+            write_to_terminal(String::utf8(cmd_input.c_str()));
         }
         else {
-            write_to_cmd(line_text);
+            write_to_terminal(line_text);
         }
     }
 }
@@ -102,7 +102,7 @@ void CmdHost::main_loop() {
             String output = String::utf8(buffer);
             output = strip_ansi_sequences(output);
             call_deferred("edit_text", output);
-        } else if (n == -1 && running)
+        } else if (n == -1 && running){
             UtilityFunctions::print("read failed");
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         } else {
