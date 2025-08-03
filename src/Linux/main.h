@@ -4,6 +4,7 @@
 #include <godot_cpp/classes/text_edit.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <thread>
+#include <atomic>
 
 using namespace godot;
 
@@ -14,7 +15,7 @@ private:
     int master_fd = -1;
     pid_t child_pid = -1;
     std::thread reader_thread;
-    bool running = false;
+    std::atomic<bool> running = false;
     
 protected:
     static void _bind_methods();
@@ -29,7 +30,7 @@ public:
     void end_pseudoterminal_session();
     void _gui_input(const Ref<InputEvent> &event);
     void edit_text(const String &newtext);
-    void write_to_cmd(const String &input);
+    void write_to_trminal(const String &input);
 };
 
 #endif // CMD_HOST_H

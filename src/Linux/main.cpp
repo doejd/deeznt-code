@@ -47,7 +47,7 @@ void CmdHost::_bind_methods(){
     ClassDB::bind_method(D_METHOD("edit_text", "new_text"), &CmdHost::edit_text);
     ClassDB::bind_method(D_METHOD("start_pseudotermainal_session"), &CmdHost::start_pseudoterminal_session);
     ClassDB::bind_method(D_METHOD("end_pseudoterminal_session"), &CmdHost::end_pseudoterminal_session);
-    ClassDB::bind_method(D_METHOD("write_to_cmd", "input"), &CmdHost::write_to_cmd);
+    ClassDB::bind_method(D_METHOD("write_to_terminal", "input"), &CmdHost::write_to_terminal);
 }
 
 void CmdHost::_ready() {
@@ -89,14 +89,22 @@ void CmdHost::edit_text(const String &newtext) {
 void CmdHost::main_loop() {
     const int buffer_size = 1024;
     char buffer[buffer_size];
-
     while (running) {
+        int status;
+        if (child_pid > 0 && waitpid(child_pid, &status, WNOHANG) > 0) {
+            UtilityFunctions::print("Shell process exited unexpectedly");
+            running = false;
+            break;
+        }
         ssize_t n = read(master_fd, buffer, buffer_size - 1);
         if (n > 0) {
             buffer[n] = '\0';
             String output = String::utf8(buffer);
             output = strip_ansi_sequences(output);
             call_deferred("edit_text", output);
+        } else if (n == -1 && running)
+            UtilityFunctions::print("read failed");
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
@@ -112,12 +120,12 @@ void CmdHost::start_pseudoterminal_session() {
     winsz.ws_row = 24;
     winsz.ws_col = 80;
     if (openpty(&master_fd, &slave_fd, nullptr, &termios_p, &winsz) == -1) {
-        perror("openpty failed");
+        UtilityFunctions::print("openpty failed");
         return;
     }
     child_pid = fork();
     if (child_pid == -1) {
-        perror("fork failed");
+        UtilityFunctions::print("fork failed");
         close(master_fd);
         close(slave_fd);
         return;
@@ -135,7 +143,8 @@ void CmdHost::start_pseudoterminal_session() {
             close(slave_fd);
 
         execlp("bash", "bash", nullptr); // or zsh/fish
-        perror("execlp failed");
+        execlp("sh", "sh", nullptr);
+        UtilityFunctions::print("execlp failed");
         _exit(1);
     }
 
@@ -167,7 +176,7 @@ void CmdHost::end_pseudoterminal_session() {
 }
 
 
-void CmdHost::write_to_cmd(const String &input) {
+void CmdHost::write_to_terminal(const String &input) {
     if (master_fd == -1) return;
     std::string input_str = input.utf8().get_data();
     input_str += "\n"; // Add newline to simulate Enter
