@@ -144,9 +144,8 @@ layout_mode = 2
 size_flags_vertical = 3
 split_offset = 40
 
-[node name="RichTextLabel" type="RichTextLabel" parent="Editor_Container/VSplitContainer2/VSplitContainer"]
+[node name="Label" type="Label" parent="Editor_Container/VSplitContainer2/VSplitContainer"]
 layout_mode = 2
-theme_override_font_sizes/normal_font_size = 30
 
 [node name="Editor" type="CodeEdit" parent="Editor_Container/VSplitContainer2/VSplitContainer"]
 layout_mode = 2

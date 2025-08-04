@@ -3,7 +3,7 @@ extends Control
 @onready var find_replace_wind = $"Find Replace Window"
 @onready var editor = $Editor_Container/VSplitContainer2/VSplitContainer/Editor
 @onready var item_list = $Editor_Container/ItemList
-@onready var label = $Editor_Container/VSplitContainer2/VSplitContainer/RichTextLabel
+@onready var label = $Editor_Container/VSplitContainer2/VSplitContainer/Label
 @onready var H_container = $Editor_Container
 @onready var V_container = $Editor_Container/VSplitContainer2/VSplitContainer
 @onready var V_container2 = $Editor_Container/VSplitContainer2
@@ -129,7 +129,7 @@ func resize() -> void:
 	H_container.split_offset = win_size.y * left_side_spacing
 	V_container.split_offset = win_size.x * label_spacing
 	V_container2.split_offset = win_size.x * console_spacing
-	label.add_theme_font_size_override("normal_font_size", win_size.y * label_spacing * 1.5)
+	label.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)
 	editor.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)
 	item_list.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)
 	cmdhost.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)

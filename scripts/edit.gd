@@ -1,6 +1,6 @@
 extends CodeEdit
 @onready var animation_player = $AnimationPlayer
-@onready var label = get_node("../RichTextLabel")
+@onready var label = get_node("../Label")
 var function = preload("res://Images/function.png")
 var variable = preload("res://Images/variable.png")
 var import = preload("res://Images/import.png")
