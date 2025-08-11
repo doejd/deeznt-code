@@ -55,11 +55,12 @@ func save() -> void:
 		file.close()
 		
 func _ready() -> void:
-	diplay_items(get_dir_contents())
+	display_items(get_dir_contents())
 	item_list.select(cur_ind)
 	get_tree().root.size_changed.connect(resize)
+	get_tree().root.focus_entered.connect(update)
 
-func diplay_items(items: Array) -> void:
+func display_items(items: Array) -> void:
 	item_list.clear()
 	item_list.add_item("..")
 	for item in items:
@@ -75,7 +76,7 @@ func open() -> void:
 	if DirAccess.open(full_path):
 		cur_ind = 0
 		dir.change_dir(selected_name)
-		diplay_items(get_dir_contents())
+		display_items(get_dir_contents())
 	else:
 		save()
 		var file = FileAccess.open(full_path, FileAccess.READ)
@@ -83,9 +84,11 @@ func open() -> void:
 			editor.text = file.get_as_text()
 			editor.set_up_extensions(get_extension(selected_name))
 			cur_opened_file = str(full_path)
-		file.close()
-		call_deferred("_refocus_editor")
-		opened_file.emit(selected_name)
+			file.close()
+			call_deferred("_refocus_editor")
+			opened_file.emit(selected_name)
+		else:
+			dir = DirAccess.open(OS.get_user_data_dir())
 	get_viewport().set_input_as_handled()
 
 func _input(_event: InputEvent) -> void:
@@ -121,6 +124,14 @@ func _input(_event: InputEvent) -> void:
 		find_replace_wind.hide()
 		find_replace_wind_open = false
 
+func update() -> void:
+	display_items(get_dir_contents())
+	var file = FileAccess.open(cur_opened_file, FileAccess.READ)
+	if file:
+		editor.text = file.get_as_text()
+		file.close()
+	call_deferred("_refocus_editor")
+
 func resize() -> void:
 	var win_size = DisplayServer.window_get_size()
 	var left_side_spacing = 0.25
@@ -144,11 +155,11 @@ func _on_item_list_item_clicked(index: int, _at_position: Vector2, mouse_button_
 	if mouse_button_index == 1 and not index == cur_ind:
 		cur_ind = index
 
-func _on_cmd_host_focus_entered() -> void:
-	cur_ind_focus = 2
-
 func _on_item_list_focus_entered() -> void:
 	cur_ind_focus = 0
 
 func _on_editor_focus_entered() -> void:
 	cur_ind_focus = 1
+
+func _on_cmd_host_focus_entered() -> void:
+	cur_ind_focus = 2
