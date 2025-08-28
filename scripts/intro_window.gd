@@ -15,13 +15,14 @@ $"VBoxContainer/Never Show Again Dialog/CheckBox"]
 func _ready() -> void:
 	grab_focus()
 	get_tree().root.size_changed.connect(center_resize)
-	var cfg = ConfigFile.new()
-	var path = "user://Preferance Data/save_data.cfg"
-	var err = cfg.load(path)
-	if err != OK: 
-		print("Failed to load file %s" % err)
-		return
-	var show_ = cfg.get_value("preferences", "show", true)
+	var file = FileAccess.open("user://Preferance Data/save_data.json", FileAccess.READ)
+	var show_ = true
+	if file:
+		var content := file.get_as_text()
+		var result : Dictionary = JSON.parse_string(content)
+		if result is Dictionary and result.has("show"):
+			show_ = result["show"]
+		file.close()
 	if not show_:
 		hide()
 	
