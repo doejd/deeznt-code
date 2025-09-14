@@ -136,18 +136,18 @@ layout_mode = 2
 theme_override_fonts/font = ExtResource("2_h2yge")
 theme_override_font_sizes/font_size = 30
 
-[node name="VSplitContainer2" type="VSplitContainer" parent="Editor_Container"]
+[node name="VSplitContainer" type="VSplitContainer" parent="Editor_Container"]
 layout_mode = 2
 
-[node name="VSplitContainer" type="VSplitContainer" parent="Editor_Container/VSplitContainer2"]
+[node name="VSplitContainer" type="VSplitContainer" parent="Editor_Container/VSplitContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 split_offset = 40
 
-[node name="Label" type="Label" parent="Editor_Container/VSplitContainer2/VSplitContainer"]
+[node name="Label" type="Label" parent="Editor_Container/VSplitContainer/VSplitContainer"]
 layout_mode = 2
 
-[node name="Editor" type="CodeEdit" parent="Editor_Container/VSplitContainer2/VSplitContainer"]
+[node name="Editor" type="CodeEdit" parent="Editor_Container/VSplitContainer/VSplitContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -165,15 +165,31 @@ auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
 script = ExtResource("2_0xm2m")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Editor_Container/VSplitContainer2/VSplitContainer/Editor"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Editor_Container/VSplitContainer/VSplitContainer/Editor"]
 libraries = {
 &"": SubResource("AnimationLibrary_kek77")
 }
 
-[node name="CmdHost" type="CmdHost" parent="Editor_Container/VSplitContainer2"]
+[node name="Control" type="Control" parent="Editor_Container/VSplitContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 50
+
+[node name="ColorRect" type="ColorRect" parent="Editor_Container/VSplitContainer/Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.176471, 0.176471, 0.176471, 1)
+
+[node name="PwshHost" type="PwshHost" parent="Editor_Container/VSplitContainer/Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="Intro Window" type="Window" parent="."]
 title = "Welcome to Deezn't Code"
@@ -388,16 +404,15 @@ text = "Replace All"
 [node name="LineEdit2" type="LineEdit" parent="Find Replace Window/VBoxContainer/Replace All"]
 layout_mode = 2
 
-[connection signal="opened_file" from="." to="Editor_Container/VSplitContainer2/VSplitContainer/Editor" method="_on_control_opened_file"]
+[connection signal="opened_file" from="." to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_control_opened_file"]
 [connection signal="item_selected" from="OptionButton" to="OptionButton" method="_on_item_selected"]
-[connection signal="on_theme_change" from="OptionButton" to="Editor_Container/VSplitContainer2/VSplitContainer/Editor" method="_on_option_button_on_theme_change"]
+[connection signal="on_theme_change" from="OptionButton" to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_option_button_on_theme_change"]
 [connection signal="focus_entered" from="Editor_Container/ItemList" to="." method="_on_item_list_focus_entered"]
 [connection signal="item_clicked" from="Editor_Container/ItemList" to="." method="_on_item_list_item_clicked"]
-[connection signal="code_completion_requested" from="Editor_Container/VSplitContainer2/VSplitContainer/Editor" to="Editor_Container/VSplitContainer2/VSplitContainer/Editor" method="_on_code_completion_requested"]
-[connection signal="focus_entered" from="Editor_Container/VSplitContainer2/VSplitContainer/Editor" to="." method="_on_editor_focus_entered"]
-[connection signal="gui_input" from="Editor_Container/VSplitContainer2/VSplitContainer/Editor" to="." method="_on_editor_gui_input"]
-[connection signal="text_changed" from="Editor_Container/VSplitContainer2/VSplitContainer/Editor" to="Editor_Container/VSplitContainer2/VSplitContainer/Editor" method="_on_text_changed"]
-[connection signal="focus_entered" from="Editor_Container/VSplitContainer2/CmdHost" to="." method="_on_cmd_host_focus_entered"]
+[connection signal="code_completion_requested" from="Editor_Container/VSplitContainer/VSplitContainer/Editor" to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_code_completion_requested"]
+[connection signal="focus_entered" from="Editor_Container/VSplitContainer/VSplitContainer/Editor" to="." method="_on_editor_focus_entered"]
+[connection signal="gui_input" from="Editor_Container/VSplitContainer/VSplitContainer/Editor" to="." method="_on_editor_gui_input"]
+[connection signal="text_changed" from="Editor_Container/VSplitContainer/VSplitContainer/Editor" to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_text_changed"]
 [connection signal="close_requested" from="Intro Window" to="Intro Window" method="_on_close_requested"]
 [connection signal="toggled" from="Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox" to="Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox" method="_on_toggled"]
 [connection signal="close_requested" from="Find Replace Window" to="Find Replace Window" method="_on_close_requested"]

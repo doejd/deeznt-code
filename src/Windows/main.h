@@ -34,8 +34,6 @@ protected:
     static void _bind_methods();
 
 public:
-    CmdHost();
-    ~CmdHost();
     virtual void _ready();
     virtual void _exit_tree();
     void _gui_input(const Ref<InputEvent> &event);

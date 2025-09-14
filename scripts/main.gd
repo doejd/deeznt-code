@@ -1,24 +1,25 @@
 extends Control
 @onready var intro_wind = $"Intro Window"
 @onready var find_replace_wind = $"Find Replace Window"
-@onready var editor = $Editor_Container/VSplitContainer2/VSplitContainer/Editor
+@onready var editor = $Editor_Container/VSplitContainer/VSplitContainer/Editor
 @onready var item_list = $Editor_Container/ItemList
-@onready var label = $Editor_Container/VSplitContainer2/VSplitContainer/Label
+@onready var label = $Editor_Container/VSplitContainer/VSplitContainer/Label
 @onready var H_container = $Editor_Container
-@onready var V_container = $Editor_Container/VSplitContainer2/VSplitContainer
-@onready var V_container2 = $Editor_Container/VSplitContainer2
-@onready var cmdhost = $Editor_Container/VSplitContainer2/CmdHost
+@onready var V_container = $Editor_Container/VSplitContainer/VSplitContainer
+@onready var V_container2 = $Editor_Container/VSplitContainer
+@onready var terminal = $Editor_Container/VSplitContainer/Control/PwshHost
 @onready var icons = Icons.new()
 var cur_opened_file = ""
 var dir = DirAccess.open(OS.get_user_data_dir())
 var cur_ind = 0
 var cur_ind_focus = 0
+var save_file_path = "user://Preferance Data/save_data.cfg"
 @onready var intro_wind_open = intro_wind.visible
 @onready var find_replace_wind_open = find_replace_wind.visible
 @onready var map : Dictionary = {
 	0 : item_list,
 	1 : editor,
-	2 : cmdhost }
+	2 : terminal }
 signal opened_file(file_name)
 
 func get_extension(stri : String) -> String:
@@ -55,11 +56,12 @@ func save() -> void:
 		file.close()
 		
 func _ready() -> void:
-	diplay_items(get_dir_contents())
+	display_items(get_dir_contents())
 	item_list.select(cur_ind)
 	get_tree().root.size_changed.connect(resize)
+	get_tree().root.focus_entered.connect(update)
 
-func diplay_items(items: Array) -> void:
+func display_items(items: Array) -> void:
 	item_list.clear()
 	item_list.add_item("..")
 	for item in items:
@@ -75,7 +77,7 @@ func open() -> void:
 	if DirAccess.open(full_path):
 		cur_ind = 0
 		dir.change_dir(selected_name)
-		diplay_items(get_dir_contents())
+		display_items(get_dir_contents())
 	else:
 		save()
 		var file = FileAccess.open(full_path, FileAccess.READ)
@@ -83,16 +85,18 @@ func open() -> void:
 			editor.text = file.get_as_text()
 			editor.set_up_extensions(get_extension(selected_name))
 			cur_opened_file = str(full_path)
-		file.close()
-		call_deferred("_refocus_editor")
-		opened_file.emit(selected_name)
+			editor.clear_undo_history()
+			file.close()
+			call_deferred("_refocus_editor")
+			opened_file.emit(selected_name)
+		else:
+			dir = DirAccess.open(OS.get_user_data_dir())
 	get_viewport().set_input_as_handled()
 
 func _input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("Change Focus"):
 		cur_ind_focus += 1
-		if cur_ind_focus >= 3:
-			cur_ind_focus = 0
+		if cur_ind_focus >= 3: cur_ind_focus = 0
 		map[cur_ind_focus].grab_focus()
 	if item_list.has_focus():
 		if Input.is_action_pressed("ui_up"):
@@ -121,6 +125,9 @@ func _input(_event: InputEvent) -> void:
 		find_replace_wind.hide()
 		find_replace_wind_open = false
 
+func update() -> void:
+	display_items(get_dir_contents())
+	
 func resize() -> void:
 	var win_size = DisplayServer.window_get_size()
 	var left_side_spacing = 0.25
@@ -132,7 +139,7 @@ func resize() -> void:
 	label.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)
 	editor.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)
 	item_list.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)
-	cmdhost.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)
+	terminal.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)
 
 func _on_editor_gui_input(_event: InputEvent) -> void:
 	if not Input.is_action_just_pressed("ui_open"): return
@@ -144,11 +151,11 @@ func _on_item_list_item_clicked(index: int, _at_position: Vector2, mouse_button_
 	if mouse_button_index == 1 and not index == cur_ind:
 		cur_ind = index
 
-func _on_cmd_host_focus_entered() -> void:
-	cur_ind_focus = 2
-
 func _on_item_list_focus_entered() -> void:
 	cur_ind_focus = 0
 
 func _on_editor_focus_entered() -> void:
 	cur_ind_focus = 1
+
+func _on_cmd_host_focus_entered() -> void:
+	cur_ind_focus = 2

@@ -17,10 +17,6 @@
 #include <cctype>
 using namespace godot;
 
-CmdHost::CmdHost() {}
-
-CmdHost::~CmdHost() {}
-
 std::string to_lower(std::string input) {
     for (char &c : input) {
         c = std::tolower(static_cast<unsigned char>(c));

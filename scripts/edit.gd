@@ -1,6 +1,7 @@
 extends CodeEdit
 @onready var animation_player = $AnimationPlayer
 @onready var label = get_node("../Label")
+@onready var main = get_node("../../../..")
 var function = preload("res://Images/function.png")
 var variable = preload("res://Images/variable.png")
 var import = preload("res://Images/import.png")
@@ -114,7 +115,15 @@ func setup_theme():
 	add_theme_color_override("caret_color", GUI.caret_color)
 	
 func _ready() -> void:
-	setup_cur_theme("Github Dark")
+	var dir : DirAccess = DirAccess.open("user://")
+	if not dir.dir_exists("Preferance Data"):
+		dir.make_dir("Preferance Data")
+	var cfg = ConfigFile.new()
+	var err = cfg.load(main.save_file_path)
+	if err != OK:
+		print("Failed to load file: %s" % err)
+	setup_cur_theme(cfg.get_value("preferences", "theme", "Github Dark"))
+	setup_highlighter()
 
 func _input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("theme_switch") and not open_theme_select:
@@ -125,6 +134,12 @@ func _input(_event: InputEvent) -> void:
 		open_theme_select = false
 
 func _on_option_button_on_theme_change(cur_theme: Variant) -> void:
+	var cfg = ConfigFile.new()
+	var err = cfg.load(main.save_file_path)
+	if err != OK:
+		print("Failed to load file: %s" % err)
+	cfg.set_value("preferences", "theme", cur_theme)
+	cfg.save(main.save_file_path)
 	setup_cur_theme(cur_theme)
 	setup_highlighter()
 	

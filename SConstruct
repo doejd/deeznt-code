@@ -13,8 +13,8 @@ env = SConscript("godot-cpp/SConstruct")
 # - LINKFLAGS are for linking flags
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
-env.Append(CPPPATH=["src/Windows"])
-sources = Glob("src/Windows/*.cpp")
+env.Append(CPPPATH=["src/Windows-new-version"])
+sources = Glob("src/Windows-new-version/*.cpp")
 
 if env["platform"] == "macos":
     library = env.SharedLibrary(
@@ -36,7 +36,7 @@ elif env["platform"] == "ios":
         )
 else:
     library = env.SharedLibrary(
-        "bin/cmdhost{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
+        "bin/PwshHost{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
         source=sources,
     )
 
