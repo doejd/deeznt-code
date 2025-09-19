@@ -83,7 +83,7 @@ void PwshHost::_bind_methods(){
 void PwshHost::parse_ansi_and_append(const String &raw_text){
     std::string s = raw_text.utf8().get_data();
     
-    std::regex ansi_regex(R"(\x1b\[([0-9;]*)([A-Za-z]))");
+    std::regex ansi_regex(R"(\x1b\[([0-9;?]*)([@-~]))");
     std::sregex_iterator iter(s.begin(), s.end(), ansi_regex);
     std::sregex_iterator end;
     
@@ -124,18 +124,15 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
                 else if (code >= 30 && code <= 37) {cur_color = ansi_to_color(code);}
                 else if (code >= 90 && code <= 97) {cur_color = ansi_to_color(code);}
                 else if (code == 38) {
-                    // extended color mode
                     std::string next;
                     if (std::getline(ss, next, ';')) {
                         int mode = std::stoi(next);
                         if (mode == 5) {
-                            // 256-color
                             if (std::getline(ss, next, ';')) {
                                 int idx = std::stoi(next);
                                 cur_color = ansi_256_to_color(idx);
                             }
                         } else if (mode == 2) {
-                            // Truecolor: r;g;b
                             int r, g, b;
                             if (std::getline(ss, next, ';')) r = std::stoi(next);
                             if (std::getline(ss, next, ';')) g = std::stoi(next);
@@ -145,6 +142,10 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
                     }
                 }
             }
+        }
+        else if (command == 'J') lines.clear();
+        else if (command == 'K') {
+            if (!lines.is_empty()) lines.write[lines.size() - 1].clear();
         }
         last_pos = match_pos + match.length();
         ++iter;
@@ -193,12 +194,12 @@ void PwshHost::_draw(){
     if (!font.is_valid()) return;
     float y = 0.0f;
     Vector2 win_size = Vector2(DisplayServer::get_singleton()->window_get_size());
-    float font_size = std::min(win_size.x, win_size.y) * 0.015f; 
+    float font_size = std::min(win_size.x, win_size.y) * 0.015f;
     for(auto &line : lines){
         float x = 0.0f;
         for(auto &seg : line){
             font->draw_string(get_canvas_item(), Vector2(x, y + font->get_ascent(font_size)), seg.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, seg.color);
-            x += font->get_string_size(seg.text).x;
+            x += font->get_string_size(seg.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x;
         }
         y += font->get_height(font_size);
     }
@@ -207,7 +208,7 @@ void PwshHost::_draw(){
     float cursor_x = font->get_string_size(current_input, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x;
     float top_y = input_pos.y - font->get_ascent(font_size);
     float bottom_y = top_y + font->get_height(font_size);
-    draw_line(Vector2(cursor_x, top_y), Vector2(cursor_x, bottom_y), Color(1, 1, 1), 2.0f);
+    if (has_focus()) draw_line(Vector2(cursor_x, top_y), Vector2(cursor_x, bottom_y), Color(1, 1, 1), 2.0f);
 }
 
 void PwshHost::_gui_input(const Ref<InputEvent> &event) {

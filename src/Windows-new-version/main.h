@@ -43,6 +43,8 @@ private:
     Vector<String> history;
     int hist_ind = -1;
     String current_input;
+    size_t cursor_x = 0;
+    size_t cursor_y = 0;
     
 protected:
     static void _bind_methods();
