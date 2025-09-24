@@ -24,6 +24,7 @@
 #include <cctype>
 #include <sstream>
 #include <algorithm>
+#include <chrono>
 using namespace godot;
 
 std::string to_lower(std::string input) {
@@ -75,6 +76,7 @@ Color ansi_256_to_color(int n) {
     }
     return Color(1,1,1);
 }
+
 
 void PwshHost::_bind_methods(){
     ClassDB::bind_method(D_METHOD("append_ansi_text", "text"), &PwshHost::append_ansi_text);
@@ -152,9 +154,9 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
     }
     if (last_pos < s.length()){
         std::string text = s.substr(last_pos);
-        Segment seg{String(text.c_str()), cur_color, bold, underline};
+        Segment seg{String(text.c_str()), cur_color, bold, underline}; 
         line.push_back(seg);
-    }
+}
     
     lines.push_back(line);
 }
@@ -181,14 +183,20 @@ bool PwshHost::find_pwsh(std::wstring &path_out) {
 
 void PwshHost::_ready(){
     font = get_theme_default_font();
+    set_focus_mode(FOCUS_ALL);
     start_pseudoconsole_session();
     main_loop();
-    set_focus_mode(FOCUS_ALL);
 }
 
 void PwshHost::_exit_tree(){
     end_pseudoconsole_session();
 }
+
+void PwshHost::_process(double delta){
+    cursor.blink(delta * 1000.0);
+    queue_redraw();
+}
+
 
 void PwshHost::_draw(){
     if (!font.is_valid()) return;
@@ -205,33 +213,57 @@ void PwshHost::_draw(){
     }
     Vector2 input_pos(0, y + font->get_ascent(font_size));
     font->draw_string(get_canvas_item(), input_pos, current_input, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color(1, 1, 1));
-    float cursor_x = font->get_string_size(current_input, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x;
+
+    cursor.clamp(current_input.length());
+    String before_cursor = current_input.left(cursor.col);
+    float cursor_x = font->get_string_size(before_cursor, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x;
     float top_y = input_pos.y - font->get_ascent(font_size);
     float bottom_y = top_y + font->get_height(font_size);
-    if (has_focus()) draw_line(Vector2(cursor_x, top_y), Vector2(cursor_x, bottom_y), Color(1, 1, 1), 2.0f);
+
+    if (has_focus() && cursor.visible) draw_line(Vector2(cursor_x, top_y), Vector2(cursor_x, bottom_y), Color(1,1,1), 2.0f);
 }
 
 void PwshHost::_gui_input(const Ref<InputEvent> &event) {
     Ref<InputEventKey> key_event = event;
     if (!(key_event.is_valid() && key_event->is_pressed())) return;
-    if (key_event->get_keycode() == Key::KEY_ENTER) {
+
+    cursor.clamp(current_input.length());
+
+    int keycode = key_event->get_keycode();
+    if (keycode == Key::KEY_ENTER) {
         history.push_back(current_input);
         hist_ind = history.size();
         write_to_cmd(current_input);
         current_input = "";
-    }
-    else if (key_event->get_keycode() == Key::KEY_BACKSPACE) {
-        if (current_input.is_empty()) return;
-        current_input = current_input.left(current_input.length() - 1);
+        cursor.reset();
         queue_redraw();
     }
-    else if (key_event->get_keycode() == Key::KEY_UP){
+    else if (keycode == Key::KEY_BACKSPACE) {
+        if (!(cursor.col > 0)) return;
+        current_input = current_input.left(cursor.col - 1) + current_input.substr(cursor.col);
+        cursor.move_left();
+        queue_redraw();
+    }
+    else if (keycode == Key::KEY_DELETE) {
+        if (!(cursor.col < current_input.length())) return;
+        current_input = current_input.left(cursor.col) + current_input.substr(cursor.col + 1);
+        queue_redraw();
+    }
+    else if (keycode == Key::KEY_LEFT) {
+        cursor.move_left();
+        queue_redraw();
+    }
+    else if (keycode == Key::KEY_RIGHT) {
+        cursor.move_right(current_input.length());
+        queue_redraw();
+    }
+    else if (keycode == Key::KEY_UP){
         if (!(hist_ind > 0)) return;
         hist_ind--;
         current_input = history[hist_ind];
         queue_redraw();
     }
-    else if (key_event->get_keycode() == Key::KEY_DOWN){
+    else if (keycode == Key::KEY_DOWN){
         if ((hist_ind < history.size() - 1)){
             hist_ind++;
             current_input = history[hist_ind];
@@ -246,9 +278,11 @@ void PwshHost::_gui_input(const Ref<InputEvent> &event) {
     else {
       char32_t unicode = key_event->get_unicode();
       if (!(unicode >= ' ' && unicode <= '~')) return;
-          current_input += String::chr(unicode);
-          queue_redraw();
+      current_input = current_input.left(cursor.col) +  String::chr(unicode) + current_input.substr(cursor.col);
+      cursor.move_right(current_input.length());
+      queue_redraw();
     }
+    cursor.clamp(current_input.length());
     get_viewport()->set_input_as_handled();
 }
 

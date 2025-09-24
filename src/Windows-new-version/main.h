@@ -23,6 +23,34 @@ struct Segment {
     bool underlined = false;
 };
 
+class Cursor{
+    private:
+        float blink_time_ms = 500.0f;
+        float elapsed_ms = 0.0f;
+         
+    public:
+        int col = 0;
+        bool visible = true;
+        void move_left() {if (col > 0) col--;};
+        void move_right(int max_col) {if (col < max_col) col++;};
+        void reset() {col = 0;};
+        void clamp(int max_col) {
+            if (max_col < 0) max_col = 0;
+            if (col < 0) col = 0;
+            if (col > max_col) col = max_col;
+        }
+        void blink(float delta_ms) {
+            elapsed_ms += delta_ms;
+            if (elapsed_ms >= blink_time_ms) {
+                visible = !visible;
+                elapsed_ms = 0.0f;
+            }
+        }
+};
+
+
+
+
 class PwshHost : public Control {
     GDCLASS(PwshHost, Control);
 
@@ -43,8 +71,7 @@ private:
     Vector<String> history;
     int hist_ind = -1;
     String current_input;
-    size_t cursor_x = 0;
-    size_t cursor_y = 0;
+    Cursor cursor;
     
 protected:
     static void _bind_methods();
@@ -54,6 +81,7 @@ public:
     virtual void _exit_tree();
     void _draw();
     void _gui_input(const Ref<InputEvent> &event);
+    void _process(double delta);
     void append_ansi_text(const String &text);
     void start_pseudoconsole_session();
     void end_pseudoconsole_session();
