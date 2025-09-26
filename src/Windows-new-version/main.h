@@ -25,12 +25,12 @@ struct Segment {
 
 class Cursor{
     private:
-        float blink_time_ms = 500.0f;
         float elapsed_ms = 0.0f;
          
     public:
         int col = 0;
         bool visible = true;
+        float blink_time_ms = 500.0f;
         void move_left() {if (col > 0) col--;};
         void move_right(int max_col) {if (col < max_col) col++;};
         void reset() {col = 0;};
@@ -72,6 +72,7 @@ private:
     int hist_ind = -1;
     String current_input;
     Cursor cursor;
+    float blink_time = 500.0f;
     
 protected:
     static void _bind_methods();
@@ -87,6 +88,8 @@ public:
     void end_pseudoconsole_session();
     void main_loop();
     void write_to_cmd(const String &input);
+    void set_blink_time_ms(float time);
+    float get_blink_time_ms() const;
     
 private:
     void parse_ansi_and_append(const String &raw_text);

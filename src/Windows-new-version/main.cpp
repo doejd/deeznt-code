@@ -80,7 +80,15 @@ Color ansi_256_to_color(int n) {
 
 void PwshHost::_bind_methods(){
     ClassDB::bind_method(D_METHOD("append_ansi_text", "text"), &PwshHost::append_ansi_text);
+    ClassDB::bind_method(D_METHOD("set_blink_time_ms", "time"), &PwshHost::set_blink_time_ms);
+    ClassDB::bind_method(D_METHOD("get_blink_time_ms"), &PwshHost::get_blink_time_ms);
+    
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "blink_time_ms", PROPERTY_HINT_RANGE, "50,2000,10"), "set_blink_time_ms", "get_blink_time_ms");
 }
+
+void PwshHost::set_blink_time_ms(float time){blink_time = time;}
+float PwshHost::get_blink_time_ms() const {return blink_time;}
+
 
 void PwshHost::parse_ansi_and_append(const String &raw_text){
     std::string s = raw_text.utf8().get_data();
@@ -193,6 +201,7 @@ void PwshHost::_exit_tree(){
 }
 
 void PwshHost::_process(double delta){
+    cursor.blink_time_ms = blink_time;
     cursor.blink(delta * 1000.0);
     queue_redraw();
 }

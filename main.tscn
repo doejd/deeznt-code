@@ -111,7 +111,7 @@ layout_mode = 1
 anchors_preset = -1
 anchor_bottom = 0.062
 offset_left = -234.0
-offset_bottom = -0.176003
+offset_bottom = -0.1760025
 theme_override_font_sizes/font_size = 20
 alignment = 1
 item_count = 2
@@ -192,6 +192,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Intro Window" type="Window" parent="."]
+oversampling_override = 1.0
 title = "Welcome to Deezn't Code"
 position = Vector2i(375, 100)
 size = Vector2i(500, 500)
