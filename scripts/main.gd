@@ -13,6 +13,7 @@ var cur_opened_file = ""
 var dir = DirAccess.open(OS.get_user_data_dir())
 var cur_ind = 0
 var cur_ind_focus = 0
+var font_scale_const = 0.015
 var save_file_path = "user://Preferance Data/save_data.cfg"
 @onready var intro_wind_open = intro_wind.visible
 @onready var find_replace_wind_open = find_replace_wind.visible
@@ -136,10 +137,10 @@ func resize() -> void:
 	H_container.split_offset = win_size.y * left_side_spacing
 	V_container.split_offset = win_size.x * label_spacing
 	V_container2.split_offset = win_size.x * console_spacing
-	label.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)
-	editor.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)
-	item_list.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)
-	terminal.add_theme_font_size_override("font_size", win_size.y * label_spacing * 1.5)
+	label.add_theme_font_size_override("font_size", win_size.y * font_scale_const)
+	editor.add_theme_font_size_override("font_size", win_size.y * font_scale_const)
+	item_list.add_theme_font_size_override("font_size", win_size.y * font_scale_const)
+	terminal.add_theme_font_size_override("font_size", win_size.y * font_scale_const)
 
 func _on_editor_gui_input(_event: InputEvent) -> void:
 	if not Input.is_action_just_pressed("ui_open"): return

@@ -19,6 +19,7 @@ using namespace godot;
 struct Segment {
     String text;
     Color color;
+    Color bg;
     bool bold = false;
     bool underlined = false;
 };
@@ -73,6 +74,7 @@ private:
     String current_input;
     Cursor cursor;
     float blink_time = 500.0f;
+    float font_scale_const = 0.015f;
     
 protected:
     static void _bind_methods();
@@ -90,6 +92,8 @@ public:
     void write_to_cmd(const String &input);
     void set_blink_time_ms(float time);
     float get_blink_time_ms() const;
+    void set_font_scale_const(float constant);
+    float get_font_scale_const() const;
     
 private:
     void parse_ansi_and_append(const String &raw_text);

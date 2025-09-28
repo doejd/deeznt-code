@@ -34,6 +34,7 @@ std::string to_lower(std::string input) {
     return input;
 }
 
+
 Color ansi_to_color(int code) {
     switch (code) {
         // Normal colors
@@ -82,13 +83,17 @@ void PwshHost::_bind_methods(){
     ClassDB::bind_method(D_METHOD("append_ansi_text", "text"), &PwshHost::append_ansi_text);
     ClassDB::bind_method(D_METHOD("set_blink_time_ms", "time"), &PwshHost::set_blink_time_ms);
     ClassDB::bind_method(D_METHOD("get_blink_time_ms"), &PwshHost::get_blink_time_ms);
+    ClassDB::bind_method(D_METHOD("set_font_scale_const", "constant"), &PwshHost::set_font_scale_const);
+    ClassDB::bind_method(D_METHOD("get_font_scale_const"), &PwshHost::get_font_scale_const);
     
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "blink_time_ms", PROPERTY_HINT_RANGE, "50,2000,10"), "set_blink_time_ms", "get_blink_time_ms");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "font_scale_constant", PROPERTY_HINT_RANGE, "1,1000,1"), "set_font_scale_const", "get_font_scale_const");
 }
 
 void PwshHost::set_blink_time_ms(float time){blink_time = time;}
 float PwshHost::get_blink_time_ms() const {return blink_time;}
-
+void PwshHost::set_font_scale_const(float constant){font_scale_const = constant/100;}
+float PwshHost::get_font_scale_const() const {return font_scale_const;}
 
 void PwshHost::parse_ansi_and_append(const String &raw_text){
     std::string s = raw_text.utf8().get_data();
@@ -98,11 +103,32 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
     std::sregex_iterator end;
     
     Color cur_color = Color(1, 1, 1);
+    Color cur_bg = Color(0, 0, 0, 0);
     bool bold = false;
     bool underline = false;
     
     Vector<Segment> line;
     size_t last_pos = 0;
+    
+    auto push_text = [&](const std::string &txt){
+        size_t start = 0;
+        size_t pos;
+        while ((pos = txt.find('\n', start)) != std::string::npos) {
+            std::string part = txt.substr(start, pos - start);
+            part.erase(std::remove(part.begin(), part.end(), '\r'), part.end());
+            Segment seg{String(part.c_str()), cur_color, cur_bg, bold, underline};
+            line.push_back(seg);
+            lines.push_back(line);
+            line.clear();
+    
+            start = pos + 1; // skip '\n'
+        }
+        if (start < txt.size()) {
+            std::string part = txt.substr(start);
+            Segment seg{String(part.c_str()), cur_color, cur_bg, bold, underline};
+            line.push_back(seg);
+        }
+    };    
     
     while(iter != end){
         std::smatch match = *iter;
@@ -111,8 +137,7 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
         if(match_pos > last_pos){
             std::string text = s.substr(last_pos, match_pos - last_pos);
             if(!text.empty()){
-                Segment seg{String(text.c_str()), cur_color, bold, underline};
-                line.push_back(seg);
+                push_text(text);
             }
         }
         
@@ -123,50 +148,71 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
             std::string token;
             std::stringstream ss(code_str);
             while(std::getline(ss, token, ';')){
+                if (token.size() == 0) continue;
                 int code = std::stoi(token);
                 if(code == 0){
                     cur_color = Color(1, 1, 1);
+                    cur_bg = Color(0, 0, 0, 0);
                     bold = false;
                     underline = false;
                 }
                 else if (code == 1){bold = true;}
                 else if (code == 4){underline = true;}
-                else if (code >= 30 && code <= 37) {cur_color = ansi_to_color(code);}
-                else if (code >= 90 && code <= 97) {cur_color = ansi_to_color(code);}
-                else if (code == 38) {
+                else if ((code >= 30 && code <= 37) || (code >= 90 && code <= 97)) cur_color = ansi_to_color(code);
+                else if (code >= 40 && code <= 47) {
+                    int fg_code = (code - 40) + 30;
+                    cur_bg = ansi_to_color(fg_code);
+                    cur_bg.a = 1.0f;
+                }
+                else if (code >= 40 && code <= 47) {
+                    int fg_code = (code - 100) + 90;
+                    cur_bg = ansi_to_color(fg_code);
+                    cur_bg.a = 1.0f;
+                }
+                else if (code == 38 || code == 48) {
                     std::string next;
                     if (std::getline(ss, next, ';')) {
                         int mode = std::stoi(next);
                         if (mode == 5) {
                             if (std::getline(ss, next, ';')) {
                                 int idx = std::stoi(next);
-                                cur_color = ansi_256_to_color(idx);
+                                if (code == 38){
+                                    cur_color = ansi_256_to_color(idx);
+                                    cur_color.a = 1.0f;
+                                }
+                                else{
+                                    cur_bg = ansi_256_to_color(idx);
+                                    cur_bg.a = 1.0f;
+                                }
                             }
                         } else if (mode == 2) {
                             int r, g, b;
                             if (std::getline(ss, next, ';')) r = std::stoi(next);
                             if (std::getline(ss, next, ';')) g = std::stoi(next);
                             if (std::getline(ss, next, ';')) b = std::stoi(next);
-                            cur_color = Color(r/255.0f, g/255.0f, b/255.0f);
+                            if (code == 38){
+                                cur_color = Color(r/255.0f, g/255.0f, b/255.0f);
+                                cur_color.a = 1.0f;
+                            }
+                            else {
+                                cur_bg = Color(r/255.0f, g/255.0f, b/255.0f);
+                                cur_bg.a = 1.0f;
+                            }
                         }
                     }
                 }
             }
         }
         else if (command == 'J') lines.clear();
-        else if (command == 'K') {
-            if (!lines.is_empty()) lines.write[lines.size() - 1].clear();
-        }
+        else if (command == 'K') if (!lines.is_empty()) lines.write[lines.size() - 1].clear();
         last_pos = match_pos + match.length();
         ++iter;
     }
     if (last_pos < s.length()){
         std::string text = s.substr(last_pos);
-        Segment seg{String(text.c_str()), cur_color, bold, underline}; 
-        line.push_back(seg);
-}
-    
-    lines.push_back(line);
+        push_text(text);
+    }
+    if (!line.is_empty()) lines.push_back(line);
 }
 
 
@@ -211,10 +257,16 @@ void PwshHost::_draw(){
     if (!font.is_valid()) return;
     float y = 0.0f;
     Vector2 win_size = Vector2(DisplayServer::get_singleton()->window_get_size());
-    float font_size = std::min(win_size.x, win_size.y) * 0.015f;
+    float font_size = std::min(win_size.x, win_size.y) * font_scale_const;
     for(auto &line : lines){
         float x = 0.0f;
+        float line_height = font->get_height() * font_scale_const;
+        if (!(y + line_height > 0 && y < get_size().y)) continue;
         for(auto &seg : line){
+            Vector2 text_size = font->get_string_size(seg.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size);
+            float top_y = y, height = font->get_height(font_size);
+            Rect2 bg_rect(Vector2(x, top_y), Vector2(text_size.x, height));
+            if (seg.bg.a > 0.0f) draw_rect(bg_rect, seg.bg, true);
             font->draw_string(get_canvas_item(), Vector2(x, y + font->get_ascent(font_size)), seg.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, seg.color);
             x += font->get_string_size(seg.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x;
         }
