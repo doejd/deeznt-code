@@ -29,12 +29,13 @@ class Cursor{
         float elapsed_ms = 0.0f;
          
     public:
+        int row = 0;
         int col = 0;
         bool visible = true;
         float blink_time_ms = 500.0f;
-        void move_left() {if (col > 0) col--;};
-        void move_right(int max_col) {if (col < max_col) col++;};
-        void reset() {col = 0;};
+        void move_left() {if (col > 0) col--;}
+        void move_right(int max_col) {if (col < max_col) col++;}
+        void reset() {row = col = 0;}
         void clamp(int max_col) {
             if (max_col < 0) max_col = 0;
             if (col < 0) col = 0;
@@ -67,6 +68,7 @@ private:
     PROCESS_INFORMATION pi{};
     std::thread reader_thread;
     std::atomic<bool> running = false;
+    Vector<Segment> line;
     Vector<Vector<Segment>> lines;
     Ref<Font> font;
     Vector<String> history;

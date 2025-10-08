@@ -15,23 +15,21 @@
 #include <godot_cpp/classes/input_event_key.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/display_server.hpp>
-#include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/classes/viewport.hpp>
 #include <windows.h>
 #include <thread>
 #include <regex>
 #include <string>
-#include <cctype>
 #include <sstream>
-#include <algorithm>
 #include <chrono>
 using namespace godot;
 
-std::string to_lower(std::string input) {
-    for (char &c : input) {
-        c = std::tolower(static_cast<unsigned char>(c));
-    }
-    return input;
+template<typename T>
+constexpr T my_min(const T& a, const T& b) {return (a < b) ? a : b;}
+
+std::string to_lower(std::string input) { 
+    for (char &c : input) c = std::tolower(static_cast<unsigned char>(c));
+    return input; 
 }
 
 
@@ -107,29 +105,56 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
     bool bold = false;
     bool underline = false;
     
-    Vector<Segment> line;
     size_t last_pos = 0;
     
+    auto segment_has_visible = [](const Segment &seg) -> bool {
+        String t = seg.text;
+        for (int i = 0; i < t.length(); ++i) {
+            char32_t c = t[i];
+            if (c > ' ' ) return true;
+        }
+        return false;
+    };
+
+    auto line_has_visible_text = [&segment_has_visible](const Vector<Segment> &line) -> bool {
+        for (int i = 0; i < line.size(); ++i) {
+            if (segment_has_visible(line[i])) return true;
+        }
+        return false;
+    };
+
     auto push_text = [&](const std::string &txt){
         size_t start = 0;
         size_t pos;
         while ((pos = txt.find('\n', start)) != std::string::npos) {
             std::string part = txt.substr(start, pos - start);
-            part.erase(std::remove(part.begin(), part.end(), '\r'), part.end());
-            Segment seg{String(part.c_str()), cur_color, cur_bg, bold, underline};
-            line.push_back(seg);
-            lines.push_back(line);
-            line.clear();
-    
-            start = pos + 1; // skip '\n'
+            if (!part.empty()) {
+                Segment seg{String(part.c_str()), cur_color, cur_bg, bold, underline};
+                line.push_back(seg);
+            }
+            if (line_has_visible_text(line))  {
+                lines.push_back(line);
+                line.clear();
+            }
+            start = pos + 1;
         }
+        
         if (start < txt.size()) {
-            std::string part = txt.substr(start);
+        std::string part = txt.substr(start);
+        bool visible = false;
+        for (char c : part) {
+            if (c > ' ') {
+                visible = true;
+                break;
+            }
+        }
+        if (visible) {
             Segment seg{String(part.c_str()), cur_color, cur_bg, bold, underline};
             line.push_back(seg);
+            }
         }
-    };    
-    
+    };
+
     while(iter != end){
         std::smatch match = *iter;
         size_t match_pos = match.position();
@@ -156,8 +181,8 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
                     bold = false;
                     underline = false;
                 }
-                else if (code == 1){bold = true;}
-                else if (code == 4){underline = true;}
+                else if (code == 1) bold = true;
+                else if (code == 4) underline = true;
                 else if ((code >= 30 && code <= 37) || (code >= 90 && code <= 97)) cur_color = ansi_to_color(code);
                 else if (code >= 40 && code <= 47) {
                     int fg_code = (code - 40) + 30;
@@ -185,7 +210,8 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
                                     cur_bg.a = 1.0f;
                                 }
                             }
-                        } else if (mode == 2) {
+                        } 
+                        else if (mode == 2) {
                             int r, g, b;
                             if (std::getline(ss, next, ';')) r = std::stoi(next);
                             if (std::getline(ss, next, ';')) g = std::stoi(next);
@@ -203,8 +229,42 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
                 }
             }
         }
-        else if (command == 'J') lines.clear();
-        else if (command == 'K') if (!lines.is_empty()) lines.write[lines.size() - 1].clear();
+        if (command == 'J') {
+            int param = 0;
+            if (!code_str.empty()) param = std::stoi(code_str);
+            if (param == 2) {
+                lines.clear();
+                line.clear();
+                cur_color = Color(1, 1, 1);
+                cur_bg = Color(0, 0, 0, 0);
+                bold = false;
+                underline = false;
+                cursor.reset();
+                cursor.visible = true;
+            
+                while (!lines.is_empty() && lines[lines.size()-1].is_empty()) {
+                    lines.resize(lines.size() - 1);
+                }
+            }
+            else {
+                lines.clear();
+                line.clear();
+            }
+        }
+
+        else if (command == 'K') {
+            int param = 0;
+            if (!code_str.empty()) param = std::stoi(code_str);
+            if (param == 2) {
+                if (!line.is_empty()) line.clear();
+                if (!lines.is_empty()) lines.write[lines.size() - 1].clear();
+            }
+            else {if (!line.is_empty()) line.clear();}
+        }
+        else if (command == 'H' || command == 'f') {
+            cursor.reset();
+            line.clear();
+        } 
         last_pos = match_pos + match.length();
         ++iter;
     }
@@ -257,31 +317,32 @@ void PwshHost::_draw(){
     if (!font.is_valid()) return;
     float y = 0.0f;
     Vector2 win_size = Vector2(DisplayServer::get_singleton()->window_get_size());
-    float font_size = std::min(win_size.x, win_size.y) * font_scale_const;
-    for(auto &line : lines){
-        float x = 0.0f;
-        float line_height = font->get_height() * font_scale_const;
+    float font_size = my_min(win_size.x, win_size.y) * font_scale_const;
+    float line_height = font->get_height(font_size);
+    for (int row = 0; row < lines.size(); row++) {
+        float line_height = font->get_height(font_size);
+        y = row * line_height;
         if (!(y + line_height > 0 && y < get_size().y)) continue;
-        for(auto &seg : line){
+        float x = 0.0f;
+        if (row == lines.size() - 1) cursor.row = row + 1;
+        for (auto &seg : lines[row]) {
             Vector2 text_size = font->get_string_size(seg.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size);
-            float top_y = y, height = font->get_height(font_size);
-            Rect2 bg_rect(Vector2(x, top_y), Vector2(text_size.x, height));
-            if (seg.bg.a > 0.0f) draw_rect(bg_rect, seg.bg, true);
+            if (seg.bg.a > 0.0f) {
+                Rect2 bg_rect(Vector2(x, y), Vector2(text_size.x, line_height));
+                draw_rect(bg_rect, seg.bg, true);
+            }
             font->draw_string(get_canvas_item(), Vector2(x, y + font->get_ascent(font_size)), seg.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, seg.color);
-            x += font->get_string_size(seg.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x;
+            x += text_size.x;
         }
-        y += font->get_height(font_size);
     }
-    Vector2 input_pos(0, y + font->get_ascent(font_size));
+    Vector2 input_pos(0, cursor.row * line_height + font->get_ascent(font_size));
     font->draw_string(get_canvas_item(), input_pos, current_input, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color(1, 1, 1));
 
     cursor.clamp(current_input.length());
     String before_cursor = current_input.left(cursor.col);
-    float cursor_x = font->get_string_size(before_cursor, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x;
-    float top_y = input_pos.y - font->get_ascent(font_size);
-    float bottom_y = top_y + font->get_height(font_size);
-
-    if (has_focus() && cursor.visible) draw_line(Vector2(cursor_x, top_y), Vector2(cursor_x, bottom_y), Color(1,1,1), 2.0f);
+    float x_offset = font->get_string_size(before_cursor, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x;
+    Vector2 cursor_pos(x_offset, cursor.row * line_height);
+    if (has_focus() && cursor.visible) draw_line(cursor_pos, cursor_pos + Vector2(0, font->get_height(font_size)), Color(1,1,1), 2.0f);
 }
 
 void PwshHost::_gui_input(const Ref<InputEvent> &event) {
@@ -434,7 +495,7 @@ void PwshHost::main_loop(){
                 if (!running){
                     UtilityFunctions::print("ReadFile returned, shutting down reader thread...");
                     break;
-                    }
+                }
                 std::this_thread::sleep_for(std::chrono::milliseconds(10)); // prevent CPU spin
                 continue;
             }
@@ -452,12 +513,8 @@ void PwshHost::write_to_cmd(const String &input){
     String full_input = input + String("\r\n");
     std::string utf8_input = full_input.utf8().get_data();
     if (to_lower(utf8_input) == "exit\r\n"){
-        utf8_input = "\r\n";
-    }
-    if (to_lower(utf8_input) == "cls\r\n" || to_lower(utf8_input) == "clear\r\n"){
-        lines.clear();
         queue_redraw();
-        utf8_input = "\r\n";
+        return;
     }
     DWORD written = 0;
     BOOL success = WriteFile(
