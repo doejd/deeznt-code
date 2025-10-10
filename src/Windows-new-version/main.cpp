@@ -140,7 +140,7 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
                 Segment seg{String(part.c_str()), cur_color, cur_bg, bold, underline};
                 line.push_back(seg);
             }
-            if (line_has_visible_text(line))  {
+            if (line_has_visible_text(line)){ 
                 lines.push_back(line);
                 line.clear();
             }
@@ -154,11 +154,11 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
             if (c > ' ') {
                 visible = true;
                 break;
+                }
             }
-        }
-        if (visible) {
-            Segment seg{String(part.c_str()), cur_color, cur_bg, bold, underline};
-            line.push_back(seg);
+            if (visible) {
+                Segment seg{String(part.c_str()), cur_color, cur_bg, bold, underline};
+                line.push_back(seg);
             }
         }
     };
@@ -169,9 +169,7 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
         
         if(match_pos > last_pos){
             std::string text = s.substr(last_pos, match_pos - last_pos);
-            if(!text.empty()){
-                push_text(text);
-            }
+            if(!text.empty()) push_text(text);
         }
         
         std::string code_str = match[1];
@@ -278,7 +276,6 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
         std::string text = s.substr(last_pos);
         push_text(text);
     }
-    if (!line.is_empty() && line_has_visible_text(line)) lines.push_back(line);
 }
 
 
