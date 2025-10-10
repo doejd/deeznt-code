@@ -32,7 +32,6 @@ std::string to_lower(std::string input) {
     return input; 
 }
 
-
 Color ansi_to_color(int code) {
     switch (code) {
         // Normal colors
@@ -95,7 +94,16 @@ float PwshHost::get_font_scale_const() const {return font_scale_const;}
 
 void PwshHost::parse_ansi_and_append(const String &raw_text){
     std::string s = raw_text.utf8().get_data();
-    
+    {
+        size_t pos = 0;
+        while ((pos = s.find("\r\n", pos)) != std::string::npos) {
+            s.replace(pos, 2, "\n");
+        }
+        pos = 0;
+        while ((pos = s.find('\r', pos)) != std::string::npos) {
+            s.replace(pos, 1, "\n");
+        }
+    }
     std::regex ansi_regex(R"(\x1b\[([0-9;?]*)([@-~]))");
     std::sregex_iterator iter(s.begin(), s.end(), ansi_regex);
     std::sregex_iterator end;
@@ -242,9 +250,7 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
                 cursor.reset();
                 cursor.visible = true;
             
-                while (!lines.is_empty() && lines[lines.size()-1].is_empty()) {
-                    lines.resize(lines.size() - 1);
-                }
+                while (!lines.is_empty() && lines[lines.size()-1].is_empty()) lines.resize(lines.size() - 1);
             }
             else {
                 lines.clear();
@@ -272,7 +278,7 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
         std::string text = s.substr(last_pos);
         push_text(text);
     }
-    if (!line.is_empty()) lines.push_back(line);
+    if (!line.is_empty() && line_has_visible_text(line)) lines.push_back(line);
 }
 
 
