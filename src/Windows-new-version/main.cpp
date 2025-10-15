@@ -195,7 +195,7 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
                     cur_bg = ansi_to_color(fg_code);
                     cur_bg.a = 1.0f;
                 }
-                else if (code >= 40 && code <= 47) {
+                else if (code >= 100 && code <= 107) {
                     int fg_code = (code - 100) + 90;
                     cur_bg = ansi_to_color(fg_code);
                     cur_bg.a = 1.0f;
@@ -240,19 +240,15 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
             if (!code_str.empty()) param = std::stoi(code_str);
             if (param == 2) {
                 lines.clear();
-                line.clear();
                 cur_color = Color(1, 1, 1);
                 cur_bg = Color(0, 0, 0, 0);
                 bold = false;
                 underline = false;
-                cursor.reset();
-                cursor.visible = true;
             
                 while (!lines.is_empty() && lines[lines.size()-1].is_empty()) lines.resize(lines.size() - 1);
             }
             else {
                 lines.clear();
-                line.clear();
             }
         }
 
@@ -260,14 +256,11 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
             int param = 0;
             if (!code_str.empty()) param = std::stoi(code_str);
             if (param == 2) {
-                if (!line.is_empty()) line.clear();
                 if (!lines.is_empty()) lines.write[lines.size() - 1].clear();
             }
-            else {if (!line.is_empty()) line.clear();}
         }
         else if (command == 'H' || command == 'f') {
             cursor.reset();
-            line.clear();
         } 
         last_pos = match_pos + match.length();
         ++iter;
