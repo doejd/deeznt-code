@@ -28,11 +28,14 @@ template<typename T>
 constexpr T my_min(const T& a, const T& b) {return (a < b) ? a : b;}
 
 template<typename T>
-constexpr bool is_in_history(T element, Vector<T> history) {
-    for (int i = 0; i < history.size(); i++) if (element == history[i]) return true;
+constexpr bool is_in_history(T element, Vector<T>& history) {
+    for (int i = 0; i < history.size(); i++) if (element == history[i]){
+        history.remove_at(i);
+        history.push_back(element);
+        return true;
+    }
     return false;
 }
-
 
 std::string to_lower(std::string input) { 
     for (char &c : input) c = std::tolower(static_cast<unsigned char>(c));
@@ -63,8 +66,6 @@ Color ansi_to_color(int code) {
     }
     return Color(1,1,1);
 }
-
-
 
 Color ansi_256_to_color(int n) {
     if (n < 16) {
@@ -345,8 +346,8 @@ void PwshHost::_gui_input(const Ref<InputEvent> &event) {
     if (keycode == Key::KEY_ENTER) {
         if (!is_in_history(current_input, history)){
             history.push_back(current_input);
-            hist_ind = history.size();
         }
+        hist_ind = history.size();
         write_to_cmd(current_input);
         current_input = "";
         cursor.reset();
