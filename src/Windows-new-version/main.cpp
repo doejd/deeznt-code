@@ -27,6 +27,13 @@ using namespace godot;
 template<typename T>
 constexpr T my_min(const T& a, const T& b) {return (a < b) ? a : b;}
 
+template<typename T>
+constexpr bool is_in_history(T element, Vector<T> history) {
+    for (int i = 0; i < history.size(); i++) if (element == history[i]) return true;
+    return false;
+}
+
+
 std::string to_lower(std::string input) { 
     for (char &c : input) c = std::tolower(static_cast<unsigned char>(c));
     return input; 
@@ -94,16 +101,12 @@ float PwshHost::get_font_scale_const() const {return font_scale_const;}
 
 void PwshHost::parse_ansi_and_append(const String &raw_text){
     std::string s = raw_text.utf8().get_data();
-    {
-        size_t pos = 0;
-        while ((pos = s.find("\r\n", pos)) != std::string::npos) {
-            s.replace(pos, 2, "\n");
-        }
-        pos = 0;
-        while ((pos = s.find('\r', pos)) != std::string::npos) {
-            s.replace(pos, 1, "\n");
-        }
-    }
+
+    size_t pos = 0;
+    while ((pos = s.find("\r\n", pos)) != std::string::npos) s.replace(pos, 2, "\n");
+    pos = 0;
+    while ((pos = s.find('\r', pos)) != std::string::npos) s.replace(pos, 1, "\n");
+
     std::regex ansi_regex(R"(\x1b\[([0-9;?]*)([@-~]))");
     std::sregex_iterator iter(s.begin(), s.end(), ansi_regex);
     std::sregex_iterator end;
@@ -117,17 +120,12 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
     
     auto segment_has_visible = [](const Segment &seg) -> bool {
         String t = seg.text;
-        for (int i = 0; i < t.length(); ++i) {
-            char32_t c = t[i];
-            if (c > ' ' ) return true;
-        }
+        for (int i = 0; i < t.length(); ++i) if ((char32_t)t[i] > ' ' ) return true;
         return false;
     };
 
     auto line_has_visible_text = [&segment_has_visible](const Vector<Segment> &line) -> bool {
-        for (int i = 0; i < line.size(); ++i) {
-            if (segment_has_visible(line[i])) return true;
-        }
+        for (int i = 0; i < line.size(); ++i) if (segment_has_visible(line[i])) return true;
         return false;
     };
 
@@ -170,11 +168,12 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
         if(match_pos > last_pos){
             std::string text = s.substr(last_pos, match_pos - last_pos);
             if(!text.empty()) push_text(text);
+
         }
-        
+
         std::string code_str = match[1];
         char command = match[2].str()[0];
-        
+
         if (command == 'm'){
             std::string token;
             std::stringstream ss(code_str);
@@ -247,21 +246,18 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
             
                 while (!lines.is_empty() && lines[lines.size()-1].is_empty()) lines.resize(lines.size() - 1);
             }
-            else {
-                lines.clear();
-            }
+            else lines.clear();
         }
 
         else if (command == 'K') {
             int param = 0;
             if (!code_str.empty()) param = std::stoi(code_str);
-            if (param == 2) {
-                if (!lines.is_empty()) lines.write[lines.size() - 1].clear();
-            }
+            if (param == 2 && !lines.is_empty()){
+                lines.write[lines.size() - 1].clear();
+                while (!lines.is_empty() && lines[lines.size()-1].is_empty()) lines.resize(lines.size() - 1);
+            } 
         }
-        else if (command == 'H' || command == 'f') {
-            cursor.reset();
-        } 
+        else if (command == 'H' || command == 'f') cursor.reset();
         last_pos = match_pos + match.length();
         ++iter;
     }
@@ -288,8 +284,6 @@ bool PwshHost::find_pwsh(std::wstring &path_out) {
     }
     return false;
 }
-
-
 
 void PwshHost::_ready(){
     font = get_theme_default_font();
@@ -349,8 +343,10 @@ void PwshHost::_gui_input(const Ref<InputEvent> &event) {
 
     int keycode = key_event->get_keycode();
     if (keycode == Key::KEY_ENTER) {
-        history.push_back(current_input);
-        hist_ind = history.size();
+        if (!is_in_history(current_input, history)){
+            history.push_back(current_input);
+            hist_ind = history.size();
+        }
         write_to_cmd(current_input);
         current_input = "";
         cursor.reset();
