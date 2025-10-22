@@ -4,9 +4,12 @@
 /.vs/
 /console-extension/
 /Console Extension src/
+/godot-cpp/
 Deezn't Code.*
 rcedit-x64.exe
 *.dll
 *.tmp
 main.exe
 main.obj
+export_presets.cfg
+.sconsign.dblite
