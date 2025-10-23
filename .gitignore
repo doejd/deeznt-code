@@ -9,7 +9,12 @@ Deezn't Code.*
 rcedit-x64.exe
 *.dll
 *.tmp
+*.obj
+*.exp
+*.lib
+*.import
 main.exe
 main.obj
 export_presets.cfg
 .sconsign.dblite
+

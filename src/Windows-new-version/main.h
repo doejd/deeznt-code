@@ -77,6 +77,10 @@ private:
     Cursor cursor;
     float blink_time = 500.0f;
     float font_scale_const = 0.015f;
+    Color cur_color = Color(1, 1, 1);
+    Color cur_bg = Color(0, 0, 0, 0);
+    bool bold = false;
+    bool underline = false;
     
 protected:
     static void _bind_methods();

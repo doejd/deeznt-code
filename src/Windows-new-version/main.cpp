@@ -111,11 +111,8 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
     std::regex ansi_regex(R"(\x1b\[([0-9;?]*)([@-~]))");
     std::sregex_iterator iter(s.begin(), s.end(), ansi_regex);
     std::sregex_iterator end;
-    
-    Color cur_color = Color(1, 1, 1);
-    Color cur_bg = Color(0, 0, 0, 0);
-    bool bold = false;
-    bool underline = false;
+
+    bool has_parsed = false;
     
     size_t last_pos = 0;
     
@@ -178,8 +175,15 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
         if (command == 'm'){
             std::string token;
             std::stringstream ss(code_str);
-            while(std::getline(ss, token, ';')){
-                if (token.size() == 0) continue;
+            has_parsed = false;
+            if (code_str.empty()) {
+                cur_color = Color(1, 1, 1);
+                cur_bg = Color(0, 0, 0, 0);
+                bold = false;
+                underline = false;
+                has_parsed = true;
+            }
+            while(std::getline(ss, token, ';') && !has_parsed){
                 int code = std::stoi(token);
                 if(code == 0){
                     cur_color = Color(1, 1, 1);
@@ -236,23 +240,19 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
             }
         }
         if (command == 'J') {
-            int param = 0;
-            if (!code_str.empty()) param = std::stoi(code_str);
+            int param = code_str.empty() ? 0 : std::stoi(code_str);
+            lines.clear();
             if (param == 2) {
-                lines.clear();
                 cur_color = Color(1, 1, 1);
                 cur_bg = Color(0, 0, 0, 0);
                 bold = false;
                 underline = false;
-            
-                while (!lines.is_empty() && lines[lines.size()-1].is_empty()) lines.resize(lines.size() - 1);
             }
-            else lines.clear();
+            while (!lines.is_empty() && lines[lines.size()-1].is_empty()) lines.resize(lines.size() - 1);
         }
 
         else if (command == 'K') {
-            int param = 0;
-            if (!code_str.empty()) param = std::stoi(code_str);
+            int param = code_str.empty() ? 0 : std::stoi(code_str);
             if (param == 2 && !lines.is_empty()){
                 lines.write[lines.size() - 1].clear();
                 while (!lines.is_empty() && lines[lines.size()-1].is_empty()) lines.resize(lines.size() - 1);
