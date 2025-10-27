@@ -96,6 +96,7 @@ public:
     void end_pseudoconsole_session();
     void main_loop();
     void write_to_cmd(const String &input);
+    void clear_terminal();
     void set_blink_time_ms(float time);
     float get_blink_time_ms() const;
     void set_font_scale_const(float constant);

@@ -100,6 +100,17 @@ float PwshHost::get_blink_time_ms() const {return blink_time;}
 void PwshHost::set_font_scale_const(float constant){font_scale_const = constant/100;}
 float PwshHost::get_font_scale_const() const {return font_scale_const;}
 
+void PwshHost::clear_terminal(){
+    lines.clear();
+    cur_color = Color(1, 1, 1);
+    cur_bg = Color(0, 0, 0, 0);
+    bold = false;
+    underline = false;
+
+    while (!lines.is_empty() && lines[lines.size()-1].is_empty()) lines.resize(lines.size() - 1);
+}
+
+
 void PwshHost::parse_ansi_and_append(const String &raw_text){
     std::string s = raw_text.utf8().get_data();
 
@@ -239,18 +250,7 @@ void PwshHost::parse_ansi_and_append(const String &raw_text){
                 }
             }
         }
-        if (command == 'J') {
-            int param = code_str.empty() ? 0 : std::stoi(code_str);
-            lines.clear();
-            if (param == 2) {
-                cur_color = Color(1, 1, 1);
-                cur_bg = Color(0, 0, 0, 0);
-                bold = false;
-                underline = false;
-            }
-            while (!lines.is_empty() && lines[lines.size()-1].is_empty()) lines.resize(lines.size() - 1);
-        }
-
+        if (command == 'J') clear_terminal();
         else if (command == 'K') {
             int param = code_str.empty() ? 0 : std::stoi(code_str);
             if (param == 2 && !lines.is_empty()){
@@ -505,6 +505,7 @@ void PwshHost::write_to_cmd(const String &input){
     if (parent_stdin_write == nullptr) return;
     String full_input = input + String("\r\n");
     std::string utf8_input = full_input.utf8().get_data();
+    if (to_lower(utf8_input) == "cls\r\n" && to_lower(utf8_input) == "clear\r\n") clear_terminal();
     if (to_lower(utf8_input) == "exit\r\n"){
         queue_redraw();
         return;
