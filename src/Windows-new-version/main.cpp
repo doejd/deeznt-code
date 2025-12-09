@@ -505,7 +505,7 @@ void PwshHost::write_to_cmd(const String &input){
     if (parent_stdin_write == nullptr) return;
     String full_input = input + String("\r\n");
     std::string utf8_input = full_input.utf8().get_data();
-    if (to_lower(utf8_input) == "cls\r\n" && to_lower(utf8_input) == "clear\r\n") clear_terminal();
+    if (to_lower(utf8_input) == "cls\r\n" || to_lower(utf8_input) == "clear\r\n") clear_terminal();
     if (to_lower(utf8_input) == "exit\r\n"){
         queue_redraw();
         return;
