@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO__WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 #define __LINUX__LEAN_AND_MEAN
 #define UNICODE
 #ifdef __linux__
@@ -18,173 +18,136 @@
 #include <sys/wait.h>
 #include <thread>
 #include <string>
-#include <regex>
-#include <cctype>
 
 using namespace godot;
 
-CmdHost::CmdHost() {}
-
-CmdHost::~CmdHost() {}
-
-String strip_ansi_sequences(const String &input) {
-    std::string utf8_input = input.utf8().get_data();
-    std::regex ansi_regex("\x1B\\[[0-9;?]*[a-zA-Z]");
-    std::regex osc_regex("\x1B\\].*?\x07");
-    utf8_input = std::regex_replace(utf8_input, ansi_regex, "");
-    utf8_input = std::regex_replace(utf8_input, osc_regex, "");
-    return String::utf8(utf8_input.c_str());
-}
-
-std::string to_lower(std::string input) {
-    for (char &c : input) {
-        c = std::tolower(static_cast<unsigned char>(c));
-    }
-    return input;
-}
-
 void CmdHost::_bind_methods(){
-    ClassDB::bind_method(D_METHOD("edit_text", "new_text"), &CmdHost::edit_text);
-    ClassDB::bind_method(D_METHOD("start_pseudotermainal_session"), &CmdHost::start_pseudoterminal_session);
-    ClassDB::bind_method(D_METHOD("end_pseudoterminal_session"), &CmdHost::end_pseudoterminal_session);
-    ClassDB::bind_method(D_METHOD("write_to_terminal", "input"), &CmdHost::write_to_terminal);
+    ClassDB::bind_method(D_METHOD("edit_text", "text"), &CmdHost::edit_text);
+    ClassDB::bind_method(D_METHOD("end_pseudoterminal"), &CmdHost::end_pseudoterminal);
+    ClassDB::bind_method(D_METHOD("start_pseudoterminal"), &CmdHost::start_pseudoterminal);
 }
 
-void CmdHost::_ready() {
-    start_pseudoterminal_session();
-    main_loop();
-    set_caret_line(get_line_count() - 1);
+void CmdHost::_ready(){
+    set_focus_mode(FOCUS_ALL);
+    start_pseudoterminal();
 }
 
-void CmdHost::_exit_tree() {
-    end_pseudoterminal_session();
+void CmdHost::_exit_tree(){
+    end_pseudoterminal();
 }
 
-void CmdHost::_gui_input(const Ref<InputEvent> &event) {
+
+void CmdHost::_gui_input(const Ref<InputEvent> &event){
     Ref<InputEventKey> key_event = event;
-    if (key_event.is_valid() && key_event->is_pressed() && key_event->get_keycode() == Key::KEY_ENTER){
-        int last_line = get_line_count() - 1;
-        String line_text = get_line(last_line);
-        std::string utf8_line = line_text.utf8().get_data();
-        std::regex prompt_regex(R"(.*[A-Z]:\\[^>]*> ?(.*)$)");
-        std::smatch match;
-        if (std::regex_match(utf8_line, match, prompt_regex) && match.size() >= 2){
-            std::string cmd_input = match[1];
-            write_to_terminal(String::utf8(cmd_input.c_str()));
-        }
-        else {
-            write_to_terminal(line_text);
-        }
+    if (!key_event.is_valid() || !key_event->is_pressed()) return;
+    int keycode = key_event->get_keycode();
+    if (keycode == Key::KEY_ENTER){
+        write_to_terminal(input + "\n");
+        input = "";
+        accept_event();
+        return;
     }
+    if (keycode == Key::KEY_BACKSPACE) {
+        if (!input.is_empty()) {
+            input = input.substr(0, input.length() - 1);
+        }
+        return;
+    }
+    char32_t unicode = key_event->get_unicode();
+    if (unicode != 0) input += String::chr(unicode);
 }
 
-void CmdHost::edit_text(const String &newtext) {
-    set_text(get_text() + newtext);
-    int last_line = get_line_count() - 1;
-    int last_column = get_line(last_line).length();
-    call_deferred("set_caret_line", last_line);
-    call_deferred("set_caret_column", last_column);
-}
+void CmdHost::reader_loop(){
+    char buffer[256];
 
-void CmdHost::main_loop() {
-    const int buffer_size = 1024;
-    char buffer[buffer_size];
-    while (running) {
-        int status;
-        if (child_pid > 0 && waitpid(child_pid, &status, WNOHANG) > 0) {
-            UtilityFunctions::print("Shell process exited unexpectedly");
-            running = false;
+    while (running){
+        ssize_t n = read(master_fd, buffer, sizeof(buffer));
+        if (n > 0){
+            buffer[n] = '\0';
+            String out(buffer);
+            
+            call_deferred("edit_text", out);
+        }
+        else if (n == 0) break;
+        else {
+            if (errno == EAGAIN || errno == EINTR) continue;
             break;
         }
-        ssize_t n = read(master_fd, buffer, buffer_size - 1);
-        if (n > 0) {
-            buffer[n] = '\0';
-            String output = String::utf8(buffer);
-            output = strip_ansi_sequences(output);
-            call_deferred("edit_text", output);
-        } else if (n == -1 && running){
-            UtilityFunctions::print("read failed");
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        }
     }
+    running = false;
 }
 
-void CmdHost::start_pseudoterminal_session() {
-    int slave_fd;
-    struct termios termios_p;
-    struct winsize winsz;
-    memset(&termios_p, 0, sizeof(termios_p));
-    memset(&winsz, 0, sizeof(winsz));
-    winsz.ws_row = 24;
-    winsz.ws_col = 80;
-    if (openpty(&master_fd, &slave_fd, nullptr, &termios_p, &winsz) == -1) {
-        UtilityFunctions::print("openpty failed");
-        return;
-    }
-    child_pid = fork();
-    if (child_pid == -1) {
-        UtilityFunctions::print("fork failed");
-        close(master_fd);
-        close(slave_fd);
-        return;
-    }
-    if (child_pid == 0) {
-        // CHILD PROCESS
-        close(master_fd);
-        setsid();
-        ioctl(slave_fd, TIOCSCTTY, 0);
-
-        dup2(slave_fd, STDIN_FILENO);
-        dup2(slave_fd, STDOUT_FILENO);
-        dup2(slave_fd, STDERR_FILENO);
-        if (slave_fd > STDERR_FILENO)
-            close(slave_fd);
-
-        execlp("bash", "bash", nullptr); // or zsh/fish
-        execlp("sh", "sh", nullptr);
-        UtilityFunctions::print("execlp failed");
-        _exit(1);
-    }
-
-    // PARENT PROCESS
-    close(slave_fd);
-    fcntl(master_fd, F_SETFL, O_NONBLOCK);
-
-    running = true;
-    reader_thread = std::thread([this]() { this->main_loop(); });
+void CmdHost::edit_text(const String &text){
+    this->insert_text_at_caret(text);
 }
 
-void CmdHost::end_pseudoterminal_session() {
-    if (running) {
-        running = false;
-        if (reader_thread.joinable())
-            reader_thread.join();
+void CmdHost::end_pseudoterminal(){
+    if (!running) return;
+
+    running = false;
+
+    if (master_fd != -1){
+        close(master_fd);
+        master_fd = -1;
     }
 
-    if (child_pid > 0) {
-        kill(child_pid, SIGTERM);
+    if (child_pid > 0){
+        kill(child_pid, SIGHUP);
         waitpid(child_pid, nullptr, 0);
         child_pid = -1;
     }
 
-    if (master_fd != -1) {
+    if (reader_thread.joinable()) reader_thread.join();
+}
+
+void CmdHost::start_pseudoterminal(){
+    if (running) return;
+    if (openpty(&master_fd, &slave_fd, nullptr, nullptr, nullptr) == -1){
+        UtilityFunctions::print("Openpty Failed");
+        return;
+    }
+
+    child_pid = fork();
+    if (child_pid == -1){
+        UtilityFunctions::print("Fork Failed");
+        return;
+    }
+
+    if (child_pid == 0){
         close(master_fd);
-        master_fd = -1;
-    }
-}
+        login_tty(slave_fd);
 
+        execlp("bash", "bash", nullptr);
 
-void CmdHost::write_to_terminal(const String &input) {
-    if (master_fd == -1) return;
-    std::string input_str = input.utf8().get_data();
-    input_str += "\n"; // Add newline to simulate Enter
-    ssize_t result = write(master_fd, input_str.c_str(), input_str.size());
-    if (result == -1){
-        UtilityFunctions::print("write failed");
+        perror("execlp");
+        _exit(1);
     }
 
+    close(slave_fd);
+    running = true;
+    reader_thread = std::thread(&CmdHost::reader_loop, this);
+
+    UtilityFunctions::print("PTY searched, PID: ", child_pid);
+    write_to_terminal("export TERM=xterm-256color\n");
 }
+
+void CmdHost::write_to_terminal(const String &text){
+    std::string native_str_text = text.utf8().get_data();
+    ssize_t result;
+
+    if (native_str_text == "clear\n") clear();
+
+    if (master_fd != -1) result = write(master_fd, native_str_text.c_str(), native_str_text.size());
+    if (result == -1) perror("write");
+}
+
+#else
+
+void CmdHost::_bind_methods() {}
+void CmdHost::start_pseudoterminal() {}
+void CmdHost::end_pseudoterminal() {}
+void CmdHost::reader_loop() {}
+void CmdHost::write_to_terminal(const String &text) {}
+void CmdHost::edit_text(const String &text) {}
 
 #endif

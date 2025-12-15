@@ -63,7 +63,7 @@ func set_up_extensions(extension : String):
 	lua.bind_libraries(["base", "table", "string"])
 	lua.push_variant("highlight", highlight)
 	lua.push_variant("highlight_region", highlight_region)
-	var error = lua.do_file("user://Lua/langs/" + extension + ".lua")
+	var error = lua.do_file("Lua/langs/" + extension + ".lua")
 	if error is LuaError:
 		print("ERROR %d: %s" % [error.type, error.message])
 		return

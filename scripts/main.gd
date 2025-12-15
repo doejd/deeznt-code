@@ -7,7 +7,7 @@ extends Control
 @onready var H_container = $Editor_Container
 @onready var V_container = $Editor_Container/VSplitContainer/VSplitContainer
 @onready var V_container2 = $Editor_Container/VSplitContainer
-@onready var terminal = $Editor_Container/VSplitContainer/Control/PwshHost
+@onready var terminal = $Editor_Container/VSplitContainer/Control.get_child(0)
 @onready var icons = Icons.new()
 var cur_opened_file = ""
 var dir = DirAccess.open(OS.get_user_data_dir())
