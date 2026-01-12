@@ -17,6 +17,13 @@
 
 using namespace godot;
 
+static uint32_t rgb_to_rgba(const uint32_t rgb) {
+    const uint8_t r = (rgb >> 16) & 0xFF;
+    const uint8_t g = (rgb >> 8) & 0xFF;
+    const uint8_t b = rgb & 0xFF;
+    return 0x000000FF | (r << 24) | (g << 16) | b << 8;
+}
+
 void AnsiHighlighter::default_style_dict() {
     default_style["color"] = Color(1, 1, 1);
     default_style["bg_color"] = Color(0, 0, 0, 0);
@@ -217,8 +224,8 @@ void LinuxHost::get_bbcode(const String &ansi_strip){
         highlighter->spans.push_back({
             start,
             end-start,
-            Color::hex(seg.color),
-            Color::hex(seg.bg_color),
+            Color::hex(rgb_to_rgba(seg.color)),
+            Color::hex(rgb_to_rgba(seg.bg_color)),
             seg.bold,
             seg.underlined,
             seg.italics
@@ -250,23 +257,20 @@ void LinuxHost::_exit_tree(){
 }
 
 
-void LinuxHost::_gui_input(const Ref<InputEvent> &event){
+void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
     const Ref<InputEventKey> key_event = event;
     if (!key_event.is_valid() || !key_event->is_pressed()) return;
     const int keycode = key_event->get_keycode();
-    if (keycode == KEY_ENTER){
+    if (keycode == KEY_ENTER) {
         write_to_terminal(input + "\n");
-        input = "";
-        accept_event();
-        return;
-    }
-    if (keycode == KEY_BACKSPACE) {
+        input = ""; accept_event(); return;
+    } if (keycode == KEY_BACKSPACE) {
         if (!input.is_empty()) {
             input = input.substr(0, input.length() - 1);
         }
         return;
     }
-    if (const char32_t unicode = key_event->get_unicode(); unicode != 0) input += String::chr(unicode);
+     if (const char32_t unicode = key_event->get_unicode(); unicode != 0) input += String::chr(unicode);
 }
 
 void LinuxHost::reader_loop(){
