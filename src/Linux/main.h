@@ -73,7 +73,7 @@ public:
     void start_pseudoterminal();
     void write_to_terminal(const String &text);
     void _gui_input(const Ref<InputEvent> &event) override;
-    void get_bbcode(const String &ansi_strip);
+    void get_color_highlighting(const String &ansi_strip);
     void clamp_caret();
 
 };

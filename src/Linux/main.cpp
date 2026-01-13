@@ -186,7 +186,7 @@ void LinuxHost::apply_args(Segment &seg, const String &args){
     }
 }
 
-void LinuxHost::get_bbcode(const String &ansi_strip){
+void LinuxHost::get_color_highlighting(const String &ansi_strip){
     Segment current;
     String cur_args = "";
     String res = "";
@@ -254,7 +254,7 @@ void LinuxHost::clamp_caret() {
 }
 
 void LinuxHost::_bind_methods(){
-    ClassDB::bind_method(D_METHOD("get_bbcode", "ansi_strip"), &LinuxHost::get_bbcode);
+    ClassDB::bind_method(D_METHOD("get_color_highlighting", "ansi_strip"), &LinuxHost::get_color_highlighting);
     ClassDB::bind_method(D_METHOD("end_pseudoterminal"), &LinuxHost::end_pseudoterminal);
     ClassDB::bind_method(D_METHOD("start_pseudoterminal"), &LinuxHost::start_pseudoterminal);
     ClassDB::bind_method(D_METHOD("clamp_caret"), &LinuxHost::clamp_caret);
