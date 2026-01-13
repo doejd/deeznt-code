@@ -5,7 +5,7 @@
 
 using namespace godot;
 
-void initialize_cmdhost_module(ModuleInitializationLevel p_level);
-void uninitialize_cmdhost_module(ModuleInitializationLevel p_level);
+void initialize_linuxhost_module(ModuleInitializationLevel p_level);
+void uninitialize_linuxhost_module(ModuleInitializationLevel p_level);
 
 #endif
