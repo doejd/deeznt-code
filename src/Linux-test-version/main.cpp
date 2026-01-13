@@ -257,6 +257,7 @@ void LinuxHost::_bind_methods(){
     ClassDB::bind_method(D_METHOD("get_bbcode", "ansi_strip"), &LinuxHost::get_bbcode);
     ClassDB::bind_method(D_METHOD("end_pseudoterminal"), &LinuxHost::end_pseudoterminal);
     ClassDB::bind_method(D_METHOD("start_pseudoterminal"), &LinuxHost::start_pseudoterminal);
+    ClassDB::bind_method(D_METHOD("clamp_caret"), &LinuxHost::clamp_caret);
 }
 
 void LinuxHost::_ready(){
@@ -277,10 +278,10 @@ void LinuxHost::_exit_tree(){
 
 void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
     const Ref<InputEventKey> key_event = event;
+    if (event->is_class("InputEventMouseButton") || event->is_class("InputEventMouseMotion")) call_deferred("clamp_caret");
     if (!key_event.is_valid() || !key_event->is_pressed()) return;
     const int keycode = key_event->get_keycode();
-    if (event->is_class("InputEventMouseButton") || event->is_class("InputEventMouseMotion")) call_deferred("clamp_caret");
-    if (keycode == KEY_LEFT || keycode == KEY_RIGHT || keycode == KEY_PAGEUP || keycode == KEY_HOME) {
+    if (keycode == KEY_LEFT || keycode == KEY_UP || keycode == KEY_PAGEUP || keycode == KEY_HOME) {
         call_deferred("clamp_caret");
         return;
     }
@@ -300,7 +301,10 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
         accept_event();
         return;
     }
-     if (const char32_t unicode = key_event->get_unicode(); unicode != 0) input += String::chr(unicode);
+     if (const char32_t unicode = key_event->get_unicode(); unicode != 0) {
+         const int rel = get_caret_index() - input_start_index;
+         input = input.substr(0, rel) + String::chr(unicode) + input.substr(rel + 1);
+     }
 }
 
 void LinuxHost::reader_loop(){
