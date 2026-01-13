@@ -33,12 +33,14 @@ void AnsiHighlighter::default_style_dict() {
 }
 
 
-void AnsiHighlighter::rebuild_line_indexing(const String& text) {
+void AnsiHighlighter::rebuild_line_indexing() {
+    int64_t cur_index = 0;
     line_start_index.clear();
-    line_start_index.push_back(0);
+    line_start_index.push_back(static_cast<int32_t>(cur_index));
 
-    for (int i = 0; i < text.length(); ++i) {
-        if (text[i] == '\n') line_start_index.push_back(i + 1);
+    for (int32_t i = 0; i < get_text_edit()->get_line_count(); i++) {
+        cur_index += get_text_edit()->get_line(i).length() + 1;
+        line_start_index.push_back(static_cast<int32_t>(cur_index));
     }
 }
 
@@ -220,7 +222,7 @@ void LinuxHost::get_bbcode(const String &ansi_strip){
         this->insert_text_at_caret(seg.text);
         const int32_t end = static_cast<int32_t>(this->get_text().length());
 
-        highlighter->rebuild_line_indexing(this->get_text());
+        highlighter->rebuild_line_indexing();
         highlighter->spans.push_back({
             start,
             end-start,
@@ -230,9 +232,26 @@ void LinuxHost::get_bbcode(const String &ansi_strip){
             seg.underlined,
             seg.italics
         });
+        input_start_index = static_cast<int>(get_text().length());
     }
 }
 
+int32_t LinuxHost::get_caret_index() const {
+    const int cl = get_caret_line();
+    const int cc = get_caret_column();
+    int32_t caret_index = static_cast<int>(get_line(cl).substr(0, cc).length());
+    for (int i = 0; i < cl; i++) caret_index += static_cast<int>(get_line(i).length() + 1);
+    return caret_index;
+}
+
+void LinuxHost::clamp_caret() {
+    const Vector2i p = highlighter->from_index_get_line_column(input_start_index);
+
+    if (const int caret_index = get_caret_index(); caret_index < input_start_index) {
+        set_caret_line(p.x);
+        set_caret_column(p.y);
+    }
+}
 
 void LinuxHost::_bind_methods(){
     ClassDB::bind_method(D_METHOD("get_bbcode", "ansi_strip"), &LinuxHost::get_bbcode);
@@ -256,18 +275,29 @@ void LinuxHost::_exit_tree(){
     end_pseudoterminal();
 }
 
-
 void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
     const Ref<InputEventKey> key_event = event;
     if (!key_event.is_valid() || !key_event->is_pressed()) return;
     const int keycode = key_event->get_keycode();
+    if (event->is_class("InputEventMouseButton") || event->is_class("InputEventMouseMotion")) call_deferred("clamp_caret");
+    if (keycode == KEY_LEFT || keycode == KEY_RIGHT || keycode == KEY_PAGEUP || keycode == KEY_HOME) {
+        call_deferred("clamp_caret");
+        return;
+    }
     if (keycode == KEY_ENTER) {
         write_to_terminal(input + "\n");
-        input = ""; accept_event(); return;
-    } if (keycode == KEY_BACKSPACE) {
-        if (!input.is_empty()) {
-            input = input.substr(0, input.length() - 1);
+        input = "";
+        accept_event();
+        return;
+    }
+    if (keycode == KEY_BACKSPACE) {
+        if (const int caret_index = get_caret_index(); caret_index > input_start_index) {
+            const int rel = caret_index - input_start_index;
+            input = input.substr(0, rel-1) + input.substr(rel + 2);
+            backspace();
         }
+        else clamp_caret();
+        accept_event();
         return;
     }
      if (const char32_t unicode = key_event->get_unicode(); unicode != 0) input += String::chr(unicode);

@@ -12,7 +12,7 @@ var cur_selected_match = 0
 func _ready() -> void:
 	get_tree().root.size_changed.connect(resize)
 	hide()
-
+	
 func _on_close_requested() -> void:
 	hide()
 	main.find_replace_wind_open = false

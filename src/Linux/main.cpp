@@ -14,9 +14,7 @@
 #include <unistd.h>
 #include <pty.h>
 #include <utmp.h>
-#include <fcntl.h>
 #include <sys/wait.h>
-#include <thread>
 #include <string>
 
 using namespace godot;
@@ -41,13 +39,13 @@ void CmdHost::_gui_input(const Ref<InputEvent> &event){
     Ref<InputEventKey> key_event = event;
     if (!key_event.is_valid() || !key_event->is_pressed()) return;
     int keycode = key_event->get_keycode();
-    if (keycode == Key::KEY_ENTER){
+    if (keycode == KEY_ENTER){
         write_to_terminal(input + "\n");
         input = "";
         accept_event();
         return;
     }
-    if (keycode == Key::KEY_BACKSPACE) {
+    if (keycode == KEY_BACKSPACE) {
         if (!input.is_empty()) {
             input = input.substr(0, input.length() - 1);
         }

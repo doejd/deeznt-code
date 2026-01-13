@@ -37,8 +37,8 @@ class AnsiHighlighter : public SyntaxHighlighter {
         };
         Dictionary default_style;
         Vector<Span> spans;
-        Vector<int> line_start_index;
-        void rebuild_line_indexing(const String& text);
+        Vector<int32_t> line_start_index;
+        void rebuild_line_indexing();
         Vector2i from_index_get_line_column(const int32_t &index) const;
         Dictionary _get_line_syntax_highlighting(int line) const override;
         void default_style_dict();
@@ -51,6 +51,7 @@ class LinuxHost : public TextEdit {
     int slave_fd = -1;
     pid_t child_pid = -1;
     String input;
+    int32_t input_start_index = 0;
     std::thread reader_thread;
     std::atomic<bool> running = false;
     Ref<AnsiHighlighter> highlighter;
@@ -59,6 +60,7 @@ class LinuxHost : public TextEdit {
     static int ansi256_to_color(const int &code);
     static int ansi_to_color(const int &code);
     static void apply_args(Segment &seg, const String &args);
+    int32_t get_caret_index() const;
 
 protected:
     static void _bind_methods();
@@ -72,6 +74,7 @@ public:
     void write_to_terminal(const String &text);
     void _gui_input(const Ref<InputEvent> &event) override;
     void get_bbcode(const String &ansi_strip);
+    void clamp_caret();
 
 };
 

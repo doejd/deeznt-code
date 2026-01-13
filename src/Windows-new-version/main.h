@@ -4,12 +4,8 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/classes/control.hpp>
 #include <godot_cpp/classes/font.hpp>
-#include <godot_cpp/classes/font_file.hpp>
-#include <godot_cpp/classes/theme.hpp>
 #include <godot_cpp/variant/color.hpp>
-#include <godot_cpp/classes/input.hpp>
 #include <godot_cpp/classes/input_event.hpp>
-#include <godot_cpp/classes/input_event_key.hpp>
 #include <windows.h>
 #include <atomic>
 #include <thread>
@@ -25,7 +21,6 @@ struct Segment {
 };
 
 class Cursor{
-    private:
         float elapsed_ms = 0.0f;
          
     public:
