@@ -1,65 +1,413 @@
-#define _CRT_SECURE_NO__WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 #define WIN32_LEAN_AND_MEAN
 #define UNICODE
 
 #include "main.h"
 #include <godot_cpp/core/class_db.hpp>
-#include <godot_cpp/classes/global_constants.hpp>
+#include <godot_cpp/classes/control.hpp>
+#include <godot_cpp/classes/font.hpp>
+#include <godot_cpp/classes/font_file.hpp>
+#include <godot_cpp/classes/theme.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
+#include <godot_cpp/variant/color.hpp>
 #include <godot_cpp/classes/input.hpp>
 #include <godot_cpp/classes/input_event.hpp>
-#include <godot_cpp/classes/input_event_action.hpp>
 #include <godot_cpp/classes/input_event_key.hpp>
-#include <godot_cpp/variant/utility_functions.hpp>
+#include <godot_cpp/classes/global_constants.hpp>
+#include <godot_cpp/classes/display_server.hpp>
+#include <godot_cpp/classes/viewport.hpp>
 #include <windows.h>
 #include <thread>
-#include <string>
 #include <regex>
-#include <cctype>
+#include <string>
+#include <sstream>
+#include <chrono>
 using namespace godot;
 
-std::string to_lower(std::string input) {
-    for (char &c : input) {
-        c = std::tolower(static_cast<unsigned char>(c));
+template<typename T>
+constexpr T my_min(const T& a, const T& b) {return (a < b) ? a : b;}
+
+template<typename T>
+constexpr bool is_in_history(T element, Vector<T>& history) {
+    for (int i = 0; i < history.size(); i++) if (element == history[i]){
+        history.remove_at(i);
+        history.push_back(element);
+        return true;
     }
-    return input;
+    return false;
 }
 
-void CmdHost::_bind_methods(){
-    ClassDB::bind_method(D_METHOD("edit_text", "new_text"), &CmdHost::edit_text);
-    ClassDB::bind_method(D_METHOD("start_pseudoconsole_session"), &CmdHost::start_pseudoconsole_session);
-    ClassDB::bind_method(D_METHOD("end_pseudoconsole_session"), &CmdHost::end_pseudoconsole_session);
-    ClassDB::bind_method(D_METHOD("write_to_cmd", "input"), &CmdHost::write_to_cmd);
+std::string to_lower(std::string input) { 
+    for (char &c : input) c = std::tolower(static_cast<unsigned char>(c));
+    return input; 
 }
 
-void CmdHost::_ready(){
+Color ansi_to_color(int code) {
+    switch (code) {
+        // Normal colors
+        case 30: return Color(0,0,0);     // black
+        case 31: return Color(1,0,0);     // red
+        case 32: return Color(0,1,0);     // green
+        case 33: return Color(1,1,0);     // yellow
+        case 34: return Color(0,0,1);     // blue
+        case 35: return Color(1,0,1);     // magenta
+        case 36: return Color(0,1,1);     // cyan
+        case 37: return Color(1,1,1);     // white
+
+        // Bright colors
+        case 90: return Color(0.5,0.5,0.5);   // bright black / dark gray
+        case 91: return Color(1,0.5,0.5);     // bright red
+        case 92: return Color(0.5,1,0.5);     // bright green
+        case 93: return Color(1,1,0.5);       // bright yellow
+        case 94: return Color(0.5,0.5,1);     // bright blue
+        case 95: return Color(1,0.5,1);       // bright magenta
+        case 96: return Color(0.5,1,1);       // bright cyan
+        case 97: return Color(1,1,1);         // bright white
+    }
+    return Color(1,1,1);
+}
+
+Color ansi_256_to_color(int n) {
+    if (n < 16) {
+        return ansi_to_color((n < 8 ? 30 : 90) + (n % 8));
+    } else if (n >= 16 && n <= 231) {
+        int idx = n - 16;
+        int r = (idx / 36) % 6;
+        int g = (idx / 6) % 6;
+        int b = idx % 6;
+        return Color(r / 5.0f, g / 5.0f, b / 5.0f);
+    } else if (n >= 232 && n <= 255) {
+        float gray = (n - 232) / 23.0f;
+        return Color(gray, gray, gray);
+    }
+    return Color(1,1,1);
+}
+
+
+void PwshHost::_bind_methods(){
+    ClassDB::bind_method(D_METHOD("append_ansi_text", "text"), &PwshHost::append_ansi_text);
+    ClassDB::bind_method(D_METHOD("set_blink_time_ms", "time"), &PwshHost::set_blink_time_ms);
+    ClassDB::bind_method(D_METHOD("get_blink_time_ms"), &PwshHost::get_blink_time_ms);
+    ClassDB::bind_method(D_METHOD("set_font_scale_const", "constant"), &PwshHost::set_font_scale_const);
+    ClassDB::bind_method(D_METHOD("get_font_scale_const"), &PwshHost::get_font_scale_const);
+    
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "blink_time_ms", PROPERTY_HINT_RANGE, "50,2000,10"), "set_blink_time_ms", "get_blink_time_ms");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "font_scale_constant", PROPERTY_HINT_RANGE, "1,1000,1"), "set_font_scale_const", "get_font_scale_const");
+}
+
+void PwshHost::set_blink_time_ms(float time){blink_time = time;}
+float PwshHost::get_blink_time_ms() const {return blink_time;}
+void PwshHost::set_font_scale_const(float constant){font_scale_const = constant/100;}
+float PwshHost::get_font_scale_const() const {return font_scale_const;}
+
+void PwshHost::clear_terminal(){
+    lines.clear();
+    cur_color = Color(1, 1, 1);
+    cur_bg = Color(0, 0, 0, 0);
+    bold = false;
+    underline = false;
+
+    while (!lines.is_empty() && lines[lines.size()-1].is_empty()) lines.resize(lines.size() - 1);
+}
+
+
+void PwshHost::parse_ansi_and_append(const String &raw_text){
+    std::string s = raw_text.utf8().get_data();
+
+    size_t pos = 0;
+    while ((pos = s.find("\r\n", pos)) != std::string::npos) s.replace(pos, 2, "\n");
+    pos = 0;
+    while ((pos = s.find('\r', pos)) != std::string::npos) s.replace(pos, 1, "\n");
+
+    std::regex ansi_regex(R"(\x1b\[([0-9;?]*)([@-~]))");
+    std::sregex_iterator iter(s.begin(), s.end(), ansi_regex);
+    std::sregex_iterator end;
+
+    bool has_parsed = false;
+    
+    size_t last_pos = 0;
+    
+    auto segment_has_visible = [](const Segment &seg) -> bool {
+        String t = seg.text;
+        for (int i = 0; i < t.length(); ++i) if ((char32_t)t[i] > ' ' ) return true;
+        return false;
+    };
+
+    auto line_has_visible_text = [&segment_has_visible](const Vector<Segment> &line) -> bool {
+        for (int i = 0; i < line.size(); ++i) if (segment_has_visible(line[i])) return true;
+        return false;
+    };
+
+    auto push_text = [&](const std::string &txt){
+        size_t start = 0;
+        size_t pos;
+        while ((pos = txt.find('\n', start)) != std::string::npos) {
+            std::string part = txt.substr(start, pos - start);
+            if (!part.empty()) {
+                Segment seg{String(part.c_str()), cur_color, cur_bg, bold, underline};
+                line.push_back(seg);
+            }
+            if (line_has_visible_text(line)){ 
+                lines.push_back(line);
+                line.clear();
+            }
+            start = pos + 1;
+        }
+        
+        if (start < txt.size()) {
+        std::string part = txt.substr(start);
+        bool visible = false;
+        for (char c : part) {
+            if (c > ' ') {
+                visible = true;
+                break;
+                }
+            }
+            if (visible) {
+                Segment seg{String(part.c_str()), cur_color, cur_bg, bold, underline};
+                line.push_back(seg);
+            }
+        }
+    };
+
+    while(iter != end){
+        std::smatch match = *iter;
+        size_t match_pos = match.position();
+        
+        if(match_pos > last_pos){
+            std::string text = s.substr(last_pos, match_pos - last_pos);
+            if(!text.empty()) push_text(text);
+
+        }
+
+        std::string code_str = match[1];
+        char command = match[2].str()[0];
+
+        if (command == 'm'){
+            std::string token;
+            std::stringstream ss(code_str);
+            has_parsed = false;
+            if (code_str.empty()) {
+                cur_color = Color(1, 1, 1);
+                cur_bg = Color(0, 0, 0, 0);
+                bold = false;
+                underline = false;
+                has_parsed = true;
+            }
+            while(std::getline(ss, token, ';') && !has_parsed){
+                int code = std::stoi(token);
+                if(code == 0){
+                    cur_color = Color(1, 1, 1);
+                    cur_bg = Color(0, 0, 0, 0);
+                    bold = false;
+                    underline = false;
+                }
+                else if (code == 1) bold = true;
+                else if (code == 4) underline = true;
+                else if ((code >= 30 && code <= 37) || (code >= 90 && code <= 97)) cur_color = ansi_to_color(code);
+                else if (code >= 40 && code <= 47) {
+                    int fg_code = (code - 40) + 30;
+                    cur_bg = ansi_to_color(fg_code);
+                    cur_bg.a = 1.0f;
+                }
+                else if (code >= 100 && code <= 107) {
+                    int fg_code = (code - 100) + 90;
+                    cur_bg = ansi_to_color(fg_code);
+                    cur_bg.a = 1.0f;
+                }
+                else if (code == 38 || code == 48) {
+                    std::string next;
+                    if (std::getline(ss, next, ';')) {
+                        int mode = std::stoi(next);
+                        if (mode == 5) {
+                            if (std::getline(ss, next, ';')) {
+                                int idx = std::stoi(next);
+                                if (code == 38){
+                                    cur_color = ansi_256_to_color(idx);
+                                    cur_color.a = 1.0f;
+                                }
+                                else{
+                                    cur_bg = ansi_256_to_color(idx);
+                                    cur_bg.a = 1.0f;
+                                }
+                            }
+                        } 
+                        else if (mode == 2) {
+                            int r, g, b;
+                            if (std::getline(ss, next, ';')) r = std::stoi(next);
+                            if (std::getline(ss, next, ';')) g = std::stoi(next);
+                            if (std::getline(ss, next, ';')) b = std::stoi(next);
+                            if (code == 38){
+                                cur_color = Color(r/255.0f, g/255.0f, b/255.0f);
+                                cur_color.a = 1.0f;
+                            }
+                            else {
+                                cur_bg = Color(r/255.0f, g/255.0f, b/255.0f);
+                                cur_bg.a = 1.0f;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (command == 'J') clear_terminal();
+        else if (command == 'K') {
+            int param = code_str.empty() ? 0 : std::stoi(code_str);
+            if (param == 2 && !lines.is_empty()){
+                lines.write[lines.size() - 1].clear();
+                while (!lines.is_empty() && lines[lines.size()-1].is_empty()) lines.resize(lines.size() - 1);
+            } 
+        }
+        else if (command == 'H' || command == 'f') cursor.reset();
+        last_pos = match_pos + match.length();
+        ++iter;
+    }
+    if (last_pos < s.length()){
+        std::string text = s.substr(last_pos);
+        push_text(text);
+    }
+}
+
+
+bool PwshHost::find_pwsh(std::wstring &path_out) {
+    wchar_t buffer[MAX_PATH];
+    DWORD len = SearchPathW(
+        NULL,
+        L"pwsh.exe",
+        NULL,
+        MAX_PATH,
+        buffer,
+        NULL
+    );
+    if (len > 0 && len < MAX_PATH) {
+        path_out = buffer;
+        return true;
+    }
+    return false;
+}
+
+void PwshHost::_ready(){
+    font = get_theme_default_font();
+    set_focus_mode(FOCUS_ALL);
     start_pseudoconsole_session();
     main_loop();
-    set_caret_line(get_line_count() - 1);
 }
 
-void CmdHost::_exit_tree(){
+void PwshHost::_exit_tree(){
     end_pseudoconsole_session();
 }
 
-String strip_ansi_sequences(const String &input) {
-    std::string utf8_input = input.utf8().get_data();
-    std::regex ansi_regex("\x1B\\[[0-9;?]*[a-zA-Z]");
-    std::regex osc_regex("\x1B\\].*?\x07");
-    utf8_input = std::regex_replace(utf8_input, ansi_regex, "");
-    utf8_input = std::regex_replace(utf8_input, osc_regex, "");
-    return String::utf8(utf8_input.c_str());
-}
-
-void CmdHost::edit_text(const String &newtext){
-    set_text(get_text() + newtext);
-    int last_line = get_line_count() - 1;
-    int last_column = get_line(last_line).length();
-    call_deferred("set_caret_line", last_line);
-    call_deferred("set_caret_column", last_column);
+void PwshHost::_process(double delta){
+    cursor.blink_time_ms = blink_time;
+    cursor.blink(delta * 1000.0);
+    queue_redraw();
 }
 
 
-void CmdHost::start_pseudoconsole_session(){
+void PwshHost::_draw(){
+    if (!font.is_valid()) return;
+    float y = 0.0f;
+    Vector2 win_size = Vector2(DisplayServer::get_singleton()->window_get_size());
+    float font_size = my_min(win_size.x, win_size.y) * font_scale_const;
+    float line_height = font->get_height(font_size);
+    for (int row = 0; row < lines.size(); row++) {
+        float line_height = font->get_height(font_size);
+        y = row * line_height;
+        if (!(y + line_height > 0 && y < get_size().y)) continue;
+        float x = 0.0f;
+        if (row == lines.size() - 1) cursor.row = row + 1;
+        for (auto &seg : lines[row]) {
+            Vector2 text_size = font->get_string_size(seg.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size);
+            if (seg.bg.a > 0.0f) {
+                Rect2 bg_rect(Vector2(x, y), Vector2(text_size.x, line_height));
+                draw_rect(bg_rect, seg.bg, true);
+            }
+            font->draw_string(get_canvas_item(), Vector2(x, y + font->get_ascent(font_size)), seg.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, seg.color);
+            x += text_size.x;
+        }
+    }
+    Vector2 input_pos(0, cursor.row * line_height + font->get_ascent(font_size));
+    font->draw_string(get_canvas_item(), input_pos, current_input, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color(1, 1, 1));
+
+    cursor.clamp(current_input.length());
+    String before_cursor = current_input.left(cursor.col);
+    float x_offset = font->get_string_size(before_cursor, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x;
+    Vector2 cursor_pos(x_offset, cursor.row * line_height);
+    if (has_focus() && cursor.visible) draw_line(cursor_pos, cursor_pos + Vector2(0, font->get_height(font_size)), Color(1,1,1), 2.0f);
+}
+
+void PwshHost::_gui_input(const Ref<InputEvent> &event) {
+    Ref<InputEventKey> key_event = event;
+    if (!(key_event.is_valid() && key_event->is_pressed())) return;
+
+    cursor.clamp(current_input.length());
+
+    int keycode = key_event->get_keycode();
+    if (keycode == Key::KEY_ENTER) {
+        if (!is_in_history(current_input, history)){
+            history.push_back(current_input);
+        }
+        hist_ind = history.size();
+        write_to_cmd(current_input);
+        current_input = "";
+        cursor.reset();
+        queue_redraw();
+    }
+    else if (keycode == Key::KEY_BACKSPACE) {
+        if (!(cursor.col > 0)) return;
+        current_input = current_input.left(cursor.col - 1) + current_input.substr(cursor.col);
+        cursor.move_left();
+        queue_redraw();
+    }
+    else if (keycode == Key::KEY_DELETE) {
+        if (!(cursor.col < current_input.length())) return;
+        current_input = current_input.left(cursor.col) + current_input.substr(cursor.col + 1);
+        queue_redraw();
+    }
+    else if (keycode == Key::KEY_LEFT) {
+        cursor.move_left();
+        queue_redraw();
+    }
+    else if (keycode == Key::KEY_RIGHT) {
+        cursor.move_right(current_input.length());
+        queue_redraw();
+    }
+    else if (keycode == Key::KEY_UP){
+        if (!(hist_ind > 0)) return;
+        hist_ind--;
+        current_input = history[hist_ind];
+        queue_redraw();
+    }
+    else if (keycode == Key::KEY_DOWN){
+        if ((hist_ind < history.size() - 1)){
+            hist_ind++;
+            current_input = history[hist_ind];
+            queue_redraw();
+        }
+        else {
+            hist_ind = history.size();
+            current_input = "";
+            queue_redraw();
+        }
+    }
+    else {
+      char32_t unicode = key_event->get_unicode();
+      if (!(unicode >= ' ' && unicode <= '~')) return;
+      current_input = current_input.left(cursor.col) +  String::chr(unicode) + current_input.substr(cursor.col);
+      cursor.move_right(current_input.length());
+      queue_redraw();
+    }
+    cursor.clamp(current_input.length());
+    get_viewport()->set_input_as_handled();
+}
+
+
+void PwshHost::append_ansi_text(const String &text){
+    parse_ansi_and_append(text);
+    queue_redraw();
+}
+
+void PwshHost::start_pseudoconsole_session(){
     if(!CreatePipe(&child_stdin_read, &parent_stdin_write, &sa, 0) || 
     !CreatePipe(&parent_stdout_read, &child_stdout_write, &sa, 0)){
         return;
@@ -83,8 +431,15 @@ void CmdHost::start_pseudoconsole_session(){
     if(!UpdateProcThreadAttribute(si.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, hPC, sizeof(hPC), NULL, NULL)){
         UtilityFunctions::print("UpdateProcThreadAttribute() -> Failed");
     }
-    if(!CreateProcessW(
-        L"c:\\Windows\\System32\\cmd.exe",
+    std::wstring shell_path;
+    if (!find_pwsh(shell_path)) {
+        // fallback: Windows PowerShell 5.1
+        UtilityFunctions::print("RIP, No pwsh.exe found");
+        shell_path = L"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
+    }
+    
+    if (!CreateProcessW(
+        shell_path.c_str(),
         NULL,
         NULL, NULL,
         TRUE,
@@ -92,16 +447,20 @@ void CmdHost::start_pseudoconsole_session(){
         NULL,
         NULL,
         &si.StartupInfo,
-        &pi)){
-            UtilityFunctions::print("CreateProcessW() -> Failed");
-            return;
+        &pi))
+    {
+        DeleteProcThreadAttributeList(si.lpAttributeList);
+        HeapFree(GetProcessHeap(), 0, (LPVOID)si.lpAttributeList);
+        UtilityFunctions::print("CreateProcessW() -> Failed");
+        return;
     }
+
     CloseHandle(child_stdin_read);
     CloseHandle(child_stdout_write);
 }
 
 
-void CmdHost::end_pseudoconsole_session(){
+void PwshHost::end_pseudoconsole_session(){
     running = false;
     if (reader_thread_handle) {
     CancelSynchronousIo(reader_thread_handle);
@@ -118,7 +477,7 @@ void CmdHost::end_pseudoconsole_session(){
     CloseHandle(parent_stdout_read);
 }
 
-void CmdHost::main_loop(){
+void PwshHost::main_loop(){
     running = true;
     reader_thread = std::thread([this]() {
         CHAR buf[256];
@@ -129,54 +488,27 @@ void CmdHost::main_loop(){
                 if (!running){
                     UtilityFunctions::print("ReadFile returned, shutting down reader thread...");
                     break;
-                    }
+                }
                 std::this_thread::sleep_for(std::chrono::milliseconds(10)); // prevent CPU spin
                 continue;
             }
             buf[read] = '\0';
             String raw_out = String::utf8(buf);
-            String clean_out = strip_ansi_sequences(raw_out);
-            call_deferred("edit_text", clean_out);
+            call_deferred("append_ansi_text", raw_out);
         }
     });
     reader_thread_handle = OpenThread(THREAD_ALL_ACCESS, FALSE, GetThreadId(static_cast<HANDLE>(reader_thread.native_handle())));
 }
 
 
-void CmdHost::_gui_input(const Ref<InputEvent> &event) {
-    Ref<InputEventKey> key_event = event;
-    if (!key_event.is_valid() || !key_event->is_pressed()) return;
-    int keycode = key_event->get_keycode();
-    if (keycode == Key::KEY_ENTER) {
-        std::string utf8_line = get_line(get_line_count() - 1).utf8().get_data();
-        std::regex prompt_regex(R"(.*[A-Z]:\\[^>]*> ?(.*)$)");
-        std::regex secondary_regex(R"(.*>\s*(.*)$)");
-        std::smatch match;
-        if (std::regex_match(utf8_line, match, prompt_regex) && match.size() >= 2) {
-            std::string cmd_input = match[1];
-            write_to_cmd(String::utf8(cmd_input.c_str()));
-        }
-        else if (std::regex_match(utf8_line, match, secondary_regex) && match.size() >= 2){
-            std::string cmd_input = match[1];
-            write_to_cmd(String::utf8(cmd_input.c_str()));
-        }
-        else {
-            write_to_cmd(get_line(get_line_count() - 1));
-        }
-    }
-}
-
-
-void CmdHost::write_to_cmd(const String &input){
+void PwshHost::write_to_cmd(const String &input){
     if (parent_stdin_write == nullptr) return;
     String full_input = input + String("\r\n");
     std::string utf8_input = full_input.utf8().get_data();
+    if (to_lower(utf8_input) == "cls\r\n" || to_lower(utf8_input) == "clear\r\n") clear_terminal();
     if (to_lower(utf8_input) == "exit\r\n"){
-        utf8_input = "\r\n";
-    }
-    if (to_lower(utf8_input) == "cls\r\n"){
-        utf8_input = "\r\n";
-        set_text("");
+        queue_redraw();
+        return;
     }
     DWORD written = 0;
     BOOL success = WriteFile(
