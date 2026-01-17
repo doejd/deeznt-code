@@ -75,7 +75,6 @@ public:
     void _gui_input(const Ref<InputEvent> &event) override;
     void get_color_highlighting(const String &ansi_strip);
     void clamp_caret();
-
 };
 
 #endif

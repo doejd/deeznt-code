@@ -187,9 +187,9 @@ void LinuxHost::apply_args(Segment &seg, const String &args){
 }
 
 void LinuxHost::get_color_highlighting(const String &ansi_strip){
+    segments.clear();
     Segment current;
     String cur_args = "";
-    String res = "";
     for (ssize_t i = 0; i < ansi_strip.length();){
         if (ansi_strip[i] == '\e' && i+1 < ansi_strip.length() && ansi_strip[i+1] == '['){
             if (!current.text.is_empty()){
@@ -222,7 +222,6 @@ void LinuxHost::get_color_highlighting(const String &ansi_strip){
         this->insert_text_at_caret(seg.text);
         const int32_t end = static_cast<int32_t>(this->get_text().length());
 
-        highlighter->rebuild_line_indexing();
         highlighter->spans.push_back({
             start,
             end-start,
@@ -232,8 +231,9 @@ void LinuxHost::get_color_highlighting(const String &ansi_strip){
             seg.underlined,
             seg.italics
         });
-        input_start_index = static_cast<int>(get_text().length());
     }
+    input_start_index = static_cast<int>(get_text().length());
+    highlighter->rebuild_line_indexing();
 }
 
 int32_t LinuxHost::get_caret_index() const {
@@ -315,7 +315,7 @@ void LinuxHost::reader_loop(){
             buffer[n] = '\0';
             String out(buffer);
 
-            call_deferred("get_bbcode", out);
+            call_deferred("get_color_highlighting", out);
         }
         else if (n == 0) break;
         else {
