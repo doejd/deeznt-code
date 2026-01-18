@@ -153,7 +153,5 @@ const ICONS = [
 ]
 
 func get_icon_data(extension: String) -> String:
-	for icon in ICONS:
-		if extension in icon["extensions"]:
-			return icon["icon"]
+	for icon in ICONS: if extension in icon["extensions"]: return icon["icon"]
 	return " "

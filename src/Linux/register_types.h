@@ -1,5 +1,5 @@
-#ifndef CMDHOST_REGISTER_TYPES_H
-#define CMDHOST_REGISTER_TYPES_H
+#ifndef LINUXHOST_REGISTER_TYPES_H
+#define LINUXHOST_REGISTER_TYPES_H
 
 #include <godot_cpp/core/class_db.hpp>
 

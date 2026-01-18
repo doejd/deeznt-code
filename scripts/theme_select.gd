@@ -3,13 +3,6 @@ signal on_theme_change(theme)
 @onready var main = $".."
 
 
-func _ready() -> void:
-	var cfg = ConfigFile.new()
-	var err = cfg.load(main.save_file_path)
-	if err != OK:
-		print("Failed to load file: %s" % err)
-	select(get_idx_from_str(cfg.get_value("preferences", "theme", "Github Dark")))
-
 func _on_item_selected(index: int) -> void:
 	on_theme_change.emit(get_item_text(index))
 
@@ -18,3 +11,6 @@ func get_idx_from_str(value : String):
 		if get_item_text(i) == value:
 			return i
 	return 0
+
+func _on_control_on_load_theme(theme_: Variant) -> void:
+	select(get_idx_from_str(theme_))

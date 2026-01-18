@@ -113,27 +113,19 @@ func setup_theme():
 	add_theme_color_override("completion_background_color", GUI.completion_background_color)
 	add_theme_color_override("completion_selected_color", GUI.completion_selected_color)
 	add_theme_color_override("caret_color", GUI.caret_color)
-	
-func _ready() -> void:
-	var dir : DirAccess = DirAccess.open("user://")
-	if not dir.dir_exists("Preferance Data"):
-		dir.make_dir("Preferance Data")
-	var cfg = ConfigFile.new()
-	var err = cfg.load(main.save_file_path)
-	if err != OK:
-		print("Failed to load file: %s" % err)
-	setup_cur_theme(cfg.get_value("preferences", "theme", "Github Dark"))
-	setup_highlighter()
 
 func _input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("theme_switch") and not open_theme_select:
 		animation_player.play("open_theme_select")
 		open_theme_select = true
+		get_viewport().set_input_as_handled()
 	elif Input.is_action_just_pressed("theme_switch") and open_theme_select:
 		animation_player.play("close_theme_select")
 		open_theme_select = false
+		get_viewport().set_input_as_handled()
 
 func _on_option_button_on_theme_change(cur_theme: Variant) -> void:
+	print(cur_theme)
 	var cfg = ConfigFile.new()
 	var err = cfg.load(main.save_file_path)
 	if err != OK:
@@ -174,3 +166,7 @@ func _on_control_opened_file(file_name: Variant) -> void:
 func _on_text_changed() -> void:
 	if Input.is_action_just_pressed("enter"): return
 	call_deferred("_on_code_completion_requested")
+
+func _on_control_on_load_theme(theme_: Variant) -> void:
+	setup_cur_theme(theme_)
+	setup_highlighter()

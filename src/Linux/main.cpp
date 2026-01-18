@@ -280,9 +280,16 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
     const Ref<InputEventKey> key_event = event;
     if (event->is_class("InputEventMouseButton") || event->is_class("InputEventMouseMotion")) call_deferred("clamp_caret");
     if (!key_event.is_valid() || !key_event->is_pressed()) return;
+    if (!has_focus()) return;
     const int keycode = key_event->get_keycode();
     if (keycode == KEY_LEFT || keycode == KEY_UP || keycode == KEY_PAGEUP || keycode == KEY_HOME) {
         call_deferred("clamp_caret");
+        return;
+    }
+    if (keycode == KEY_C && key_event->is_ctrl_pressed()) {
+        write_to_terminal("\x03");
+        input = "";
+        accept_event();
         return;
     }
     if (keycode == KEY_ENTER) {
