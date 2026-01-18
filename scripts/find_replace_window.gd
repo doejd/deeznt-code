@@ -28,8 +28,7 @@ func _on_line_edit_text_submitted(new_text: String) -> void:
 	var lines = editor.get_text().split("\n", true)
 	for line_ind in lines.size():
 		var col = lines[line_ind].find(new_text)
-		if col != -1:
-			all_matches.append(Vector3i(line_ind, col, new_text.length()))
+		if col != -1: all_matches.append(Vector3i(line_ind, col, new_text.length()))
 	if all_matches.is_empty(): return
 	editor.grab_focus()
 	editor.set_caret_line(all_matches[cur_selected_match].x)

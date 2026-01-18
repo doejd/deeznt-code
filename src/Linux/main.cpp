@@ -209,6 +209,8 @@ void LinuxHost::get_color_highlighting(const String &ansi_strip){
                 const char32_t command = ansi_strip[i];
                 i++;
                 if (command == 'm') apply_args(current, cur_args);
+                if (command == 'J') clear();
+                if (command == 'K') remove_text(get_line_count() - 1, 0, get_line_count() - 1, get_line(get_line_count() - 1).length());
             }
         }
         else {
@@ -308,7 +310,7 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
         accept_event();
         return;
     }
-     if (const char32_t unicode = key_event->get_unicode(); unicode != 0) {
+    if (const char32_t unicode = key_event->get_unicode(); unicode != 0) {
          const int rel = get_caret_index() - input_start_index;
          input = input.substr(0, rel) + String::chr(unicode) + input.substr(rel + 1);
      }

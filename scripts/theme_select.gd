@@ -1,7 +1,5 @@
 extends OptionButton
 signal on_theme_change(theme)
-@onready var main = $".."
-
 
 func _on_item_selected(index: int) -> void:
 	on_theme_change.emit(get_item_text(index))

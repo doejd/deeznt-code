@@ -1,6 +1,5 @@
 extends Window
 @onready var labels : Array = [$"VBoxContainer/Never Show Again Dialog/CheckBox"]
-@onready var main = get_node("..")
 
 func _ready() -> void:
 	grab_focus()

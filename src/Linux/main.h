@@ -56,7 +56,6 @@ class LinuxHost : public TextEdit {
     std::atomic<bool> running = false;
     Ref<AnsiHighlighter> highlighter;
     Vector<Segment> segments;
-    Ref<Font> font;
     static void apply_style(int code, Segment &seg);
     static int ansi256_to_color(const int &code);
     static int ansi_to_color(const int &code);
