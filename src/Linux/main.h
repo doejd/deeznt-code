@@ -50,12 +50,15 @@ class LinuxHost : public TextEdit {
     int master_fd = -1;
     int slave_fd = -1;
     pid_t child_pid = -1;
-    String input;
-    int32_t input_start_index = 0;
     std::thread reader_thread;
     std::atomic<bool> running = false;
+    String input;
+    String history_temp;
+    int32_t history_index = 0;
+    int32_t input_start_index = 0;
     Ref<AnsiHighlighter> highlighter;
     Vector<Segment> segments;
+    Vector<String> history;
     static void apply_style(int code, Segment &seg);
     static int ansi256_to_color(const int &code);
     static int ansi_to_color(const int &code);

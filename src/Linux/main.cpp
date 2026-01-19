@@ -210,7 +210,8 @@ void LinuxHost::get_color_highlighting(const String &ansi_strip){
                 i++;
                 if (command == 'm') apply_args(current, cur_args);
                 if (command == 'J') clear();
-                if (command == 'K') remove_text(get_line_count() - 1, 0, get_line_count() - 1, get_line(get_line_count() - 1).length());
+                if (command == 'K') remove_text(get_line_count() - 1, 0, get_line_count() - 1,
+                                                static_cast<int32_t>(get_line(get_line_count() - 1).length()));
             }
         }
         else {
@@ -284,7 +285,7 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
     if (!key_event.is_valid() || !key_event->is_pressed()) return;
     if (!has_focus()) return;
     const int keycode = key_event->get_keycode();
-    if (keycode == KEY_LEFT || keycode == KEY_UP || keycode == KEY_PAGEUP || keycode == KEY_HOME) {
+    if (keycode == KEY_LEFT || keycode == KEY_PAGEUP || keycode == KEY_HOME) {
         call_deferred("clamp_caret");
         return;
     }
@@ -295,6 +296,7 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
         return;
     }
     if (keycode == KEY_ENTER) {
+        if (!input.strip_edges().is_empty())  history.push_back(input); history_index = static_cast<int32_t>(history.size());
         write_to_terminal(input + "\n");
         input = "";
         accept_event();
