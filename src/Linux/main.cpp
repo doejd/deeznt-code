@@ -9,10 +9,12 @@
 #include <godot_cpp/classes/input_event.hpp>
 #include <godot_cpp/classes/input_event_action.hpp>
 #include <godot_cpp/classes/input_event_key.hpp>
+#include <godot_cpp/classes/file_access.hpp>
 #include <unistd.h>
 #include <pty.h>
 #include <utmp.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <string>
 
 using namespace godot;
@@ -29,7 +31,7 @@ void AnsiHighlighter::default_style_dict() {
     default_style["bg_color"] = Color(0, 0, 0, 0);
     default_style["bold"] = false;
     default_style["italic"] = false;
-    default_style["underlie"] = false;
+    default_style["underline"] = false;
 }
 
 
@@ -69,7 +71,6 @@ Dictionary AnsiHighlighter::_get_line_syntax_highlighting(const int line) const{
         if (line < p0.x || line > p1.x) continue;
 
         const int start_col = (line == p0.x) ? p0.y : 0;
-        const int end_col = (line == p1.x) ? p1.y : static_cast<int>(host->get_line(line).length());
 
         Dictionary style;
         style["color"] = span.color;
@@ -79,7 +80,6 @@ Dictionary AnsiHighlighter::_get_line_syntax_highlighting(const int line) const{
         style["underline"] = span.underline;
 
         res[static_cast<Variant>(start_col)] = style;
-        res[static_cast<Variant>(end_col)] = default_style;
 
     }
     return res;
@@ -105,9 +105,8 @@ int LinuxHost::ansi_to_color(const int &code) {
         case 12: return 0x8888ff;    // bright blue
         case 13: return 0xff88ff;    // bright magenta
         case 14: return 0x88ffff;    // bright cyan
-        case 15: return 0xffffff;    // bright white
+        default: return 0xffffff;    // case 15 included
     }
-    return 0xffffff; // default white
 }
 
 int LinuxHost::ansi256_to_color(const int &code){
@@ -146,6 +145,7 @@ void LinuxHost::apply_style(const int code, Segment &seg){
         case 40 ... 47: seg.bg_color = ansi_to_color(code - 40); break;
         case 90 ... 97: seg.color = ansi_to_color(code - 90 + 8); break;
         case 100 ... 107: seg.bg_color = ansi_to_color(code - 100 + 8); break;
+        default: ;
     }
 }
 
@@ -272,7 +272,6 @@ void LinuxHost::_ready(){
     hl->default_style_dict();
 
     start_pseudoterminal();
-
 }
 
 void LinuxHost::_exit_tree(){
@@ -296,7 +295,9 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
         return;
     }
     if (keycode == KEY_ENTER) {
-        if (!input.strip_edges().is_empty())  history.push_back(input); history_index = static_cast<int32_t>(history.size());
+        if (!input.strip_edges().is_empty()) history.push_back(input); history_index = static_cast<int32_t>(history.size());
+        const Vector2i line_col = highlighter->from_index_get_line_column(input_start_index);
+        remove_text(line_col.x, line_col.y, get_line_count() - 1, static_cast<int32_t>(get_line(get_line_count() - 1).length()));
         write_to_terminal(input + "\n");
         input = "";
         accept_event();
@@ -305,21 +306,49 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
     if (keycode == KEY_BACKSPACE) {
         if (const int caret_index = get_caret_index(); caret_index > input_start_index) {
             const int rel = caret_index - input_start_index;
-            input = input.substr(0, rel-1) + input.substr(rel + 2);
+            input = input.substr(0, rel-1) + input.substr(rel + 1);
             backspace();
         }
         else clamp_caret();
         accept_event();
         return;
     }
-    if (const char32_t unicode = key_event->get_unicode(); unicode != 0) {
-         const int rel = get_caret_index() - input_start_index;
-         input = input.substr(0, rel) + String::chr(unicode) + input.substr(rel + 1);
-     }
+    if (keycode == KEY_UP) {
+        if (history.is_empty()) { accept_event(); return;}
+        if (history_index == history.size()) history_temp = input;
+        history_index = std::max(history_index - 1, 0);
+        input = history[history_index];
+        const Vector2i line_col = highlighter->from_index_get_line_column(input_start_index);
+        remove_text(line_col.x, line_col.y, get_line_count() - 1, static_cast<int32_t>(get_line(get_line_count() - 1).length()));
+        insert_text(input,line_col.x, line_col.y);
+        accept_event();
+        return;
+    }
+    if (keycode == KEY_DOWN) {
+        history_index++;
+        if (history_index == history.size()) input = history_temp;
+        else if (history_index < history.size()) input = history[history_index];
+        const Vector2i line_col = highlighter->from_index_get_line_column(input_start_index);
+        remove_text(line_col.x, line_col.y, get_line_count() - 1, static_cast<int32_t>(get_line(get_line_count() - 1).length()));
+        insert_text(input,line_col.x, line_col.y);
+        accept_event();
+        return;
+    }
+    if (!key_event->is_ctrl_pressed() && !key_event->is_alt_pressed()) {
+        if (const char32_t unicode = key_event->get_unicode(); unicode != 0) {
+            const int rel = get_caret_index() - input_start_index;
+            input = input.substr(0, rel) + String::chr(unicode) + input.substr(rel + 1);
+        }
+    }
+}
+
+bool LinuxHost::file_exists(const char *path) {
+    struct stat st{};
+    return path && stat(path, &st) == 0 && S_ISREG(st.st_mode);
 }
 
 void LinuxHost::reader_loop(){
-    char buffer[256];
+    char buffer[257];
 
     while (running){
         if (const ssize_t n = read(master_fd, buffer, sizeof(buffer)); n > 0){
@@ -389,7 +418,7 @@ void LinuxHost::start_pseudoterminal(){
 
 void LinuxHost::write_to_terminal(const String &text){
     const std::string native_str_text = text.utf8().get_data();
-    ssize_t result;
+    ssize_t result = 0;
 
     if (native_str_text == "clear\n") {
         clear();

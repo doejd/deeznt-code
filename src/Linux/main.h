@@ -58,11 +58,12 @@ class LinuxHost : public TextEdit {
     int32_t input_start_index = 0;
     Ref<AnsiHighlighter> highlighter;
     Vector<Segment> segments;
-    Vector<String> history;
+    PackedStringArray history;
     static void apply_style(int code, Segment &seg);
     static int ansi256_to_color(const int &code);
     static int ansi_to_color(const int &code);
     static void apply_args(Segment &seg, const String &args);
+    static bool file_exists(const char* path);
     int32_t get_caret_index() const;
 
 protected:
