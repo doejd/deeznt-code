@@ -112,7 +112,7 @@ anchors_preset = -1
 anchor_bottom = 0.062
 offset_left = -234.0
 offset_bottom = -0.1760025
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 14
 alignment = 1
 item_count = 2
 popup/item_0/text = "Github Dark"
@@ -134,7 +134,7 @@ split_offset = 288
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_h2yge")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 16
 
 [node name="VSplitContainer" type="VSplitContainer" parent="Editor_Container"]
 layout_mode = 2
@@ -152,7 +152,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("5_7mycd")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 16
 emoji_menu_enabled = false
 deselect_on_focus_loss_enabled = false
 empty_selection_clipboard_enabled = false
@@ -190,6 +190,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_font_sizes/font_size = 16
 caret_type = 1
 caret_blink = true
 caret_multiple = false
@@ -306,6 +307,30 @@ text = "Change Theme"
 layout_mode = 2
 text = "Ctrl + T"
 
+[node name="Shortcut Item4" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section2"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item4"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Increase Font Size"
+
+[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item4"]
+layout_mode = 2
+text = "Ctrl + (+)"
+
+[node name="Shortcut Item5" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section2"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item5"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Decrease Font Size"
+
+[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item5"]
+layout_mode = 2
+text = "Ctrl + (-)"
+
 [node name="HSeparator3" type="HSeparator" parent="Intro Window/VBoxContainer"]
 layout_mode = 2
 
@@ -409,6 +434,12 @@ text = "Replace All"
 [node name="LineEdit2" type="LineEdit" parent="Find Replace Window/VBoxContainer/Replace All"]
 layout_mode = 2
 
+[connection signal="change_font_size" from="." to="Intro Window" method="_on_control_change_font_size"]
+[connection signal="change_font_size" from="." to="Find Replace Window" method="_on_control_change_font_size"]
+[connection signal="on_load_intro_window" from="." to="Intro Window" method="_on_control_on_load_intro_window"]
+[connection signal="on_load_intro_window" from="." to="Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox" method="_on_control_on_load_intro_window"]
+[connection signal="on_load_theme" from="." to="OptionButton" method="_on_control_on_load_theme"]
+[connection signal="on_load_theme" from="." to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_control_on_load_theme"]
 [connection signal="opened_file" from="." to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_control_opened_file"]
 [connection signal="item_selected" from="OptionButton" to="OptionButton" method="_on_item_selected"]
 [connection signal="on_theme_change" from="OptionButton" to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_option_button_on_theme_change"]
@@ -419,7 +450,6 @@ layout_mode = 2
 [connection signal="gui_input" from="Editor_Container/VSplitContainer/VSplitContainer/Editor" to="." method="_on_editor_gui_input"]
 [connection signal="text_changed" from="Editor_Container/VSplitContainer/VSplitContainer/Editor" to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_text_changed"]
 [connection signal="close_requested" from="Intro Window" to="Intro Window" method="_on_close_requested"]
-[connection signal="toggled" from="Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox" to="Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox" method="_on_toggled"]
 [connection signal="close_requested" from="Find Replace Window" to="Find Replace Window" method="_on_close_requested"]
 [connection signal="text_submitted" from="Find Replace Window/VBoxContainer/Find/HBoxContainer/LineEdit" to="Find Replace Window" method="_on_line_edit_text_submitted"]
 [connection signal="pressed" from="Find Replace Window/VBoxContainer/Find/HBoxContainer/Up Arrow" to="Find Replace Window" method="_on_up_arrow_pressed"]
