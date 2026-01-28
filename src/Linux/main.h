@@ -65,6 +65,7 @@ class LinuxHost : public TextEdit {
     static void apply_args(Segment &seg, const String &args);
     static bool file_exists(const char* path);
     int32_t get_caret_index() const;
+    void load_history(int max_lines);
 
 protected:
     static void _bind_methods();

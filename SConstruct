@@ -5,7 +5,7 @@ import sys
 env = SConscript("godot-cpp/SConstruct")
 env["strip"] = False
 env.Append(CPPPATH=["src"])
-sources = Glob("src/Linux-test-version/*.cpp")
+sources = Glob("src/Linux/*.cpp")
 
 env.Append(CCFLAGS=["-g"])
 env.Append(CXXFLAGS=["-g"])

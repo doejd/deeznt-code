@@ -1,5 +1,5 @@
 [configuration]
-entry_symbol = "cmdhost_library_init"
+entry_symbol = "terminalhost_library_init"
 compatibility_minimum = "4.4"
 
 [libraries]

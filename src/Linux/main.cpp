@@ -314,9 +314,9 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
         return;
     }
     if (keycode == KEY_UP) {
-        if (history.is_empty()) { accept_event(); return;}
+        if (history.is_empty()) {accept_event(); return;}
         if (history_index == history.size()) history_temp = input;
-        history_index = std::max(history_index - 1, 0);
+        history_index = std::max(0, history_index - 1);
         input = history[history_index];
         const Vector2i line_col = highlighter->from_index_get_line_column(input_start_index);
         remove_text(line_col.x, line_col.y, get_line_count() - 1, static_cast<int32_t>(get_line(get_line_count() - 1).length()));
@@ -325,7 +325,7 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
         return;
     }
     if (keycode == KEY_DOWN) {
-        history_index++;
+        history_index = std::min(static_cast<int>(history.size()), history_index + 1);
         if (history_index == history.size()) input = history_temp;
         else if (history_index < history.size()) input = history[history_index];
         const Vector2i line_col = highlighter->from_index_get_line_column(input_start_index);
@@ -345,6 +345,50 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
 bool LinuxHost::file_exists(const char *path) {
     struct stat st{};
     return path && stat(path, &st) == 0 && S_ISREG(st.st_mode);
+}
+
+
+void LinuxHost::load_history(const int max_lines) {
+    const char* hist_path = getenv("HISTFILE");
+    String path;
+    if (!hist_path) {
+        const char* home_path = getenv("HOME");
+        if (!home_path) {history=PackedStringArray(); return;}
+        path = String(home_path) + "/.bash_history";
+    }
+    else path = hist_path;
+    if (!file_exists(path.utf8().get_data())) {history=PackedStringArray(); return;}
+
+    const Ref<FileAccess> file = FileAccess::open(String(path), FileAccess::READ);
+    if (file.is_null()) {history=PackedStringArray(); return;}
+
+    const auto file_size = static_cast<int64_t>(file->get_length());
+
+    int64_t pos{file_size};
+    int newline_count{0};
+    String buffer;
+
+    while (pos > 0 && newline_count <= max_lines) {
+        constexpr int64_t chunk_size{4096};
+        const int64_t read_size = Math::min(chunk_size, pos);
+        pos -= read_size;
+
+        file->seek(pos);
+        PackedByteArray bytes = file->get_buffer(read_size);
+        String chunk = bytes.get_string_from_utf8();
+
+        buffer = chunk + buffer;
+        newline_count += static_cast<int>(chunk.count("\n"));
+    }
+
+    file->close();
+
+    PackedStringArray lines = buffer.split("\n", false);
+    if (lines.size() > max_lines) lines = lines.slice(lines.size() - max_lines, lines.size());
+
+    lines.reverse();
+    history = lines;
+    UtilityFunctions::print("Successfully loaded history");
 }
 
 void LinuxHost::reader_loop(){
@@ -414,6 +458,7 @@ void LinuxHost::start_pseudoterminal(){
 
     UtilityFunctions::print("PTY searched, PID: ", child_pid);
     write_to_terminal("export TERM=xterm-256color\n");
+    load_history(500);
 }
 
 void LinuxHost::write_to_terminal(const String &text){
