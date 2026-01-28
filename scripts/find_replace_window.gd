@@ -15,7 +15,6 @@ func _ready() -> void:
 	
 func _on_close_requested() -> void:
 	hide()
-	main.find_replace_wind_open = false
 
 func resize() -> void:
 	var screen_size = DisplayServer.window_get_size()

@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://d1ed3s622lfi0"]
+[gd_scene format=3 uid="uid://d1ed3s622lfi0"]
 
 [ext_resource type="Script" uid="uid://d3mjdab1o1wqs" path="res://scripts/main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://bctpagkgq0qgi" path="res://scripts/edit.gd" id="2_0xm2m"]
@@ -97,7 +97,7 @@ _data = {
 &"open_theme_select": SubResource("Animation_7mycd")
 }
 
-[node name="Control" type="Control"]
+[node name="Control" type="Control" unique_id=1706729041]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -106,7 +106,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ig7tw")
 
-[node name="OptionButton" type="OptionButton" parent="."]
+[node name="OptionButton" type="OptionButton" parent="." unique_id=823774134]
 layout_mode = 1
 anchors_preset = -1
 anchor_bottom = 0.062
@@ -121,33 +121,35 @@ popup/item_1/text = "One Dark Pro Darker"
 popup/item_1/id = 1
 script = ExtResource("2_272bh")
 
-[node name="Editor_Container" type="HSplitContainer" parent="."]
+[node name="Editor_Container" type="HSplitContainer" parent="." unique_id=1222315828]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+split_offsets = PackedInt32Array(288)
 split_offset = 288
 
-[node name="ItemList" type="ItemList" parent="Editor_Container"]
+[node name="ItemList" type="ItemList" parent="Editor_Container" unique_id=1053085707]
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_h2yge")
 theme_override_font_sizes/font_size = 16
 
-[node name="VSplitContainer" type="VSplitContainer" parent="Editor_Container"]
+[node name="VSplitContainer" type="VSplitContainer" parent="Editor_Container" unique_id=1287392421]
 layout_mode = 2
 
-[node name="VSplitContainer" type="VSplitContainer" parent="Editor_Container/VSplitContainer"]
+[node name="VSplitContainer" type="VSplitContainer" parent="Editor_Container/VSplitContainer" unique_id=1128697463]
 layout_mode = 2
 size_flags_vertical = 3
+split_offsets = PackedInt32Array(40)
 split_offset = 40
 
-[node name="Label" type="Label" parent="Editor_Container/VSplitContainer/VSplitContainer"]
+[node name="Label" type="Label" parent="Editor_Container/VSplitContainer/VSplitContainer" unique_id=1308816459]
 layout_mode = 2
 
-[node name="Editor" type="CodeEdit" parent="Editor_Container/VSplitContainer/VSplitContainer"]
+[node name="Editor" type="CodeEdit" parent="Editor_Container/VSplitContainer/VSplitContainer" unique_id=1565296416]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -165,16 +167,14 @@ auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
 script = ExtResource("2_0xm2m")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Editor_Container/VSplitContainer/VSplitContainer/Editor"]
-libraries = {
-&"": SubResource("AnimationLibrary_kek77")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Editor_Container/VSplitContainer/VSplitContainer/Editor" unique_id=1975240395]
+libraries/ = SubResource("AnimationLibrary_kek77")
 
-[node name="Control" type="Control" parent="Editor_Container/VSplitContainer"]
+[node name="Control" type="Control" parent="Editor_Container/VSplitContainer" unique_id=1552123644]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ColorRect" type="ColorRect" parent="Editor_Container/VSplitContainer/Control"]
+[node name="ColorRect" type="ColorRect" parent="Editor_Container/VSplitContainer/Control" unique_id=36217848]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -183,7 +183,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.176471, 0.176471, 0.176471, 1)
 
-[node name="LinuxHost" type="LinuxHost" parent="Editor_Container/VSplitContainer/Control"]
+[node name="LinuxHost" type="LinuxHost" parent="Editor_Container/VSplitContainer/Control" unique_id=120440146]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -195,7 +195,7 @@ caret_type = 1
 caret_blink = true
 caret_multiple = false
 
-[node name="Intro Window" type="Window" parent="."]
+[node name="Intro Window" type="Window" parent="." unique_id=1273299596]
 oversampling_override = 1.0
 title = "Welcome to Deezn't Code"
 position = Vector2i(375, 36)
@@ -203,235 +203,235 @@ size = Vector2i(500, 500)
 visible = false
 script = ExtResource("6_7mycd")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Intro Window"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Intro Window" unique_id=771926806]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="Intro Window/VBoxContainer"]
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer" unique_id=830926759]
 layout_mode = 2
 text = "UI Interaction"
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="Intro Window/VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="Intro Window/VBoxContainer" unique_id=788283994]
 layout_mode = 2
 
-[node name="Shrotcut Section" type="VBoxContainer" parent="Intro Window/VBoxContainer"]
+[node name="Shrotcut Section" type="VBoxContainer" parent="Intro Window/VBoxContainer" unique_id=429080412]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section"]
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section" unique_id=1873998595]
 layout_mode = 2
 text = "File Shortcuts"
 
-[node name="Shortcut Item" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section"]
+[node name="Shortcut Item" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section" unique_id=15300608]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section/Shortcut Item"]
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section/Shortcut Item" unique_id=1986678980]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Save"
 
-[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section/Shortcut Item"]
+[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section/Shortcut Item" unique_id=1003254155]
 layout_mode = 2
 text = "Ctrl + S"
 
-[node name="Shortcut Item2" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section"]
+[node name="Shortcut Item2" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section" unique_id=1250274122]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section/Shortcut Item2"]
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section/Shortcut Item2" unique_id=336572707]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Navigation"
 
-[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section/Shortcut Item2"]
+[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section/Shortcut Item2" unique_id=2052129553]
 layout_mode = 2
 text = "Up Arrow / Down Arrow"
 
-[node name="Shortcut Item3" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section"]
+[node name="Shortcut Item3" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section" unique_id=1915290200]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section/Shortcut Item3"]
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section/Shortcut Item3" unique_id=296034605]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Open File/Folder"
 
-[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section/Shortcut Item3"]
+[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section/Shortcut Item3" unique_id=1506919034]
 layout_mode = 2
 text = "Enter/Double Click"
 
-[node name="HSeparator2" type="HSeparator" parent="Intro Window/VBoxContainer"]
+[node name="HSeparator2" type="HSeparator" parent="Intro Window/VBoxContainer" unique_id=445671888]
 layout_mode = 2
 
-[node name="Shrotcut Section2" type="VBoxContainer" parent="Intro Window/VBoxContainer"]
+[node name="Shrotcut Section2" type="VBoxContainer" parent="Intro Window/VBoxContainer" unique_id=210680888]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2"]
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2" unique_id=571311641]
 layout_mode = 2
 text = "Editor Shortcuts"
 
-[node name="Shortcut Item" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section2"]
+[node name="Shortcut Item" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section2" unique_id=1924988980]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item"]
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item" unique_id=1402046656]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Change Focus"
 
-[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item"]
+[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item" unique_id=946724495]
 layout_mode = 2
 text = "Shift + Escape"
 
-[node name="Shortcut Item2" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section2"]
+[node name="Shortcut Item2" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section2" unique_id=2138592546]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item2"]
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item2" unique_id=2008693847]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Multiple cursors"
 
-[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item2"]
+[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item2" unique_id=1200108868]
 layout_mode = 2
 text = "Ctrl + Shift + Arrow Keys"
 
-[node name="Shortcut Item3" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section2"]
+[node name="Shortcut Item3" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section2" unique_id=1494867472]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item3"]
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item3" unique_id=1436969961]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Change Theme"
 
-[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item3"]
+[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item3" unique_id=1174142290]
 layout_mode = 2
 text = "Ctrl + T"
 
-[node name="Shortcut Item4" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section2"]
+[node name="Shortcut Item4" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section2" unique_id=809423480]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item4"]
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item4" unique_id=459166252]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Increase Font Size"
 
-[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item4"]
+[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item4" unique_id=565087084]
 layout_mode = 2
 text = "Ctrl + (+)"
 
-[node name="Shortcut Item5" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section2"]
+[node name="Shortcut Item5" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section2" unique_id=299669601]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item5"]
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item5" unique_id=2016331688]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Decrease Font Size"
 
-[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item5"]
+[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item5" unique_id=1478396886]
 layout_mode = 2
 text = "Ctrl + (-)"
 
-[node name="HSeparator3" type="HSeparator" parent="Intro Window/VBoxContainer"]
+[node name="HSeparator3" type="HSeparator" parent="Intro Window/VBoxContainer" unique_id=643823210]
 layout_mode = 2
 
-[node name="Shrotcut Section3" type="VBoxContainer" parent="Intro Window/VBoxContainer"]
+[node name="Shrotcut Section3" type="VBoxContainer" parent="Intro Window/VBoxContainer" unique_id=1828287921]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3"]
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3" unique_id=1604957971]
 layout_mode = 2
 text = "Search / Replace"
 
-[node name="Shortcut Item" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section3"]
+[node name="Shortcut Item" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section3" unique_id=715570635]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3/Shortcut Item"]
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3/Shortcut Item" unique_id=986994247]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Find / Replace"
 
-[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3/Shortcut Item"]
+[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3/Shortcut Item" unique_id=1532074085]
 layout_mode = 2
 text = "Ctrl + F"
 
-[node name="Shortcut Item2" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section3"]
+[node name="Shortcut Item2" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section3" unique_id=773422698]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3/Shortcut Item2"]
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3/Shortcut Item2" unique_id=62260725]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Help"
 
-[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3/Shortcut Item2"]
+[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section3/Shortcut Item2" unique_id=335216726]
 layout_mode = 2
 text = "Ctrl + H"
 
-[node name="HSeparator4" type="HSeparator" parent="Intro Window/VBoxContainer"]
+[node name="HSeparator4" type="HSeparator" parent="Intro Window/VBoxContainer" unique_id=1797677098]
 layout_mode = 2
 
-[node name="Never Show Again Dialog" type="HBoxContainer" parent="Intro Window/VBoxContainer"]
+[node name="Never Show Again Dialog" type="HBoxContainer" parent="Intro Window/VBoxContainer" unique_id=1118489236]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="CheckBox" type="CheckBox" parent="Intro Window/VBoxContainer/Never Show Again Dialog"]
+[node name="CheckBox" type="CheckBox" parent="Intro Window/VBoxContainer/Never Show Again Dialog" unique_id=1236287232]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 text = "Never Show Again"
 script = ExtResource("7_272bh")
 
-[node name="Find Replace Window" type="Window" parent="."]
+[node name="Find Replace Window" type="Window" parent="." unique_id=559420306]
 title = "Find/Replace"
 position = Vector2i(376, 250)
 size = Vector2i(500, 200)
 visible = false
 script = ExtResource("8_5vw27")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Find Replace Window"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Find Replace Window" unique_id=788165671]
 anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 0.98
 
-[node name="Find" type="VBoxContainer" parent="Find Replace Window/VBoxContainer"]
+[node name="Find" type="VBoxContainer" parent="Find Replace Window/VBoxContainer" unique_id=1622474572]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Find Replace Window/VBoxContainer/Find"]
+[node name="Label" type="Label" parent="Find Replace Window/VBoxContainer/Find" unique_id=3279061]
 layout_mode = 2
 text = "Find"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Find Replace Window/VBoxContainer/Find"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Find Replace Window/VBoxContainer/Find" unique_id=1105099207]
 layout_mode = 2
 
-[node name="LineEdit" type="LineEdit" parent="Find Replace Window/VBoxContainer/Find/HBoxContainer"]
+[node name="LineEdit" type="LineEdit" parent="Find Replace Window/VBoxContainer/Find/HBoxContainer" unique_id=1734259472]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Up Arrow" type="Button" parent="Find Replace Window/VBoxContainer/Find/HBoxContainer"]
+[node name="Up Arrow" type="Button" parent="Find Replace Window/VBoxContainer/Find/HBoxContainer" unique_id=1404288190]
 layout_mode = 2
 text = "↑"
 
-[node name="Down Arrow" type="Button" parent="Find Replace Window/VBoxContainer/Find/HBoxContainer"]
+[node name="Down Arrow" type="Button" parent="Find Replace Window/VBoxContainer/Find/HBoxContainer" unique_id=1107523428]
 layout_mode = 2
 text = "↓"
 
-[node name="Replace selected" type="VBoxContainer" parent="Find Replace Window/VBoxContainer"]
+[node name="Replace selected" type="VBoxContainer" parent="Find Replace Window/VBoxContainer" unique_id=1942183925]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Find Replace Window/VBoxContainer/Replace selected"]
+[node name="Label" type="Label" parent="Find Replace Window/VBoxContainer/Replace selected" unique_id=279440072]
 layout_mode = 2
 text = "Replace Selected"
 
-[node name="LineEdit" type="LineEdit" parent="Find Replace Window/VBoxContainer/Replace selected"]
+[node name="LineEdit" type="LineEdit" parent="Find Replace Window/VBoxContainer/Replace selected" unique_id=277226061]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Replace All" type="VBoxContainer" parent="Find Replace Window/VBoxContainer"]
+[node name="Replace All" type="VBoxContainer" parent="Find Replace Window/VBoxContainer" unique_id=1018060994]
 layout_mode = 2
 
-[node name="Label2" type="Label" parent="Find Replace Window/VBoxContainer/Replace All"]
+[node name="Label2" type="Label" parent="Find Replace Window/VBoxContainer/Replace All" unique_id=208440232]
 layout_mode = 2
 text = "Replace All"
 
-[node name="LineEdit2" type="LineEdit" parent="Find Replace Window/VBoxContainer/Replace All"]
+[node name="LineEdit2" type="LineEdit" parent="Find Replace Window/VBoxContainer/Replace All" unique_id=1944764217]
 layout_mode = 2
 
 [connection signal="change_font_size" from="." to="Intro Window" method="_on_control_change_font_size"]
