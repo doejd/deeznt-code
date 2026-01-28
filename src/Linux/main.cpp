@@ -386,8 +386,9 @@ void LinuxHost::load_history(const int max_lines) {
     PackedStringArray lines = buffer.split("\n", false);
     if (lines.size() > max_lines) lines = lines.slice(lines.size() - max_lines, lines.size());
 
-    lines.reverse();
     history = lines;
+    history_index = static_cast<int>(history.size());
+    history_temp = "";
     UtilityFunctions::print("Successfully loaded history");
 }
 
