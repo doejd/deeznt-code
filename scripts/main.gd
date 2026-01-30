@@ -3,11 +3,11 @@ extends Control
 @onready var find_replace_wind = $"Find Replace Window"
 @onready var editor = $Editor_Container/VSplitContainer/VSplitContainer/Editor
 @onready var item_list = $Editor_Container/ItemList
-@onready var label = $Editor_Container/VSplitContainer/VSplitContainer/Label
 @onready var H_container = $Editor_Container
 @onready var V_container = $Editor_Container/VSplitContainer/VSplitContainer
 @onready var V_container2 = $Editor_Container/VSplitContainer
 @onready var terminal = $Editor_Container/VSplitContainer/Control.get_child(1)
+@onready var tab_bar = $Editor_Container/VSplitContainer/VSplitContainer/TabBar
 @onready var icons = Icons.new()
 var cur_opened_file = ""
 var dir = DirAccess.open(OS.get_user_data_dir())
@@ -19,7 +19,8 @@ var save_file_path = "user://Preferance Data/save_data.cfg"
 	0 : item_list,
 	1 : editor,
 	2 : terminal }
-signal opened_file(file_name)
+var tab_path_map = {}
+signal opened_file(file_name, file_path)
 signal change_font_size(font_size)
 signal on_load_intro_window(show_)
 signal on_load_theme(theme_l)
@@ -77,6 +78,7 @@ func _ready() -> void:
 	get_tree().root.size_changed.connect(resize)
 	get_tree().root.focus_entered.connect(update)
 	get_tree().root.close_requested.connect(save_preferences)
+	tab_bar.tab_close_pressed.connect(remove_tab)
 
 func on_load_emit_pref():
 	var cfg = ConfigFile.new()
@@ -98,10 +100,7 @@ func display_items(items: Array) -> void:
 		if DirAccess.open(dir.get_current_dir().path_join(item)): item_list.add_item(" " + item) # If it is a folder
 		else: item_list.add_item(icons.get_icon_data(get_extension(item)) + " " + item)
 
-func open() -> void:
-	var selected_name = item_list.get_item_text(cur_ind)
-	if not selected_name == "..": selected_name = selected_name.erase(0, 2)
-	var full_path = dir.get_current_dir().path_join(selected_name)
+func open_file_dir(full_path : String, selected_name : String) -> void:
 	if DirAccess.open(full_path):
 		cur_ind = 0
 		dir.change_dir(selected_name)
@@ -112,13 +111,19 @@ func open() -> void:
 		if file:
 			editor.text = file.get_as_text()
 			editor.set_up_extensions(get_extension(selected_name))
-			cur_opened_file = str(full_path)
+			cur_opened_file = file.get_path_absolute()
 			editor.clear_undo_history()
 			file.close()
 			call_deferred("_refocus_editor")
-			opened_file.emit(selected_name)
+			opened_file.emit(selected_name, full_path)
 		else:
 			dir = DirAccess.open(OS.get_user_data_dir())
+
+func open_from_file_explorer():
+	var selected_name = item_list.get_item_text(cur_ind)
+	if not selected_name == "..": selected_name = selected_name.erase(0, 2)
+	var full_path = dir.get_current_dir().path_join(selected_name)
+	open_file_dir(full_path, selected_name)
 
 func _input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("Change Focus"):
@@ -128,7 +133,7 @@ func _input(_event: InputEvent) -> void:
 	if item_list.has_focus():
 		if Input.is_action_pressed("ui_up"): cur_ind -= 1; get_viewport().set_input_as_handled()
 		elif Input.is_action_pressed("ui_down"): cur_ind += 1; get_viewport().set_input_as_handled()
-		elif Input.is_action_just_pressed("enter"): open(); get_viewport().set_input_as_handled()
+		elif Input.is_action_just_pressed("enter"): open_from_file_explorer(); get_viewport().set_input_as_handled()
 		cur_ind = clamp(cur_ind, 0, item_list.get_item_count()-1)
 		item_list.select(cur_ind)
 		item_list.ensure_current_is_visible()
@@ -139,10 +144,21 @@ func _input(_event: InputEvent) -> void:
 	elif Input.is_action_just_pressed("Find") and find_replace_wind.visible == true: find_replace_wind.hide(); get_viewport().set_input_as_handled()
 	if Input.is_action_pressed("Increase Font Size") and font_size < 100: font_size += 1; update_font_size(); get_viewport().set_input_as_handled()
 	if Input.is_action_pressed("Decrease Font Size") and font_size > 0: font_size -= 1; update_font_size(); get_viewport().set_input_as_handled()
+	if Input.is_action_just_pressed("Tab Switch") and not tab_bar.current_tab == -1 and not tab_path_map.is_empty():
+		if tab_bar.current_tab + 1 >= tab_bar.get_tab_count(): tab_bar.current_tab = 0
+		else: tab_bar.current_tab += 1
+		open_file_dir(tab_path_map[tab_bar.current_tab], tab_bar.get_tab_title(tab_bar.current_tab)) 
+		get_viewport().set_input_as_handled()
 
 func update() -> void:
 	display_items(get_dir_contents())
 	
+func get_key(value : Variant) -> int:
+	for key in tab_path_map:
+		if tab_path_map[key] == value:
+			return key
+	return 0
+
 func resize() -> void:
 	var win_size = DisplayServer.window_get_size()
 	var left_side_spacing = 0.25
@@ -153,19 +169,33 @@ func resize() -> void:
 	V_container2.split_offset = win_size.x * console_spacing
 	
 func update_font_size():
-	label.add_theme_font_size_override("font_size", font_size)
+	tab_bar.add_theme_font_size_override("font_size", font_size)
 	editor.add_theme_font_size_override("font_size", font_size)
 	item_list.add_theme_font_size_override("font_size", font_size)
 	terminal.add_theme_font_size_override("font_size", font_size)
 	change_font_size.emit(font_size)
 	
+func remove_tab(tab : int):
+	for key in tab_path_map.keys():
+		if key == tab: tab_path_map.erase(tab)
+		elif key > tab: tab_path_map[key-1] = tab_path_map[key]; tab_path_map.erase(key)
+	
+	if tab_bar.get_tab_count() == 1:
+		editor.text = ""
+		cur_opened_file = ""
+		editor.clear_undo_history()
+		tab_path_map.clear()
+	elif tab == 0 and tab == tab_bar.current_tab: open_file_dir(tab_path_map[0], tab_bar.get_tab_title(0))
+	elif tab == tab_bar.current_tab: open_file_dir(tab_path_map[tab-1], tab_bar.get_tab_title(tab-1))
+	
+	tab_bar.remove_tab(tab)
 
 func _on_editor_gui_input(_event: InputEvent) -> void:
 	if not Input.is_action_just_pressed("ui_open"): return
 	editor.accept_event()
 
 func _on_item_list_item_clicked(index: int, _at_position: Vector2, mouse_button_index: int) -> void:
-	if index == cur_ind: open()
+	if index == cur_ind: open_from_file_explorer()
 	if mouse_button_index == 1 and not index == cur_ind: cur_ind = index
 
 func _on_item_list_focus_entered() -> void:
@@ -176,3 +206,14 @@ func _on_editor_focus_entered() -> void:
 
 func _on_cmd_host_focus_entered() -> void:
 	cur_ind_focus = 2
+
+func _on_opened_file(file_name: Variant, file_path : Variant) -> void:
+	if tab_path_map.values().find(file_path) != -1: return;
+	tab_bar.add_tab(file_name)
+	var index = tab_bar.get_tab_count() - 1
+	tab_bar.current_tab = index
+	tab_path_map[index] = file_path
+
+func _on_tab_bar_tab_clicked(tab: int) -> void:
+	if tab == tab_bar.current_tab: return
+	open_file_dir(tab_path_map[tab], tab_bar.get_tab_title(tab))

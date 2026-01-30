@@ -1,6 +1,5 @@
 extends CodeEdit
 @onready var animation_player = $AnimationPlayer
-@onready var label = get_node("../Label")
 @onready var main = get_node("../../../..")
 var function = preload("res://Images/function.png")
 var variable = preload("res://Images/variable.png")
@@ -159,9 +158,6 @@ func _on_code_completion_requested() -> void:
 		for each in unique_array(lang_keywords):
 			add_code_completion_option(CodeEdit.KIND_PLAIN_TEXT, each, each, keywords.reserved, keyword_img)
 	update_code_completion_options(true)
-
-func _on_control_opened_file(file_name: Variant) -> void:
-	label.text = file_name
 
 func _on_text_changed() -> void:
 	if Input.is_action_just_pressed("enter"): return

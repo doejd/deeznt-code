@@ -143,10 +143,8 @@ layout_mode = 2
 [node name="VSplitContainer" type="VSplitContainer" parent="Editor_Container/VSplitContainer" unique_id=1128697463]
 layout_mode = 2
 size_flags_vertical = 3
-split_offsets = PackedInt32Array(40)
-split_offset = 40
 
-[node name="Label" type="Label" parent="Editor_Container/VSplitContainer/VSplitContainer" unique_id=1308816459]
+[node name="TabBar" type="TabBar" parent="Editor_Container/VSplitContainer/VSplitContainer" unique_id=2026867494]
 layout_mode = 2
 
 [node name="Editor" type="CodeEdit" parent="Editor_Container/VSplitContainer/VSplitContainer" unique_id=1565296416]
@@ -331,6 +329,18 @@ text = "Decrease Font Size"
 layout_mode = 2
 text = "Ctrl + (-)"
 
+[node name="Shortcut Item6" type="HBoxContainer" parent="Intro Window/VBoxContainer/Shrotcut Section2" unique_id=1483086614]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item6" unique_id=168690356]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Switch Tabs"
+
+[node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item6" unique_id=443695295]
+layout_mode = 2
+text = "Ctrl + TAB"
+
 [node name="HSeparator3" type="HSeparator" parent="Intro Window/VBoxContainer" unique_id=643823210]
 layout_mode = 2
 
@@ -440,11 +450,12 @@ layout_mode = 2
 [connection signal="on_load_intro_window" from="." to="Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox" method="_on_control_on_load_intro_window"]
 [connection signal="on_load_theme" from="." to="OptionButton" method="_on_control_on_load_theme"]
 [connection signal="on_load_theme" from="." to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_control_on_load_theme"]
-[connection signal="opened_file" from="." to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_control_opened_file"]
+[connection signal="opened_file" from="." to="." method="_on_opened_file"]
 [connection signal="item_selected" from="OptionButton" to="OptionButton" method="_on_item_selected"]
 [connection signal="on_theme_change" from="OptionButton" to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_option_button_on_theme_change"]
 [connection signal="focus_entered" from="Editor_Container/ItemList" to="." method="_on_item_list_focus_entered"]
 [connection signal="item_clicked" from="Editor_Container/ItemList" to="." method="_on_item_list_item_clicked"]
+[connection signal="tab_clicked" from="Editor_Container/VSplitContainer/VSplitContainer/TabBar" to="." method="_on_tab_bar_tab_clicked"]
 [connection signal="code_completion_requested" from="Editor_Container/VSplitContainer/VSplitContainer/Editor" to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_code_completion_requested"]
 [connection signal="focus_entered" from="Editor_Container/VSplitContainer/VSplitContainer/Editor" to="." method="_on_editor_focus_entered"]
 [connection signal="gui_input" from="Editor_Container/VSplitContainer/VSplitContainer/Editor" to="." method="_on_editor_gui_input"]
