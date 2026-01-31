@@ -13,13 +13,14 @@ var cur_opened_file = ""
 var dir = DirAccess.open(OS.get_user_data_dir())
 var cur_ind = 0
 var cur_ind_focus = 0
-var font_size = 16;
+var font_size = 16
+var from_idx = -1
 var save_file_path = "user://Preferance Data/save_data.cfg"
 @onready var map : Dictionary = {
 	0 : item_list,
 	1 : editor,
 	2 : terminal }
-var tab_path_map = {}
+var tab_path_arr = []
 signal opened_file(file_name, file_path)
 signal change_font_size(font_size)
 signal on_load_intro_window(show_)
@@ -78,7 +79,6 @@ func _ready() -> void:
 	get_tree().root.size_changed.connect(resize)
 	get_tree().root.focus_entered.connect(update)
 	get_tree().root.close_requested.connect(save_preferences)
-	tab_bar.tab_close_pressed.connect(remove_tab)
 
 func on_load_emit_pref():
 	var cfg = ConfigFile.new()
@@ -144,20 +144,14 @@ func _input(_event: InputEvent) -> void:
 	elif Input.is_action_just_pressed("Find") and find_replace_wind.visible == true: find_replace_wind.hide(); get_viewport().set_input_as_handled()
 	if Input.is_action_pressed("Increase Font Size") and font_size < 100: font_size += 1; update_font_size(); get_viewport().set_input_as_handled()
 	if Input.is_action_pressed("Decrease Font Size") and font_size > 0: font_size -= 1; update_font_size(); get_viewport().set_input_as_handled()
-	if Input.is_action_just_pressed("Tab Switch") and not tab_bar.current_tab == -1 and not tab_path_map.is_empty():
+	if Input.is_action_just_pressed("Tab Switch") and not tab_bar.current_tab == -1 and not tab_path_arr.is_empty():
 		if tab_bar.current_tab + 1 >= tab_bar.get_tab_count(): tab_bar.current_tab = 0
 		else: tab_bar.current_tab += 1
-		open_file_dir(tab_path_map[tab_bar.current_tab], tab_bar.get_tab_title(tab_bar.current_tab)) 
+		open_file_dir(tab_path_arr[tab_bar.current_tab], tab_bar.get_tab_title(tab_bar.current_tab)) 
 		get_viewport().set_input_as_handled()
 
 func update() -> void:
 	display_items(get_dir_contents())
-	
-func get_key(value : Variant) -> int:
-	for key in tab_path_map:
-		if tab_path_map[key] == value:
-			return key
-	return 0
 
 func resize() -> void:
 	var win_size = DisplayServer.window_get_size()
@@ -176,19 +170,19 @@ func update_font_size():
 	change_font_size.emit(font_size)
 	
 func remove_tab(tab : int):
-	for key in tab_path_map.keys():
-		if key == tab: tab_path_map.erase(tab)
-		elif key > tab: tab_path_map[key-1] = tab_path_map[key]; tab_path_map.erase(key)
+	tab_bar.remove_tab(tab)
+	tab_path_arr.remove_at(tab)
 	
-	if tab_bar.get_tab_count() == 1:
+	if tab_bar.get_tab_count() == 0:
 		editor.text = ""
 		cur_opened_file = ""
 		editor.clear_undo_history()
-		tab_path_map.clear()
-	elif tab == 0 and tab == tab_bar.current_tab: open_file_dir(tab_path_map[0], tab_bar.get_tab_title(0))
-	elif tab == tab_bar.current_tab: open_file_dir(tab_path_map[tab-1], tab_bar.get_tab_title(tab-1))
-	
-	tab_bar.remove_tab(tab)
+		tab_path_arr.clear()
+		return
+		
+	var new_idx = clamp(tab - 1, 0, tab_bar.get_tab_count() - 1)
+	tab_bar.current_tab = new_idx
+	open_file_dir(tab_path_arr[new_idx], tab_bar.get_tab_title(new_idx))
 
 func _on_editor_gui_input(_event: InputEvent) -> void:
 	if not Input.is_action_just_pressed("ui_open"): return
@@ -208,12 +202,17 @@ func _on_cmd_host_focus_entered() -> void:
 	cur_ind_focus = 2
 
 func _on_opened_file(file_name: Variant, file_path : Variant) -> void:
-	if tab_path_map.values().find(file_path) != -1: return;
+	if tab_path_arr.find(file_path) != -1: return;
 	tab_bar.add_tab(file_name)
-	var index = tab_bar.get_tab_count() - 1
-	tab_bar.current_tab = index
-	tab_path_map[index] = file_path
+	tab_bar.current_tab = tab_bar.get_tab_count() - 1
+	tab_path_arr.push_back(file_path)
 
 func _on_tab_bar_tab_clicked(tab: int) -> void:
-	if tab == tab_bar.current_tab: return
-	open_file_dir(tab_path_map[tab], tab_bar.get_tab_title(tab))
+	from_idx = tab_bar.current_tab
+	if cur_opened_file == tab_path_arr[tab]: return
+	open_file_dir(tab_path_arr[tab], tab_bar.get_tab_title(tab))
+
+func _on_tab_bar_active_tab_rearranged(idx_to: int) -> void:
+	if from_idx == -1 or from_idx == idx_to: return
+	tab_path_arr.insert(idx_to, tab_path_arr.pop_at(from_idx))
+	from_idx = -1

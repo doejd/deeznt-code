@@ -146,6 +146,7 @@ size_flags_vertical = 3
 
 [node name="TabBar" type="TabBar" parent="Editor_Container/VSplitContainer/VSplitContainer" unique_id=2026867494]
 layout_mode = 2
+drag_to_rearrange_enabled = true
 
 [node name="Editor" type="CodeEdit" parent="Editor_Container/VSplitContainer/VSplitContainer" unique_id=1565296416]
 layout_mode = 2
@@ -455,7 +456,9 @@ layout_mode = 2
 [connection signal="on_theme_change" from="OptionButton" to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_option_button_on_theme_change"]
 [connection signal="focus_entered" from="Editor_Container/ItemList" to="." method="_on_item_list_focus_entered"]
 [connection signal="item_clicked" from="Editor_Container/ItemList" to="." method="_on_item_list_item_clicked"]
+[connection signal="active_tab_rearranged" from="Editor_Container/VSplitContainer/VSplitContainer/TabBar" to="." method="_on_tab_bar_active_tab_rearranged"]
 [connection signal="tab_clicked" from="Editor_Container/VSplitContainer/VSplitContainer/TabBar" to="." method="_on_tab_bar_tab_clicked"]
+[connection signal="tab_close_pressed" from="Editor_Container/VSplitContainer/VSplitContainer/TabBar" to="." method="remove_tab"]
 [connection signal="code_completion_requested" from="Editor_Container/VSplitContainer/VSplitContainer/Editor" to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_code_completion_requested"]
 [connection signal="focus_entered" from="Editor_Container/VSplitContainer/VSplitContainer/Editor" to="." method="_on_editor_focus_entered"]
 [connection signal="gui_input" from="Editor_Container/VSplitContainer/VSplitContainer/Editor" to="." method="_on_editor_gui_input"]
