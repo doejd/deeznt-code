@@ -167,6 +167,7 @@ func update_font_size():
 	editor.add_theme_font_size_override("font_size", font_size)
 	item_list.add_theme_font_size_override("font_size", font_size)
 	terminal.add_theme_font_size_override("font_size", font_size)
+	theme.default_font_size = font_size
 	change_font_size.emit(font_size)
 	
 func remove_tab(tab : int):

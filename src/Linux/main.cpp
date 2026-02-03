@@ -393,10 +393,10 @@ void LinuxHost::load_history(const int max_lines) {
 }
 
 void LinuxHost::reader_loop(){
-    char buffer[257];
+    char buffer[4097];
 
     while (running){
-        if (const ssize_t n = read(master_fd, buffer, sizeof(buffer)); n > 0){
+        if (const ssize_t n = read(master_fd, buffer, sizeof(buffer) - 1); n > 0){
             buffer[n] = '\0';
             String out(buffer);
 
