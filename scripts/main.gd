@@ -6,7 +6,7 @@ extends Control
 @onready var H_container = $Editor_Container
 @onready var V_container = $Editor_Container/VSplitContainer/VSplitContainer
 @onready var V_container2 = $Editor_Container/VSplitContainer
-@onready var terminal = $Editor_Container/VSplitContainer/Control.get_child(1)
+@onready var terminal = $Editor_Container/VSplitContainer/Control.get_child(0)
 @onready var tab_bar = $Editor_Container/VSplitContainer/VSplitContainer/TabBar
 @onready var icons = Icons.new()
 var cur_opened_file = ""
@@ -25,7 +25,7 @@ signal opened_file(file_name, file_path)
 signal change_font_size(font_size)
 signal on_load_intro_window(show_)
 signal on_load_theme(theme_l)
-
+signal on_load_get_themes(themes)
 
 func get_extension(stri : String) -> String:
 	var dot_index = stri.rfind(".")
@@ -45,13 +45,6 @@ func get_dir_contents() -> Array:
 	else:
 		print("An error has been encountered")
 		return []
-		
-func _refocus_editor():
-	editor.grab_focus()
-	editor.set_caret_line(0)
-	editor.set_caret_column(0)
-	editor.set_caret_blink_enabled(true)
-	cur_ind_focus = 1
 	
 func save() -> void:
 	var file = FileAccess.open(cur_opened_file, FileAccess.WRITE)
@@ -83,14 +76,17 @@ func _ready() -> void:
 func on_load_emit_pref():
 	var cfg = ConfigFile.new()
 	var err = cfg.load(save_file_path)
-	if err != OK: 
-		print("Failed to load file %s" % err)
-		return
+	var themes_ : Array = []
+	var Lua_dir : DirAccess = DirAccess.open("user://Lua/themes")
+	if !Lua_dir: return;
+	if err != OK: print("Failed to load file %s" % err); return
+	for file in Lua_dir.get_files(): themes_.append(file.get_basename())
 	var show_ = cfg.get_value("preferences", "show", true)
 	var theme_ = cfg.get_value("preferences", "theme", "Github Dark")
 	font_size = cfg.get_value("preferences", "font_size", 16)
 	update_font_size()
 	on_load_intro_window.emit(show_)
+	on_load_get_themes.emit(themes_)
 	on_load_theme.emit(theme_)
 
 func display_items(items: Array) -> void:
@@ -114,7 +110,6 @@ func open_file_dir(full_path : String, selected_name : String) -> void:
 			cur_opened_file = file.get_path_absolute()
 			editor.clear_undo_history()
 			file.close()
-			call_deferred("_refocus_editor")
 			opened_file.emit(selected_name, full_path)
 		else:
 			dir = DirAccess.open(OS.get_user_data_dir())
@@ -212,6 +207,7 @@ func _on_tab_bar_tab_clicked(tab: int) -> void:
 	from_idx = tab_bar.current_tab
 	if cur_opened_file == tab_path_arr[tab]: return
 	open_file_dir(tab_path_arr[tab], tab_bar.get_tab_title(tab))
+	editor.set_up_extensions(tab_bar.get_tab_title(tab))
 
 func _on_tab_bar_active_tab_rearranged(idx_to: int) -> void:
 	if from_idx == -1 or from_idx == idx_to: return

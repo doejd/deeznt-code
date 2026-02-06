@@ -9,100 +9,12 @@
 [ext_resource type="Script" uid="uid://cads53hj1d2w1" path="res://scripts/intro_window.gd" id="6_7mycd"]
 [ext_resource type="Script" uid="uid://nkw8h3awv1jx" path="res://scripts/never_show_again_button.gd" id="7_272bh"]
 [ext_resource type="Script" uid="uid://kiqlhdva7ov2" path="res://scripts/find_replace_window.gd" id="8_5vw27"]
-[ext_resource type="Script" uid="uid://b77yc3w2xb5o6" path="res://scripts/settings_window.gd" id="10_4c57u"]
+[ext_resource type="Script" uid="uid://d20menqvd88ny" path="res://scripts/editor_settings.gd" id="10_efxa6"]
 
 [sub_resource type="Theme" id="Theme_kek77"]
 resource_local_to_scene = true
 default_font = ExtResource("5_7mycd")
 default_font_size = 16
-
-[sub_resource type="Animation" id="Animation_272bh"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("../../../../OptionButton:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(-234, 0)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("../../..:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0, 0)]
-}
-
-[sub_resource type="Animation" id="Animation_5vw27"]
-resource_name = "close_theme_select"
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("../../../../OptionButton:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(7, 1),
-"update": 0,
-"values": [Vector2(0, 0), Vector2(-234, 0)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("../../..:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(5, 1),
-"update": 0,
-"values": [Vector2(234, 0), Vector2(0, 0)]
-}
-
-[sub_resource type="Animation" id="Animation_7mycd"]
-resource_name = "open_theme_select"
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("../../..:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(5, 1),
-"update": 0,
-"values": [Vector2(0, 0), Vector2(234, 0)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("../../../../OptionButton:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(8, 1),
-"update": 0,
-"values": [Vector2(-234, 0), Vector2(0, 0)]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_kek77"]
-_data = {
-&"RESET": SubResource("Animation_272bh"),
-&"close_theme_select": SubResource("Animation_5vw27"),
-&"open_theme_select": SubResource("Animation_7mycd")
-}
 
 [node name="Control" type="Control" unique_id=1706729041]
 layout_mode = 3
@@ -114,20 +26,15 @@ grow_vertical = 2
 theme = SubResource("Theme_kek77")
 script = ExtResource("1_ig7tw")
 
-[node name="OptionButton" type="OptionButton" parent="." unique_id=823774134]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=413738271]
 layout_mode = 1
-anchors_preset = -1
-anchor_bottom = 0.062
-offset_left = -234.0
-offset_bottom = -0.1760025
-theme_override_font_sizes/font_size = 14
-alignment = 1
-item_count = 2
-popup/item_0/text = "Github Dark"
-popup/item_0/id = 0
-popup/item_1/text = "One Dark Pro Darker"
-popup/item_1/id = 1
-script = ExtResource("2_272bh")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+rotation = 0.00049408065
+color = Color(0, 0, 0, 1)
 
 [node name="Editor_Container" type="HSplitContainer" parent="." unique_id=1222315828]
 layout_mode = 1
@@ -166,6 +73,7 @@ theme_override_font_sizes/font_size = 16
 emoji_menu_enabled = false
 deselect_on_focus_loss_enabled = false
 empty_selection_clipboard_enabled = false
+minimap_draw = true
 caret_blink = true
 highlight_current_line = true
 gutters_draw_line_numbers = true
@@ -175,21 +83,9 @@ auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
 script = ExtResource("2_0xm2m")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Editor_Container/VSplitContainer/VSplitContainer/Editor" unique_id=1975240395]
-libraries/ = SubResource("AnimationLibrary_kek77")
-
 [node name="Control" type="Control" parent="Editor_Container/VSplitContainer" unique_id=1552123644]
 layout_mode = 2
 size_flags_vertical = 3
-
-[node name="ColorRect" type="ColorRect" parent="Editor_Container/VSplitContainer/Control" unique_id=36217848]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.176471, 0.176471, 0.176471, 1)
 
 [node name="LinuxHost" type="LinuxHost" parent="Editor_Container/VSplitContainer/Control" unique_id=120440146]
 layout_mode = 1
@@ -204,6 +100,7 @@ caret_blink = true
 caret_multiple = false
 
 [node name="Intro Window" type="Window" parent="." unique_id=1273299596]
+handle_input_locally = false
 oversampling_override = 1.0
 title = "Welcome to Deezn't Code"
 position = Vector2i(375, 36)
@@ -400,6 +297,7 @@ text = "Never Show Again"
 script = ExtResource("7_272bh")
 
 [node name="Find Replace Window" type="Window" parent="." unique_id=559420306]
+handle_input_locally = false
 title = "Find/Replace"
 position = Vector2i(376, 250)
 size = Vector2i(500, 200)
@@ -455,21 +353,431 @@ text = "Replace All"
 layout_mode = 2
 
 [node name="Settings Window" type="Window" parent="." unique_id=1369022822]
+handle_input_locally = false
 oversampling_override = 1.0
+title = "Settings"
 position = Vector2i(0, 36)
 size = Vector2i(500, 500)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Settings Window" unique_id=782670254]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Setting Labels" type="VBoxContainer" parent="Settings Window/HBoxContainer" unique_id=606933874]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.28
+
+[node name="General" type="Button" parent="Settings Window/HBoxContainer/Setting Labels" unique_id=555104552]
+layout_mode = 2
+text = "General"
+
+[node name="Editor" type="Button" parent="Settings Window/HBoxContainer/Setting Labels" unique_id=1970304958]
+layout_mode = 2
+text = "Editor"
+
+[node name="Themes" type="Button" parent="Settings Window/HBoxContainer/Setting Labels" unique_id=2125843313]
+layout_mode = 2
+text = "Themes"
+
+[node name="Advanced" type="Button" parent="Settings Window/HBoxContainer/Setting Labels" unique_id=770166432]
+layout_mode = 2
+text = "Advanced"
+
+[node name="Reset to Defaults" type="Button" parent="Settings Window/HBoxContainer/Setting Labels" unique_id=1974736055]
+layout_mode = 2
+size_flags_vertical = 10
+text = "Reset to Defaults"
+
+[node name="VSeparator" type="VSeparator" parent="Settings Window/HBoxContainer" unique_id=1568184743]
+layout_mode = 2
+
+[node name="Settings" type="VBoxContainer" parent="Settings Window/HBoxContainer" unique_id=1743092255]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("10_efxa6")
+
+[node name="General Settings" type="VBoxContainer" parent="Settings Window/HBoxContainer/Settings" unique_id=1468423512]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=1148232570]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Settings Window/HBoxContainer/Settings/General Settings/HBoxContainer" unique_id=984346531]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "General Settings"
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/General Settings/HBoxContainer" unique_id=155565925]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "v1.2.0.5"
+horizontal_alignment = 2
+
+[node name="HSeparator" type="HSeparator" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=1961354027]
+layout_mode = 2
+
+[node name="OpenLastProjectStartup" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=154545004]
+layout_mode = 2
+text = "Open Last Project On Startup"
+
+[node name="OpenEmptyWindowStratup" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=506378670]
+layout_mode = 2
+text = "Open Empty Window On Stratup"
+
+[node name="ShowWelcomeScreen" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=1055051005]
+layout_mode = 2
+text = "Show Welcome Screen"
+
+[node name="AutoIndent" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=974843319]
+layout_mode = 2
+text = "Auto Indenting"
+
+[node name="CheckBox" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=65192382]
+layout_mode = 2
+text = "Auto Close Brackets"
+
+[node name="CheckBox2" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=705366166]
+layout_mode = 2
+text = "Highlight Matching Braces"
+
+[node name="Editor Settings" type="VBoxContainer" parent="Settings Window/HBoxContainer/Settings" unique_id=2133784206]
 visible = false
-script = ExtResource("10_4c57u")
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=906500823]
+layout_mode = 2
+text = "Editor Settings"
+
+[node name="HSeparator" type="HSeparator" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=903199469]
+layout_mode = 2
+
+[node name="FontSizeSetting" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=1873189790]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Editor Settings/FontSizeSetting" unique_id=281943627]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Font Size"
+
+[node name="HSlider" type="HSlider" parent="Settings Window/HBoxContainer/Settings/Editor Settings/FontSizeSetting" unique_id=1635360565]
+layout_mode = 2
+size_flags_horizontal = 3
+rounded = true
+
+[node name="TabSizeSetting" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=134392866]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Editor Settings/TabSizeSetting" unique_id=1344772999]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Tab Size"
+
+[node name="HSlider" type="HSlider" parent="Settings Window/HBoxContainer/Settings/Editor Settings/TabSizeSetting" unique_id=1041751824]
+layout_mode = 2
+size_flags_horizontal = 3
+rounded = true
+
+[node name="IndentSpaces?" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=1259091774]
+layout_mode = 2
+text = "Indent With Spaces"
+
+[node name="LineNumbers?" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=552901337]
+layout_mode = 2
+text = "Enable Line Numbers"
+
+[node name="HighlightCurLine?" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=1878079997]
+layout_mode = 2
+text = "Highlight Current Line"
+
+[node name="WordWrap?" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=1310582867]
+layout_mode = 2
+text = "Word Wrap"
+
+[node name="Minimap?" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=1484204419]
+layout_mode = 2
+text = "Enable Minimap"
+
+[node name="Theme Settings" type="VBoxContainer" parent="Settings Window/HBoxContainer/Settings" unique_id=1774776293]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ThemeSetting" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=193277849]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting" unique_id=302555448]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Theme"
+
+[node name="OptionButton2" type="OptionButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting" unique_id=625824446]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+alignment = 1
+script = ExtResource("2_272bh")
+
+[node name="HSeparator" type="HSeparator" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1843297165]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=250074968]
+layout_mode = 2
+text = "Theme editor"
+
+[node name="KeywordColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=284546803]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/KeywordColorSettings" unique_id=878241176]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Keyword Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/KeywordColorSettings" unique_id=574026971]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StringColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=2142609877]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/StringColorSettings" unique_id=776148098]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "String Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/StringColorSettings" unique_id=1062692966]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SpecialCharColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=29181960]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/SpecialCharColorSettings" unique_id=1436949602]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Special Character Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/SpecialCharColorSettings" unique_id=1994158371]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VariableColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=123441907]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/VariableColorSettings" unique_id=844105437]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Variable Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/VariableColorSettings" unique_id=1001691663]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OperatorColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=754264766]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/OperatorColorSettings" unique_id=2134147119]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Operator Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/OperatorColorSettings" unique_id=2118333149]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CommentsColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1602426436]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/CommentsColorSettings" unique_id=2103800724]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Comment Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/CommentsColorSettings" unique_id=1792740902]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ErrorColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=94199022]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/ErrorColorSettings" unique_id=405372016]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Error Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/ErrorColorSettings" unique_id=2127052343]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FunctionColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1156521416]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/FunctionColorSettings" unique_id=651306259]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Function Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/FunctionColorSettings" unique_id=1831423101]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MemberColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1063521279]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/MemberColorSettings" unique_id=368761786]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Member Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/MemberColorSettings" unique_id=1930327657]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ImportColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1524850049]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/ImportColorSettings" unique_id=1452877739]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Import Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/ImportColorSettings" unique_id=718627615]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BackgroundColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=2014127744]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/BackgroundColorSettings" unique_id=1075201665]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Background Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/BackgroundColorSettings" unique_id=886491181]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CurrentLineColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1064573135]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/CurrentLineColorSettings" unique_id=134304003]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Current Line Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/CurrentLineColorSettings" unique_id=41183228]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SelectionColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1388349077]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/SelectionColorSettings" unique_id=2010860338]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Selection Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/SelectionColorSettings" unique_id=1904006320]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FontColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=669437339]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/FontColorSettings" unique_id=1337693799]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Font Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/FontColorSettings" unique_id=207451103]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WordHighlightedColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1793944511]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/WordHighlightedColorSettings" unique_id=1222750301]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Word Highlighted Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/WordHighlightedColorSettings" unique_id=968026138]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CompletionBackgroundColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=140161904]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/CompletionBackgroundColorSettings" unique_id=598487981]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Completion Background Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/CompletionBackgroundColorSettings" unique_id=1167676809]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CompletionSelectedColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=718814295]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/CompletionSelectedColorSettings" unique_id=1412277956]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Completion Selected Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/CompletionSelectedColorSettings" unique_id=442209492]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CaretColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=875497915]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/CaretColorSettings" unique_id=1148227588]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Caret Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/CaretColorSettings" unique_id=1396328644]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Advanced" type="VBoxContainer" parent="Settings Window/HBoxContainer/Settings" unique_id=298286744]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Cancel_or_Save" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings" unique_id=1727474671]
+layout_mode = 2
+size_flags_horizontal = 10
+size_flags_vertical = 8
+
+[node name="Button2" type="Button" parent="Settings Window/HBoxContainer/Settings/Cancel_or_Save" unique_id=1257643060]
+layout_mode = 2
+text = "Cancel"
+
+[node name="Button" type="Button" parent="Settings Window/HBoxContainer/Settings/Cancel_or_Save" unique_id=989785102]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 10
+text = "Save"
 
 [connection signal="change_font_size" from="." to="Intro Window" method="_on_control_change_font_size"]
 [connection signal="change_font_size" from="." to="Find Replace Window" method="_on_control_change_font_size"]
+[connection signal="on_load_get_themes" from="." to="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" method="_on_control_on_load_get_themes"]
 [connection signal="on_load_intro_window" from="." to="Intro Window" method="_on_control_on_load_intro_window"]
 [connection signal="on_load_intro_window" from="." to="Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox" method="_on_control_on_load_intro_window"]
-[connection signal="on_load_theme" from="." to="OptionButton" method="_on_control_on_load_theme"]
 [connection signal="on_load_theme" from="." to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_control_on_load_theme"]
+[connection signal="on_load_theme" from="." to="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" method="_on_control_on_load_theme"]
 [connection signal="opened_file" from="." to="." method="_on_opened_file"]
-[connection signal="item_selected" from="OptionButton" to="OptionButton" method="_on_item_selected"]
-[connection signal="on_theme_change" from="OptionButton" to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_option_button_on_theme_change"]
 [connection signal="focus_entered" from="Editor_Container/ItemList" to="." method="_on_item_list_focus_entered"]
 [connection signal="item_clicked" from="Editor_Container/ItemList" to="." method="_on_item_list_item_clicked"]
 [connection signal="active_tab_rearranged" from="Editor_Container/VSplitContainer/VSplitContainer/TabBar" to="." method="_on_tab_bar_active_tab_rearranged"]
@@ -486,3 +794,5 @@ script = ExtResource("10_4c57u")
 [connection signal="pressed" from="Find Replace Window/VBoxContainer/Find/HBoxContainer/Down Arrow" to="Find Replace Window" method="_on_down_arrow_pressed"]
 [connection signal="text_submitted" from="Find Replace Window/VBoxContainer/Replace selected/LineEdit" to="Find Replace Window" method="_on_line_edit3_text_submitted"]
 [connection signal="text_submitted" from="Find Replace Window/VBoxContainer/Replace All/LineEdit2" to="Find Replace Window" method="_on_line_edit_2_text_submitted"]
+[connection signal="item_selected" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" method="_on_item_selected"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_option_button_on_theme_change"]

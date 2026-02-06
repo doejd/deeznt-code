@@ -12,3 +12,6 @@ func get_idx_from_str(value : String):
 
 func _on_control_on_load_theme(theme_: Variant) -> void:
 	select(get_idx_from_str(theme_))
+
+func _on_control_on_load_get_themes(themes: Variant) -> void:
+	for theme_ in themes: add_item(theme_)

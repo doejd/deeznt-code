@@ -1,5 +1,4 @@
 extends CodeEdit
-@onready var animation_player = $AnimationPlayer
 @onready var main = get_node("../../../..")
 var function = preload("res://Images/function.png")
 var variable = preload("res://Images/variable.png")
@@ -7,7 +6,6 @@ var import = preload("res://Images/import.png")
 var keyword_img = preload("res://Images/keyword.png")
 var lua : LuaAPI = LuaAPI.new()
 var lua_theme : LuaAPI = LuaAPI.new()
-var open_theme_select = false
 var keywords_to_highlight: Dictionary = {}
 var color_regions_to_highlight: Array = []
 var keywords: Dictionary = {
@@ -51,7 +49,15 @@ func highlight_region(start : String, end : String, color : String, single_line 
 		return
 		
 	color_regions_to_highlight.append([start, end, color, single_line])
-	
+
+func _ready() -> void:
+	lua_theme.bind_libraries(["base", "table", "string"])
+	lua_theme.push_variant("set_keywords", set_keywords)
+	lua_theme.push_variant("set_gui", set_gui)
+	lua.bind_libraries(["base", "table", "string"])
+	lua.push_variant("highlight", highlight)
+	lua.push_variant("highlight_region", highlight_region)
+
 func set_up_extensions(extension : String):
 	keywords_to_highlight.clear()
 	color_regions_to_highlight.clear()
@@ -59,9 +65,6 @@ func set_up_extensions(extension : String):
 	if extension == "html": pairs["<"] = ">"
 	else: pairs.erase("<") 
 	auto_brace_completion_pairs = pairs
-	lua.bind_libraries(["base", "table", "string"])
-	lua.push_variant("highlight", highlight)
-	lua.push_variant("highlight_region", highlight_region)
 	var error = lua.do_file("Lua/langs/" + extension + ".lua")
 	if error is LuaError:
 		print("ERROR %d: %s" % [error.type, error.message])
@@ -94,9 +97,6 @@ func set_gui(keyword : String, color : String):
 	GUI[keyword] = str_to_clr(color)
 	
 func setup_cur_theme(cur_theme : String):
-	lua_theme.bind_libraries(["base", "table", "string"])
-	lua_theme.push_variant("set_keywords", set_keywords)
-	lua_theme.push_variant("set_gui", set_gui)
 	var error = lua_theme.do_file("user://Lua/themes/" + cur_theme + ".lua")
 	if error is LuaError:
 		print("ERROR %d: %s" % [error.type, error.message])
@@ -112,19 +112,9 @@ func setup_theme():
 	add_theme_color_override("completion_background_color", GUI.completion_background_color)
 	add_theme_color_override("completion_selected_color", GUI.completion_selected_color)
 	add_theme_color_override("caret_color", GUI.caret_color)
-
-func _input(_event: InputEvent) -> void:
-	if Input.is_action_just_pressed("theme_switch") and not open_theme_select:
-		animation_player.play("open_theme_select")
-		open_theme_select = true
-		get_viewport().set_input_as_handled()
-	elif Input.is_action_just_pressed("theme_switch") and open_theme_select:
-		animation_player.play("close_theme_select")
-		open_theme_select = false
-		get_viewport().set_input_as_handled()
+	$"../../../../ColorRect".color = GUI.background_color
 
 func _on_option_button_on_theme_change(cur_theme: Variant) -> void:
-	print(cur_theme)
 	var cfg = ConfigFile.new()
 	var err = cfg.load(main.save_file_path)
 	if err != OK:

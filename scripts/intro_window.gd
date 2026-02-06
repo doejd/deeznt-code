@@ -8,8 +8,8 @@ func _ready() -> void:
 
 func center_resize() -> void:
 	var screen_size = DisplayServer.window_get_size()
-	size = Vector2i(screen_size.x / 3, screen_size.y / 3)
-	position = (screen_size - size) / 2
+	size = Vector2i(round(screen_size.x) / 3, round(screen_size.y) / 3)
+	position = (round(screen_size - size)) / 2
 
 func _input(_event : InputEvent):
 	if not Input.is_action_pressed("Increase Font Size") or not Input.is_action_pressed("Decrease Font Size"): return;
