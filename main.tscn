@@ -10,6 +10,9 @@
 [ext_resource type="Script" uid="uid://nkw8h3awv1jx" path="res://scripts/never_show_again_button.gd" id="7_272bh"]
 [ext_resource type="Script" uid="uid://kiqlhdva7ov2" path="res://scripts/find_replace_window.gd" id="8_5vw27"]
 [ext_resource type="Script" uid="uid://d20menqvd88ny" path="res://scripts/editor_settings.gd" id="10_efxa6"]
+[ext_resource type="Script" uid="uid://beyy8vwwwispa" path="res://scripts/check_box_button.gd" id="10_ycdy4"]
+[ext_resource type="Script" uid="uid://bxl70sqh5y33o" path="res://scripts/theme_setting.gd" id="11_efxa6"]
+[ext_resource type="Script" uid="uid://bpa6qqnghf2eh" path="res://scripts/apply_button.gd" id="12_dg77c"]
 
 [sub_resource type="Theme" id="Theme_kek77"]
 resource_local_to_scene = true
@@ -425,26 +428,35 @@ layout_mode = 2
 [node name="OpenLastProjectStartup" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=154545004]
 layout_mode = 2
 text = "Open Last Project On Startup"
+script = ExtResource("10_ycdy4")
 
 [node name="OpenEmptyWindowStratup" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=506378670]
 layout_mode = 2
 text = "Open Empty Window On Stratup"
+script = ExtResource("10_ycdy4")
 
 [node name="ShowWelcomeScreen" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=1055051005]
 layout_mode = 2
 text = "Show Welcome Screen"
+script = ExtResource("10_ycdy4")
 
 [node name="AutoIndent" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=974843319]
 layout_mode = 2
 text = "Auto Indenting"
+script = ExtResource("10_ycdy4")
+modifies_property = "indent_automatic"
 
-[node name="CheckBox" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=65192382]
+[node name="AutoCloseBrackets" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=65192382]
 layout_mode = 2
 text = "Auto Close Brackets"
+script = ExtResource("10_ycdy4")
+modifies_property = "auto_brace_completion_enabled"
 
-[node name="CheckBox2" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=705366166]
+[node name="HighlightMatchingBraces" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=705366166]
 layout_mode = 2
 text = "Highlight Matching Braces"
+script = ExtResource("10_ycdy4")
+modifies_property = "auto_brace_completion_highlight_matching"
 
 [node name="Editor Settings" type="VBoxContainer" parent="Settings Window/HBoxContainer/Settings" unique_id=2133784206]
 visible = false
@@ -488,22 +500,31 @@ rounded = true
 [node name="IndentSpaces?" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=1259091774]
 layout_mode = 2
 text = "Indent With Spaces"
+script = ExtResource("10_ycdy4")
+modifies_property = "indent_use_spaces"
 
 [node name="LineNumbers?" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=552901337]
 layout_mode = 2
 text = "Enable Line Numbers"
+script = ExtResource("10_ycdy4")
+modifies_property = "gutters_draw_line_numbers"
 
 [node name="HighlightCurLine?" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=1878079997]
 layout_mode = 2
 text = "Highlight Current Line"
+script = ExtResource("10_ycdy4")
+modifies_property = "highlight_current_line"
 
 [node name="WordWrap?" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=1310582867]
 layout_mode = 2
 text = "Word Wrap"
+script = ExtResource("10_ycdy4")
 
 [node name="Minimap?" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=1484204419]
 layout_mode = 2
 text = "Enable Minimap"
+script = ExtResource("10_ycdy4")
+modifies_property = "minimap_draw"
 
 [node name="Theme Settings" type="VBoxContainer" parent="Settings Window/HBoxContainer/Settings" unique_id=1774776293]
 visible = false
@@ -522,7 +543,6 @@ text = "Theme"
 [node name="OptionButton2" type="OptionButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting" unique_id=625824446]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 14
 alignment = 1
 script = ExtResource("2_272bh")
 
@@ -544,6 +564,8 @@ text = "Keyword Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/KeywordColorSettings" unique_id=574026971]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "reserved"
 
 [node name="StringColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=2142609877]
 layout_mode = 2
@@ -556,6 +578,8 @@ text = "String Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/StringColorSettings" unique_id=1062692966]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "string"
 
 [node name="SpecialCharColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=29181960]
 layout_mode = 2
@@ -568,6 +592,8 @@ text = "Special Character Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/SpecialCharColorSettings" unique_id=1994158371]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "binary"
 
 [node name="VariableColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=123441907]
 layout_mode = 2
@@ -580,6 +606,8 @@ text = "Variable Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/VariableColorSettings" unique_id=1001691663]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "variable"
 
 [node name="OperatorColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=754264766]
 layout_mode = 2
@@ -592,6 +620,8 @@ text = "Operator Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/OperatorColorSettings" unique_id=2118333149]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "operator"
 
 [node name="CommentsColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1602426436]
 layout_mode = 2
@@ -604,6 +634,8 @@ text = "Comment Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/CommentsColorSettings" unique_id=1792740902]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "comments"
 
 [node name="ErrorColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=94199022]
 layout_mode = 2
@@ -616,6 +648,8 @@ text = "Error Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/ErrorColorSettings" unique_id=2127052343]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "error"
 
 [node name="FunctionColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1156521416]
 layout_mode = 2
@@ -628,6 +662,8 @@ text = "Function Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/FunctionColorSettings" unique_id=1831423101]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "function"
 
 [node name="MemberColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1063521279]
 layout_mode = 2
@@ -640,6 +676,8 @@ text = "Member Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/MemberColorSettings" unique_id=1930327657]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "member"
 
 [node name="ImportColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1524850049]
 layout_mode = 2
@@ -652,6 +690,8 @@ text = "Import Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/ImportColorSettings" unique_id=718627615]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "import"
 
 [node name="BackgroundColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=2014127744]
 layout_mode = 2
@@ -664,6 +704,8 @@ text = "Background Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/BackgroundColorSettings" unique_id=886491181]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "background_color"
 
 [node name="CurrentLineColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1064573135]
 layout_mode = 2
@@ -676,6 +718,8 @@ text = "Current Line Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/CurrentLineColorSettings" unique_id=41183228]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "current_line_color"
 
 [node name="SelectionColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1388349077]
 layout_mode = 2
@@ -688,6 +732,8 @@ text = "Selection Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/SelectionColorSettings" unique_id=1904006320]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "selection_color"
 
 [node name="FontColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=669437339]
 layout_mode = 2
@@ -700,6 +746,8 @@ text = "Font Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/FontColorSettings" unique_id=207451103]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "font_color"
 
 [node name="WordHighlightedColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1793944511]
 layout_mode = 2
@@ -712,6 +760,8 @@ text = "Word Highlighted Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/WordHighlightedColorSettings" unique_id=968026138]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "word_highlighted_color"
 
 [node name="CompletionBackgroundColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=140161904]
 layout_mode = 2
@@ -724,6 +774,8 @@ text = "Completion Background Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/CompletionBackgroundColorSettings" unique_id=1167676809]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "completion_background_color"
 
 [node name="CompletionSelectedColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=718814295]
 layout_mode = 2
@@ -736,6 +788,8 @@ text = "Completion Selected Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/CompletionSelectedColorSettings" unique_id=442209492]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "completion_selection_color"
 
 [node name="CaretColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=875497915]
 layout_mode = 2
@@ -748,27 +802,31 @@ text = "Caret Color"
 [node name="ColorPickerButton" type="ColorPickerButton" parent="Settings Window/HBoxContainer/Settings/Theme Settings/CaretColorSettings" unique_id=1396328644]
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("11_efxa6")
+key_referring_to = "caret_color"
 
-[node name="Advanced" type="VBoxContainer" parent="Settings Window/HBoxContainer/Settings" unique_id=298286744]
+[node name="Apply_or_Save_to_File" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=1727474671]
+layout_mode = 2
+size_flags_horizontal = 10
+size_flags_vertical = 10
+
+[node name="Button2" type="Button" parent="Settings Window/HBoxContainer/Settings/Theme Settings/Apply_or_Save_to_File" unique_id=1257643060]
+layout_mode = 2
+text = "Apply
+"
+script = ExtResource("12_dg77c")
+
+[node name="Button" type="Button" parent="Settings Window/HBoxContainer/Settings/Theme Settings/Apply_or_Save_to_File" unique_id=989785102]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 10
+text = "Save to file"
+
+[node name="Advanced Settings" type="VBoxContainer" parent="Settings Window/HBoxContainer/Settings" unique_id=298286744]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-
-[node name="Cancel_or_Save" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings" unique_id=1727474671]
-layout_mode = 2
-size_flags_horizontal = 10
-size_flags_vertical = 8
-
-[node name="Button2" type="Button" parent="Settings Window/HBoxContainer/Settings/Cancel_or_Save" unique_id=1257643060]
-layout_mode = 2
-text = "Cancel"
-
-[node name="Button" type="Button" parent="Settings Window/HBoxContainer/Settings/Cancel_or_Save" unique_id=989785102]
-layout_mode = 2
-size_flags_horizontal = 8
-size_flags_vertical = 10
-text = "Save"
 
 [connection signal="change_font_size" from="." to="Intro Window" method="_on_control_change_font_size"]
 [connection signal="change_font_size" from="." to="Find Replace Window" method="_on_control_change_font_size"]
@@ -794,5 +852,55 @@ text = "Save"
 [connection signal="pressed" from="Find Replace Window/VBoxContainer/Find/HBoxContainer/Down Arrow" to="Find Replace Window" method="_on_down_arrow_pressed"]
 [connection signal="text_submitted" from="Find Replace Window/VBoxContainer/Replace selected/LineEdit" to="Find Replace Window" method="_on_line_edit3_text_submitted"]
 [connection signal="text_submitted" from="Find Replace Window/VBoxContainer/Replace All/LineEdit2" to="Find Replace Window" method="_on_line_edit_2_text_submitted"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Setting Labels/General" to="Settings Window/HBoxContainer/Settings" method="_on_general_button_pressed"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Setting Labels/Editor" to="Settings Window/HBoxContainer/Settings" method="_on_editor_button_pressed"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Setting Labels/Themes" to="Settings Window/HBoxContainer/Settings" method="_on_themes_button_pressed"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Setting Labels/Advanced" to="Settings Window/HBoxContainer/Settings" method="_on_advanced_button_pressed"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Setting Labels/Reset to Defaults" to="Settings Window/HBoxContainer/Settings" method="_on_reset_to_defaults_button_pressed"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Settings/General Settings/AutoIndent" to="Settings Window/HBoxContainer/Settings/General Settings/AutoIndent" method="_on_pressed"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Settings/General Settings/AutoCloseBrackets" to="Settings Window/HBoxContainer/Settings/General Settings/AutoCloseBrackets" method="_on_pressed"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Settings/General Settings/HighlightMatchingBraces" to="Settings Window/HBoxContainer/Settings/General Settings/HighlightMatchingBraces" method="_on_pressed"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Settings/Editor Settings/IndentSpaces?" to="Settings Window/HBoxContainer/Settings/Editor Settings/IndentSpaces?" method="_on_pressed"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Settings/Editor Settings/LineNumbers?" to="Settings Window/HBoxContainer/Settings/Editor Settings/LineNumbers?" method="_on_pressed"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Settings/Editor Settings/HighlightCurLine?" to="Settings Window/HBoxContainer/Settings/Editor Settings/HighlightCurLine?" method="_on_pressed"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Settings/Editor Settings/WordWrap?" to="Settings Window/HBoxContainer/Settings/Editor Settings/WordWrap?" method="_on_pressed"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Settings/Editor Settings/Minimap?" to="Settings Window/HBoxContainer/Settings/Editor Settings/Minimap?" method="_on_pressed"]
 [connection signal="item_selected" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" method="_on_item_selected"]
 [connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_option_button_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/KeywordColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/StringColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/SpecialCharColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/VariableColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/OperatorColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/CommentsColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/ErrorColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/FunctionColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/MemberColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/ImportColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/BackgroundColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/CurrentLineColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/SelectionColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/FontColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/WordHighlightedColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/CompletionBackgroundColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/CompletionSelectedColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="on_theme_change" from="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" to="Settings Window/HBoxContainer/Settings/Theme Settings/CaretColorSettings/ColorPickerButton" method="_on_theme_change"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/KeywordColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/KeywordColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/StringColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/StringColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/SpecialCharColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/SpecialCharColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/VariableColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/VariableColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/OperatorColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/OperatorColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/CommentsColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/CommentsColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/ErrorColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/ErrorColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/FunctionColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/FunctionColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/MemberColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/MemberColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/ImportColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/ImportColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/BackgroundColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/BackgroundColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/CurrentLineColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/CurrentLineColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/SelectionColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/SelectionColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/FontColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/FontColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/WordHighlightedColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/WordHighlightedColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/CompletionBackgroundColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/CompletionBackgroundColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/CompletionSelectedColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/CompletionSelectedColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="color_changed" from="Settings Window/HBoxContainer/Settings/Theme Settings/CaretColorSettings/ColorPickerButton" to="Settings Window/HBoxContainer/Settings/Theme Settings/CaretColorSettings/ColorPickerButton" method="_on_color_changed"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Settings/Theme Settings/Apply_or_Save_to_File/Button2" to="Settings Window/HBoxContainer/Settings/Theme Settings/Apply_or_Save_to_File/Button2" method="_on_pressed"]

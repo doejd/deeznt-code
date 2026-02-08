@@ -10,7 +10,6 @@ var keywords_to_highlight: Dictionary = {}
 var color_regions_to_highlight: Array = []
 var keywords: Dictionary = {
 	"reserved":   str_to_clr("ff7ab2"),
-	"annotation": str_to_clr("c3e88d"),
 	"string":     str_to_clr("ecc48d"),
 	"binary":     str_to_clr("f78c6c"),
 	"symbol":     str_to_clr("89ddff"),
@@ -69,22 +68,21 @@ func set_up_extensions(extension : String):
 	if error is LuaError:
 		print("ERROR %d: %s" % [error.type, error.message])
 		return
-	setup_highlighter()
 	
-func setup_highlighter() -> void:
+func setup_highlighter(kwords : Dictionary = keywords) -> void:
 	var CH: CodeHighlighter = CodeHighlighter.new()
 	syntax_highlighter = CH
-	CH.number_color = keywords.binary
-	CH.symbol_color = keywords.symbol
-	CH.function_color = keywords.function
-	CH.member_variable_color = keywords.member
+	CH.number_color = kwords.binary
+	CH.symbol_color = kwords.symbol
+	CH.function_color = kwords.function
+	CH.member_variable_color = kwords.member
 	var kth = keywords_to_highlight
 	var crth = color_regions_to_highlight
 	for key in kth:
-		CH.add_keyword_color(key, keywords[kth[key]])
+		CH.add_keyword_color(key, kwords[kth[key]])
 	for entry in crth:
 		if CH.has_color_region(entry[0]): continue
-		CH.add_color_region(entry[0], entry[1], keywords[entry[2]], entry[3])
+		CH.add_color_region(entry[0], entry[1], kwords[entry[2]], entry[3])
 	
 func set_keywords(keyword : String, color : String):
 	keywords[keyword] = str_to_clr(color)
@@ -101,18 +99,17 @@ func setup_cur_theme(cur_theme : String):
 	if error is LuaError:
 		print("ERROR %d: %s" % [error.type, error.message])
 		return
-	setup_theme()
 	
-func setup_theme():
-	add_theme_color_override("background_color", GUI.background_color)
-	add_theme_color_override("current_line_color", GUI.current_line_color)
-	add_theme_color_override("selection_color", GUI.selection_color)
-	add_theme_color_override("font_color", GUI.font_color)
-	add_theme_color_override("word_highlighted_color", GUI.word_highlighted_color)
-	add_theme_color_override("completion_background_color", GUI.completion_background_color)
-	add_theme_color_override("completion_selected_color", GUI.completion_selected_color)
-	add_theme_color_override("caret_color", GUI.caret_color)
-	$"../../../../ColorRect".color = GUI.background_color
+func setup_theme(gui : Dictionary = GUI):
+	add_theme_color_override("background_color", gui.background_color)
+	add_theme_color_override("current_line_color", gui.current_line_color)
+	add_theme_color_override("selection_color", gui.selection_color)
+	add_theme_color_override("font_color", gui.font_color)
+	add_theme_color_override("word_highlighted_color", gui.word_highlighted_color)
+	add_theme_color_override("completion_background_color", gui.completion_background_color)
+	add_theme_color_override("completion_selected_color", gui.completion_selected_color)
+	add_theme_color_override("caret_color", gui.caret_color)
+	$"../../../../ColorRect".color = gui.background_color
 
 func _on_option_button_on_theme_change(cur_theme: Variant) -> void:
 	var cfg = ConfigFile.new()
@@ -122,7 +119,6 @@ func _on_option_button_on_theme_change(cur_theme: Variant) -> void:
 	cfg.set_value("preferences", "theme", cur_theme)
 	cfg.save(main.save_file_path)
 	setup_cur_theme(cur_theme)
-	setup_highlighter()
 	
 func unique_array(arr: Array) -> Array:
 	var out := {}
