@@ -1,6 +1,7 @@
 extends Control
 @onready var intro_wind = $"Intro Window"
 @onready var find_replace_wind = $"Find Replace Window"
+@onready var setting_wind = $"Settings Window"
 @onready var editor = $Editor_Container/VSplitContainer/VSplitContainer/Editor
 @onready var item_list = $Editor_Container/ItemList
 @onready var H_container = $Editor_Container
@@ -8,6 +9,7 @@ extends Control
 @onready var V_container2 = $Editor_Container/VSplitContainer
 @onready var terminal = $Editor_Container/VSplitContainer/Control.get_child(0)
 @onready var tab_bar = $Editor_Container/VSplitContainer/VSplitContainer/TabBar
+@onready var timer : Timer = $"Timer"
 @onready var icons = Icons.new()
 var cur_opened_file = ""
 var dir = DirAccess.open(OS.get_user_data_dir())
@@ -16,13 +18,13 @@ var cur_ind_focus = 0
 var font_size = 16
 var from_idx = -1
 var save_file_path = "user://Preferance Data/save_data.cfg"
+var intro_wind_popup : bool = true
 @onready var map : Dictionary = {
 	0 : item_list,
 	1 : editor,
 	2 : terminal }
 var tab_path_arr = []
 signal opened_file(file_name, file_path)
-signal change_font_size(font_size)
 signal on_load_intro_window(show_)
 signal on_load_theme(theme_l)
 signal on_load_get_themes(themes)
@@ -47,6 +49,7 @@ func get_dir_contents() -> Array:
 		return []
 	
 func save() -> void:
+	if cur_opened_file == "": return
 	var file = FileAccess.open(cur_opened_file, FileAccess.WRITE)
 	if file:
 		file.store_string(editor.text.replace("\t", "    "))
@@ -60,7 +63,7 @@ func save_preferences():
 		print("Failed to initialize %s" % err)
 		return
 	cfg.set_value("preferences", "font_size", font_size)
-	cfg.set_value("preferences", "show", not $"Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox".visible)
+	cfg.set_value("preferences", "show", intro_wind_popup)
 	cfg.save(save_file_path)
 
 func _ready() -> void:
@@ -69,7 +72,6 @@ func _ready() -> void:
 	on_load_emit_pref()
 	update()
 	item_list.select(cur_ind)
-	get_tree().root.size_changed.connect(resize)
 	get_tree().root.focus_entered.connect(update)
 	get_tree().root.close_requested.connect(save_preferences)
 
@@ -81,11 +83,11 @@ func on_load_emit_pref():
 	if !Lua_dir: return;
 	if err != OK: print("Failed to load file %s" % err); return
 	for file in Lua_dir.get_files(): themes_.append(file.get_basename())
-	var show_ = cfg.get_value("preferences", "show", true)
+	intro_wind_popup = cfg.get_value("preferences", "show", true)
 	var theme_ = cfg.get_value("preferences", "theme", "Github Dark")
 	font_size = cfg.get_value("preferences", "font_size", 16)
 	update_font_size()
-	on_load_intro_window.emit(show_)
+	on_load_intro_window.emit(intro_wind_popup)
 	on_load_get_themes.emit(themes_)
 	on_load_theme.emit(theme_)
 
@@ -110,6 +112,7 @@ func open_file_dir(full_path : String, selected_name : String) -> void:
 			cur_opened_file = file.get_path_absolute()
 			editor.clear_undo_history()
 			file.close()
+			timer.start()
 			opened_file.emit(selected_name, full_path)
 		else:
 			dir = DirAccess.open(OS.get_user_data_dir())
@@ -132,11 +135,13 @@ func _input(_event: InputEvent) -> void:
 		cur_ind = clamp(cur_ind, 0, item_list.get_item_count()-1)
 		item_list.select(cur_ind)
 		item_list.ensure_current_is_visible()
-	if Input.is_action_just_pressed("save"): save(); get_viewport().set_input_as_handled()
-	if Input.is_action_just_pressed("Help") and intro_wind.visible == false: intro_wind.show(); get_viewport().set_input_as_handled()
-	elif Input.is_action_just_pressed("Help") and intro_wind.visible == true: intro_wind.hide(); get_viewport().set_input_as_handled()
-	if Input.is_action_just_pressed("Find") and find_replace_wind.visible == false: find_replace_wind.show(); get_viewport().set_input_as_handled()
-	elif Input.is_action_just_pressed("Find") and find_replace_wind.visible == true: find_replace_wind.hide(); get_viewport().set_input_as_handled()
+	if Input.is_action_just_pressed("save"): save(); timer.start(); get_viewport().set_input_as_handled()
+	if Input.is_action_just_pressed("settings") and setting_wind.visible: setting_wind.hide(); get_viewport().set_input_as_handled()
+	elif Input.is_action_just_pressed("settings") and not setting_wind.visible: setting_wind.show(); get_viewport().set_input_as_handled()
+	if Input.is_action_just_pressed("Help") and not intro_wind.visible: intro_wind.show(); get_viewport().set_input_as_handled()
+	elif Input.is_action_just_pressed("Help") and intro_wind.visible: intro_wind.hide(); get_viewport().set_input_as_handled()
+	if Input.is_action_just_pressed("Find") and not find_replace_wind.visible: find_replace_wind.show(); get_viewport().set_input_as_handled()
+	elif Input.is_action_just_pressed("Find") and find_replace_wind.visible: find_replace_wind.hide(); get_viewport().set_input_as_handled()
 	if Input.is_action_pressed("Increase Font Size") and font_size < 100: font_size += 1; update_font_size(); get_viewport().set_input_as_handled()
 	if Input.is_action_pressed("Decrease Font Size") and font_size > 0: font_size -= 1; update_font_size(); get_viewport().set_input_as_handled()
 	if Input.is_action_just_pressed("Tab Switch") and not tab_bar.current_tab == -1 and not tab_path_arr.is_empty():
@@ -148,22 +153,12 @@ func _input(_event: InputEvent) -> void:
 func update() -> void:
 	display_items(get_dir_contents())
 
-func resize() -> void:
-	var win_size = DisplayServer.window_get_size()
-	var left_side_spacing = 0.25
-	var label_spacing = 0.01
-	var console_spacing = 0.1
-	H_container.split_offset = win_size.y * left_side_spacing
-	V_container.split_offset = win_size.x * label_spacing
-	V_container2.split_offset = win_size.x * console_spacing
-	
 func update_font_size():
 	tab_bar.add_theme_font_size_override("font_size", font_size)
 	editor.add_theme_font_size_override("font_size", font_size)
 	item_list.add_theme_font_size_override("font_size", font_size)
 	terminal.add_theme_font_size_override("font_size", font_size)
 	theme.default_font_size = font_size
-	change_font_size.emit(font_size)
 	
 func remove_tab(tab : int):
 	tab_bar.remove_tab(tab)
@@ -213,3 +208,6 @@ func _on_tab_bar_active_tab_rearranged(idx_to: int) -> void:
 	if from_idx == -1 or from_idx == idx_to: return
 	tab_path_arr.insert(idx_to, tab_path_arr.pop_at(from_idx))
 	from_idx = -1
+
+func _on_timer_timeout() -> void:
+	save()

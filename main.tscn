@@ -10,8 +10,10 @@
 [ext_resource type="Script" uid="uid://nkw8h3awv1jx" path="res://scripts/never_show_again_button.gd" id="7_272bh"]
 [ext_resource type="Script" uid="uid://kiqlhdva7ov2" path="res://scripts/find_replace_window.gd" id="8_5vw27"]
 [ext_resource type="Script" uid="uid://d20menqvd88ny" path="res://scripts/editor_settings.gd" id="10_efxa6"]
+[ext_resource type="Script" uid="uid://cclnmw6pl6vvs" path="res://scripts/savetimedelayslider.gd" id="10_vivmo"]
 [ext_resource type="Script" uid="uid://beyy8vwwwispa" path="res://scripts/check_box_button.gd" id="10_ycdy4"]
 [ext_resource type="Script" uid="uid://bxl70sqh5y33o" path="res://scripts/theme_setting.gd" id="11_efxa6"]
+[ext_resource type="Script" uid="uid://yahbu2hl5rq5" path="res://scripts/setting_slider.gd" id="11_w48qg"]
 [ext_resource type="Script" uid="uid://bpa6qqnghf2eh" path="res://scripts/apply_button.gd" id="12_dg77c"]
 
 [sub_resource type="Theme" id="Theme_kek77"]
@@ -28,6 +30,9 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = SubResource("Theme_kek77")
 script = ExtResource("1_ig7tw")
+
+[node name="Timer" type="Timer" parent="." unique_id=810308528]
+wait_time = 3.0
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=413738271]
 layout_mode = 1
@@ -106,8 +111,8 @@ caret_multiple = false
 handle_input_locally = false
 oversampling_override = 1.0
 title = "Welcome to Deezn't Code"
-position = Vector2i(375, 36)
-size = Vector2i(500, 500)
+initial_position = 1
+size = Vector2i(600, 600)
 visible = false
 script = ExtResource("6_7mycd")
 
@@ -209,7 +214,7 @@ layout_mode = 2
 [node name="Label" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item3" unique_id=1436969961]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Change Theme"
+text = "Open Settings"
 
 [node name="Label2" type="Label" parent="Intro Window/VBoxContainer/Shrotcut Section2/Shortcut Item3" unique_id=1174142290]
 layout_mode = 2
@@ -296,7 +301,7 @@ size_flags_vertical = 3
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
-text = "Never Show Again"
+text = "Don't Show Again"
 script = ExtResource("7_272bh")
 
 [node name="Find Replace Window" type="Window" parent="." unique_id=559420306]
@@ -359,8 +364,9 @@ layout_mode = 2
 handle_input_locally = false
 oversampling_override = 1.0
 title = "Settings"
-position = Vector2i(0, 36)
-size = Vector2i(500, 500)
+initial_position = 1
+size = Vector2i(600, 600)
+visible = false
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Settings Window" unique_id=782670254]
 anchors_preset = 15
@@ -425,6 +431,21 @@ horizontal_alignment = 2
 [node name="HSeparator" type="HSeparator" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=1961354027]
 layout_mode = 2
 
+[node name="SaveTimeDelaySetting" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=1245725435]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Settings Window/HBoxContainer/Settings/General Settings/SaveTimeDelaySetting" unique_id=1989062404]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Save Time Delay(seconds)"
+
+[node name="HSlider" type="HSlider" parent="Settings Window/HBoxContainer/Settings/General Settings/SaveTimeDelaySetting" unique_id=763965808]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 10.0
+rounded = true
+script = ExtResource("10_vivmo")
+
 [node name="OpenLastProjectStartup" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=154545004]
 layout_mode = 2
 text = "Open Last Project On Startup"
@@ -439,6 +460,7 @@ script = ExtResource("10_ycdy4")
 layout_mode = 2
 text = "Show Welcome Screen"
 script = ExtResource("10_ycdy4")
+modifies_property = "show_intro_wind"
 
 [node name="AutoIndent" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=974843319]
 layout_mode = 2
@@ -474,7 +496,7 @@ layout_mode = 2
 [node name="FontSizeSetting" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=1873189790]
 layout_mode = 2
 
-[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Editor Settings/FontSizeSetting" unique_id=281943627]
+[node name="Label" type="Label" parent="Settings Window/HBoxContainer/Settings/Editor Settings/FontSizeSetting" unique_id=281943627]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Font Size"
@@ -483,11 +505,13 @@ text = "Font Size"
 layout_mode = 2
 size_flags_horizontal = 3
 rounded = true
+script = ExtResource("11_w48qg")
+modifies_property = "font_size"
 
 [node name="TabSizeSetting" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=134392866]
 layout_mode = 2
 
-[node name="Label2" type="Label" parent="Settings Window/HBoxContainer/Settings/Editor Settings/TabSizeSetting" unique_id=1344772999]
+[node name="Label" type="Label" parent="Settings Window/HBoxContainer/Settings/Editor Settings/TabSizeSetting" unique_id=1344772999]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Tab Size"
@@ -496,6 +520,8 @@ text = "Tab Size"
 layout_mode = 2
 size_flags_horizontal = 3
 rounded = true
+script = ExtResource("11_w48qg")
+modifies_property = "indent_size"
 
 [node name="IndentSpaces?" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/Editor Settings" unique_id=1259091774]
 layout_mode = 2
@@ -828,14 +854,14 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[connection signal="change_font_size" from="." to="Intro Window" method="_on_control_change_font_size"]
-[connection signal="change_font_size" from="." to="Find Replace Window" method="_on_control_change_font_size"]
 [connection signal="on_load_get_themes" from="." to="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" method="_on_control_on_load_get_themes"]
 [connection signal="on_load_intro_window" from="." to="Intro Window" method="_on_control_on_load_intro_window"]
 [connection signal="on_load_intro_window" from="." to="Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox" method="_on_control_on_load_intro_window"]
+[connection signal="on_load_intro_window" from="." to="Settings Window/HBoxContainer/Settings/General Settings/ShowWelcomeScreen" method="_on_control_on_load_intro_window"]
 [connection signal="on_load_theme" from="." to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_control_on_load_theme"]
 [connection signal="on_load_theme" from="." to="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" method="_on_control_on_load_theme"]
 [connection signal="opened_file" from="." to="." method="_on_opened_file"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
 [connection signal="focus_entered" from="Editor_Container/ItemList" to="." method="_on_item_list_focus_entered"]
 [connection signal="item_clicked" from="Editor_Container/ItemList" to="." method="_on_item_list_item_clicked"]
 [connection signal="active_tab_rearranged" from="Editor_Container/VSplitContainer/VSplitContainer/TabBar" to="." method="_on_tab_bar_active_tab_rearranged"]
@@ -845,8 +871,7 @@ size_flags_vertical = 3
 [connection signal="focus_entered" from="Editor_Container/VSplitContainer/VSplitContainer/Editor" to="." method="_on_editor_focus_entered"]
 [connection signal="gui_input" from="Editor_Container/VSplitContainer/VSplitContainer/Editor" to="." method="_on_editor_gui_input"]
 [connection signal="text_changed" from="Editor_Container/VSplitContainer/VSplitContainer/Editor" to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_text_changed"]
-[connection signal="close_requested" from="Intro Window" to="Intro Window" method="_on_close_requested"]
-[connection signal="close_requested" from="Find Replace Window" to="Find Replace Window" method="_on_close_requested"]
+[connection signal="pressed" from="Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox" to="Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox" method="_on_pressed"]
 [connection signal="text_submitted" from="Find Replace Window/VBoxContainer/Find/HBoxContainer/LineEdit" to="Find Replace Window" method="_on_line_edit_text_submitted"]
 [connection signal="pressed" from="Find Replace Window/VBoxContainer/Find/HBoxContainer/Up Arrow" to="Find Replace Window" method="_on_up_arrow_pressed"]
 [connection signal="pressed" from="Find Replace Window/VBoxContainer/Find/HBoxContainer/Down Arrow" to="Find Replace Window" method="_on_down_arrow_pressed"]
@@ -857,9 +882,13 @@ size_flags_vertical = 3
 [connection signal="pressed" from="Settings Window/HBoxContainer/Setting Labels/Themes" to="Settings Window/HBoxContainer/Settings" method="_on_themes_button_pressed"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Setting Labels/Advanced" to="Settings Window/HBoxContainer/Settings" method="_on_advanced_button_pressed"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Setting Labels/Reset to Defaults" to="Settings Window/HBoxContainer/Settings" method="_on_reset_to_defaults_button_pressed"]
+[connection signal="drag_ended" from="Settings Window/HBoxContainer/Settings/General Settings/SaveTimeDelaySetting/HSlider" to="Settings Window/HBoxContainer/Settings/General Settings/SaveTimeDelaySetting/HSlider" method="_on_drag_ended"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Settings/General Settings/ShowWelcomeScreen" to="Settings Window/HBoxContainer/Settings/General Settings/ShowWelcomeScreen" method="_on_pressed"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Settings/General Settings/AutoIndent" to="Settings Window/HBoxContainer/Settings/General Settings/AutoIndent" method="_on_pressed"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Settings/General Settings/AutoCloseBrackets" to="Settings Window/HBoxContainer/Settings/General Settings/AutoCloseBrackets" method="_on_pressed"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Settings/General Settings/HighlightMatchingBraces" to="Settings Window/HBoxContainer/Settings/General Settings/HighlightMatchingBraces" method="_on_pressed"]
+[connection signal="drag_ended" from="Settings Window/HBoxContainer/Settings/Editor Settings/FontSizeSetting/HSlider" to="Settings Window/HBoxContainer/Settings/Editor Settings/FontSizeSetting/HSlider" method="_on_drag_ended"]
+[connection signal="drag_ended" from="Settings Window/HBoxContainer/Settings/Editor Settings/TabSizeSetting/HSlider" to="Settings Window/HBoxContainer/Settings/Editor Settings/TabSizeSetting/HSlider" method="_on_drag_ended"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Settings/Editor Settings/IndentSpaces?" to="Settings Window/HBoxContainer/Settings/Editor Settings/IndentSpaces?" method="_on_pressed"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Settings/Editor Settings/LineNumbers?" to="Settings Window/HBoxContainer/Settings/Editor Settings/LineNumbers?" method="_on_pressed"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Settings/Editor Settings/HighlightCurLine?" to="Settings Window/HBoxContainer/Settings/Editor Settings/HighlightCurLine?" method="_on_pressed"]
