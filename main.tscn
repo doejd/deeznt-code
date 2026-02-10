@@ -442,19 +442,20 @@ text = "Save Time Delay(seconds)"
 [node name="HSlider" type="HSlider" parent="Settings Window/HBoxContainer/Settings/General Settings/SaveTimeDelaySetting" unique_id=763965808]
 layout_mode = 2
 size_flags_horizontal = 3
+min_value = 1.0
 max_value = 10.0
+value = 1.0
 rounded = true
+tick_count = 2
+ticks_on_borders = true
+ticks_position = 2
 script = ExtResource("10_vivmo")
 
 [node name="OpenLastProjectStartup" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=154545004]
 layout_mode = 2
 text = "Open Last Project On Startup"
 script = ExtResource("10_ycdy4")
-
-[node name="OpenEmptyWindowStratup" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=506378670]
-layout_mode = 2
-text = "Open Empty Window On Stratup"
-script = ExtResource("10_ycdy4")
+modifies_property = "open_last_project_on_startup"
 
 [node name="ShowWelcomeScreen" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=1055051005]
 layout_mode = 2
@@ -504,7 +505,11 @@ text = "Font Size"
 [node name="HSlider" type="HSlider" parent="Settings Window/HBoxContainer/Settings/Editor Settings/FontSizeSetting" unique_id=1635360565]
 layout_mode = 2
 size_flags_horizontal = 3
+min_value = 1.0
+value = 1.0
 rounded = true
+tick_count = 10
+ticks_on_borders = true
 script = ExtResource("11_w48qg")
 modifies_property = "font_size"
 
@@ -519,7 +524,12 @@ text = "Tab Size"
 [node name="HSlider" type="HSlider" parent="Settings Window/HBoxContainer/Settings/Editor Settings/TabSizeSetting" unique_id=1041751824]
 layout_mode = 2
 size_flags_horizontal = 3
+min_value = 1.0
+max_value = 20.0
+value = 1.0
 rounded = true
+tick_count = 5
+ticks_on_borders = true
 script = ExtResource("11_w48qg")
 modifies_property = "indent_size"
 
@@ -860,6 +870,7 @@ size_flags_vertical = 3
 [connection signal="on_load_intro_window" from="." to="Settings Window/HBoxContainer/Settings/General Settings/ShowWelcomeScreen" method="_on_control_on_load_intro_window"]
 [connection signal="on_load_theme" from="." to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_control_on_load_theme"]
 [connection signal="on_load_theme" from="." to="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" method="_on_control_on_load_theme"]
+[connection signal="on_startup" from="." to="Settings Window/HBoxContainer/Settings/General Settings/OpenLastProjectStartup" method="_on_control_on_startup"]
 [connection signal="opened_file" from="." to="." method="_on_opened_file"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
 [connection signal="focus_entered" from="Editor_Container/ItemList" to="." method="_on_item_list_focus_entered"]
@@ -883,6 +894,7 @@ size_flags_vertical = 3
 [connection signal="pressed" from="Settings Window/HBoxContainer/Setting Labels/Advanced" to="Settings Window/HBoxContainer/Settings" method="_on_advanced_button_pressed"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Setting Labels/Reset to Defaults" to="Settings Window/HBoxContainer/Settings" method="_on_reset_to_defaults_button_pressed"]
 [connection signal="drag_ended" from="Settings Window/HBoxContainer/Settings/General Settings/SaveTimeDelaySetting/HSlider" to="Settings Window/HBoxContainer/Settings/General Settings/SaveTimeDelaySetting/HSlider" method="_on_drag_ended"]
+[connection signal="pressed" from="Settings Window/HBoxContainer/Settings/General Settings/OpenLastProjectStartup" to="Settings Window/HBoxContainer/Settings/General Settings/OpenLastProjectStartup" method="_on_pressed"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Settings/General Settings/ShowWelcomeScreen" to="Settings Window/HBoxContainer/Settings/General Settings/ShowWelcomeScreen" method="_on_pressed"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Settings/General Settings/AutoIndent" to="Settings Window/HBoxContainer/Settings/General Settings/AutoIndent" method="_on_pressed"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Settings/General Settings/AutoCloseBrackets" to="Settings Window/HBoxContainer/Settings/General Settings/AutoCloseBrackets" method="_on_pressed"]

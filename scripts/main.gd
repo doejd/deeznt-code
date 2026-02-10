@@ -11,14 +11,15 @@ extends Control
 @onready var tab_bar = $Editor_Container/VSplitContainer/VSplitContainer/TabBar
 @onready var timer : Timer = $"Timer"
 @onready var icons = Icons.new()
-var cur_opened_file = ""
 var dir = DirAccess.open(OS.get_user_data_dir())
+var cur_opened_file = ""
 var cur_ind = 0
 var cur_ind_focus = 0
 var font_size = 16
 var from_idx = -1
 var save_file_path = "user://Preferance Data/save_data.cfg"
 var intro_wind_popup : bool = true
+var open_last_project_on_startup : bool = true
 @onready var map : Dictionary = {
 	0 : item_list,
 	1 : editor,
@@ -28,6 +29,7 @@ signal opened_file(file_name, file_path)
 signal on_load_intro_window(show_)
 signal on_load_theme(theme_l)
 signal on_load_get_themes(themes)
+signal on_startup(should_load_last_project)
 
 func get_extension(stri : String) -> String:
 	var dot_index = stri.rfind(".")
@@ -62,8 +64,10 @@ func save_preferences():
 	if err != OK and err != ERR_FILE_NOT_FOUND:
 		print("Failed to initialize %s" % err)
 		return
+	cfg.set_value("preferences", "open_tabs", tab_path_arr)
 	cfg.set_value("preferences", "font_size", font_size)
 	cfg.set_value("preferences", "show", intro_wind_popup)
+	cfg.set_value("preferences", "open_last_project_on_startup", open_last_project_on_startup)
 	cfg.save(save_file_path)
 
 func _ready() -> void:
@@ -78,18 +82,29 @@ func _ready() -> void:
 func on_load_emit_pref():
 	var cfg = ConfigFile.new()
 	var err = cfg.load(save_file_path)
+	if err != OK: print("Failed to load file %s" % err); return
+	intro_wind_popup = cfg.get_value("preferences", "show", true)
+	font_size = cfg.get_value("preferences", "font_size", 16)
+	open_last_project_on_startup = cfg.get_value("preferences", "open_last_project_on_startup", true)
+	var theme_ = cfg.get_value("preferences", "theme", "Github Dark")
+	load_tabs(cfg)
+	load_themes()
+	update_font_size()
+	on_load_intro_window.emit(intro_wind_popup)
+	on_load_theme.emit(theme_)
+
+func load_tabs(cfg : ConfigFile) -> void:
+	if not open_last_project_on_startup: return
+	var tmp_arr = cfg.get_value("preferences", "open_tabs", [])
+	for tab in tmp_arr: open_file_dir(tab, tab.get_file())
+	on_startup.emit(open_last_project_on_startup)
+	
+func load_themes() -> void:
 	var themes_ : Array = []
 	var Lua_dir : DirAccess = DirAccess.open("user://Lua/themes")
 	if !Lua_dir: return;
-	if err != OK: print("Failed to load file %s" % err); return
 	for file in Lua_dir.get_files(): themes_.append(file.get_basename())
-	intro_wind_popup = cfg.get_value("preferences", "show", true)
-	var theme_ = cfg.get_value("preferences", "theme", "Github Dark")
-	font_size = cfg.get_value("preferences", "font_size", 16)
-	update_font_size()
-	on_load_intro_window.emit(intro_wind_popup)
 	on_load_get_themes.emit(themes_)
-	on_load_theme.emit(theme_)
 
 func display_items(items: Array) -> void:
 	item_list.clear()
@@ -108,14 +123,15 @@ func open_file_dir(full_path : String, selected_name : String) -> void:
 		var file = FileAccess.open(full_path, FileAccess.READ)
 		if file:
 			editor.text = file.get_as_text()
+			file.close()
 			editor.set_up_extensions(get_extension(selected_name))
+			editor.setup_highlighter()
 			cur_opened_file = file.get_path_absolute()
 			editor.clear_undo_history()
-			file.close()
 			timer.start()
 			opened_file.emit(selected_name, full_path)
 		else:
-			dir = DirAccess.open(OS.get_user_data_dir())
+			return
 
 func open_from_file_explorer():
 	var selected_name = item_list.get_item_text(cur_ind)
