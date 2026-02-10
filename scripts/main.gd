@@ -102,7 +102,7 @@ func load_tabs(cfg : ConfigFile) -> void:
 func load_themes() -> void:
 	var themes_ : Array = []
 	var Lua_dir : DirAccess = DirAccess.open("user://Lua/themes")
-	if !Lua_dir: return;
+	if !Lua_dir: return
 	for file in Lua_dir.get_files(): themes_.append(file.get_basename())
 	on_load_get_themes.emit(themes_)
 

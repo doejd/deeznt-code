@@ -4,7 +4,6 @@
 [ext_resource type="Script" uid="uid://bctpagkgq0qgi" path="res://scripts/edit.gd" id="2_0xm2m"]
 [ext_resource type="Script" uid="uid://dsf42r8isrgph" path="res://scripts/theme_select.gd" id="2_272bh"]
 [ext_resource type="FontFile" uid="uid://cbkrfirh0p48" path="res://Font/FiraCodeNerdFont-Regular.ttf" id="2_h2yge"]
-[ext_resource type="Texture2D" uid="uid://ca42f3rlklg4t" path="res://Images/new_dpi_texture.tres" id="4_kek77"]
 [ext_resource type="FontFile" uid="uid://cfoksy326afx" path="res://Font/Inconsolata-Regular.ttf" id="5_7mycd"]
 [ext_resource type="FontFile" uid="uid://d07tnsenhhjk3" path="res://Font/JetBrainsMono-Regular.ttf" id="6_2cqfq"]
 [ext_resource type="Script" uid="uid://cads53hj1d2w1" path="res://scripts/intro_window.gd" id="6_7mycd"]
@@ -70,7 +69,6 @@ size_flags_vertical = 3
 
 [node name="TabBar" type="TabBar" parent="Editor_Container/VSplitContainer/VSplitContainer" unique_id=2026867494]
 layout_mode = 2
-theme_override_icons/close = ExtResource("4_kek77")
 drag_to_rearrange_enabled = true
 
 [node name="Editor" type="CodeEdit" parent="Editor_Container/VSplitContainer/VSplitContainer" unique_id=1565296416]
