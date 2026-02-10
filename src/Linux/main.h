@@ -7,6 +7,8 @@
 #include <sys/types.h>
 #include <thread>
 #include <atomic>
+#include <queue>
+#include <mutex>
 
 using namespace godot;
 
@@ -52,6 +54,8 @@ class LinuxHost : public TextEdit {
     pid_t child_pid = -1;
     std::thread reader_thread;
     std::atomic<bool> running = false;
+    std::queue<String> output_queue;
+    std::mutex queue_mutex;
     String input;
     String history_temp;
     int32_t history_index = 0;
@@ -73,6 +77,7 @@ protected:
 public:
     void _ready() override;
     void _exit_tree() override;
+    void _process(double p_delta) override;
     void reader_loop();
     void end_pseudoterminal();
     void start_pseudoterminal();

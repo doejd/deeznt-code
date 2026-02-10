@@ -15,6 +15,7 @@
 #include <utmp.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <string>
 
 using namespace godot;
@@ -265,6 +266,7 @@ void LinuxHost::_bind_methods(){
 
 void LinuxHost::_ready(){
     set_focus_mode(FOCUS_ALL);
+    set_process(true);
 
     const Ref hl = memnew(AnsiHighlighter);
     this->set_syntax_highlighter(hl);
@@ -342,6 +344,24 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
     }
 }
 
+void LinuxHost::_process(double p_delta) {
+    constexpr int MAX_LINES_PER_FRAME{50};
+    int processed = 0;
+    std::queue<String> cur_queue;
+
+    {
+        std::lock_guard lock(queue_mutex);
+        std::swap(cur_queue, output_queue);
+    }
+
+    while (!cur_queue.empty() && processed < MAX_LINES_PER_FRAME) {
+        get_color_highlighting(cur_queue.front());
+        cur_queue.pop();
+        processed++;
+    }
+
+}
+
 bool LinuxHost::file_exists(const char *path) {
     struct stat st{};
     return path && stat(path, &st) == 0 && S_ISREG(st.st_mode);
@@ -393,14 +413,17 @@ void LinuxHost::load_history(const int max_lines) {
 }
 
 void LinuxHost::reader_loop(){
+    constexpr size_t MAX_QUEUE_SIZE{5000};
     char buffer[4097];
 
     while (running){
         if (const ssize_t n = read(master_fd, buffer, sizeof(buffer) - 1); n > 0){
             buffer[n] = '\0';
-            String out(buffer);
-
-            call_deferred("get_color_highlighting", out);
+            {
+                String out(buffer);
+                std::lock_guard lock(queue_mutex);
+                if (output_queue.size() < MAX_QUEUE_SIZE) output_queue.push(out);
+            }
         }
         else if (n == 0) break;
         else {
@@ -436,6 +459,8 @@ void LinuxHost::start_pseudoterminal(){
         UtilityFunctions::print("Openpty Failed");
         return;
     }
+    int flags = fcntl(master_fd, F_GETFL, 0);
+    fcntl(master_fd, F_SETFL, flags | O_NONBLOCK);
 
     child_pid = fork();
     if (child_pid == -1){
@@ -445,6 +470,11 @@ void LinuxHost::start_pseudoterminal(){
 
     if (child_pid == 0){
         close(master_fd);
+        if (setsid() == -1) {
+            perror("setsid");
+            _exit(1);
+        }
+
         login_tty(slave_fd);
 
         execlp("bash", "bash", nullptr);
