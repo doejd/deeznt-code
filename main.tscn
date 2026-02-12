@@ -34,6 +34,10 @@ script = ExtResource("1_ig7tw")
 [node name="Timer" type="Timer" parent="." unique_id=810308528]
 wait_time = 3.0
 
+[node name="Reload Timer" type="Timer" parent="." unique_id=1274839535]
+wait_time = 3.0
+autostart = true
+
 [node name="ColorRect" type="ColorRect" parent="." unique_id=413738271]
 layout_mode = 1
 anchors_preset = 15
@@ -450,6 +454,28 @@ tick_count = 2
 ticks_on_borders = true
 ticks_position = 2
 script = ExtResource("10_vivmo")
+modifies_timer = "savetimer"
+
+[node name="ReloadTimeDelaySetting" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=1144053420]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Settings Window/HBoxContainer/Settings/General Settings/ReloadTimeDelaySetting" unique_id=37391605]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Reload Time Delay(seconds)"
+
+[node name="HSlider" type="HSlider" parent="Settings Window/HBoxContainer/Settings/General Settings/ReloadTimeDelaySetting" unique_id=1074637070]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1.0
+max_value = 10.0
+value = 1.0
+rounded = true
+tick_count = 2
+ticks_on_borders = true
+ticks_position = 2
+script = ExtResource("10_vivmo")
+modifies_timer = "reloadtimer"
 
 [node name="OpenLastProjectStartup" type="CheckBox" parent="Settings Window/HBoxContainer/Settings/General Settings" unique_id=154545004]
 layout_mode = 2
@@ -870,9 +896,12 @@ size_flags_vertical = 3
 [connection signal="on_load_intro_window" from="." to="Settings Window/HBoxContainer/Settings/General Settings/ShowWelcomeScreen" method="_on_control_on_load_intro_window"]
 [connection signal="on_load_theme" from="." to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_control_on_load_theme"]
 [connection signal="on_load_theme" from="." to="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" method="_on_control_on_load_theme"]
+[connection signal="on_startup" from="." to="Settings Window/HBoxContainer/Settings/General Settings/SaveTimeDelaySetting/HSlider" method="_on_control_startup"]
 [connection signal="on_startup" from="." to="Settings Window/HBoxContainer/Settings/General Settings/OpenLastProjectStartup" method="_on_control_on_startup"]
+[connection signal="on_startup" from="." to="Settings Window/HBoxContainer/Settings/General Settings/ReloadTimeDelaySetting/HSlider" method="_on_control_startup"]
 [connection signal="opened_file" from="." to="." method="_on_opened_file"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[connection signal="timeout" from="Reload Timer" to="." method="_on_reload_timer_timeout"]
 [connection signal="focus_entered" from="Editor_Container/ItemList" to="." method="_on_item_list_focus_entered"]
 [connection signal="item_clicked" from="Editor_Container/ItemList" to="." method="_on_item_list_item_clicked"]
 [connection signal="active_tab_rearranged" from="Editor_Container/VSplitContainer/VSplitContainer/TabBar" to="." method="_on_tab_bar_active_tab_rearranged"]
@@ -894,6 +923,7 @@ size_flags_vertical = 3
 [connection signal="pressed" from="Settings Window/HBoxContainer/Setting Labels/Advanced" to="Settings Window/HBoxContainer/Settings" method="_on_advanced_button_pressed"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Setting Labels/Reset to Defaults" to="Settings Window/HBoxContainer/Settings" method="_on_reset_to_defaults_button_pressed"]
 [connection signal="drag_ended" from="Settings Window/HBoxContainer/Settings/General Settings/SaveTimeDelaySetting/HSlider" to="Settings Window/HBoxContainer/Settings/General Settings/SaveTimeDelaySetting/HSlider" method="_on_drag_ended"]
+[connection signal="drag_ended" from="Settings Window/HBoxContainer/Settings/General Settings/ReloadTimeDelaySetting/HSlider" to="Settings Window/HBoxContainer/Settings/General Settings/ReloadTimeDelaySetting/HSlider" method="_on_drag_ended"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Settings/General Settings/OpenLastProjectStartup" to="Settings Window/HBoxContainer/Settings/General Settings/OpenLastProjectStartup" method="_on_pressed"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Settings/General Settings/ShowWelcomeScreen" to="Settings Window/HBoxContainer/Settings/General Settings/ShowWelcomeScreen" method="_on_pressed"]
 [connection signal="pressed" from="Settings Window/HBoxContainer/Settings/General Settings/AutoIndent" to="Settings Window/HBoxContainer/Settings/General Settings/AutoIndent" method="_on_pressed"]

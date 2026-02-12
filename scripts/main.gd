@@ -10,6 +10,7 @@ extends Control
 @onready var terminal = $Editor_Container/VSplitContainer/Control.get_child(0)
 @onready var tab_bar = $Editor_Container/VSplitContainer/VSplitContainer/TabBar
 @onready var timer : Timer = $"Timer"
+@onready var reload_timer : Timer = $"Reload Timer"
 @onready var icons = Icons.new()
 var dir = DirAccess.open(OS.get_user_data_dir())
 var cur_opened_file = ""
@@ -68,6 +69,8 @@ func save_preferences():
 	cfg.set_value("preferences", "font_size", font_size)
 	cfg.set_value("preferences", "show", intro_wind_popup)
 	cfg.set_value("preferences", "open_last_project_on_startup", open_last_project_on_startup)
+	cfg.set_value("preferences", "save_timer_delay", timer.wait_time)
+	cfg.set_value("preferences", "reload_timer_delay", reload_timer.wait_time)
 	cfg.save(save_file_path)
 
 func _ready() -> void:
@@ -86,18 +89,21 @@ func on_load_emit_pref():
 	intro_wind_popup = cfg.get_value("preferences", "show", true)
 	font_size = cfg.get_value("preferences", "font_size", 16)
 	open_last_project_on_startup = cfg.get_value("preferences", "open_last_project_on_startup", true)
+	timer.wait_time = cfg.get_value("preferences", "save_timer_delay", 3)
+	reload_timer.wait_time = cfg.get_value("preferences", "reload_timer_delay", 3)
 	var theme_ = cfg.get_value("preferences", "theme", "Github Dark")
 	load_tabs(cfg)
 	load_themes()
 	update_font_size()
 	on_load_intro_window.emit(intro_wind_popup)
 	on_load_theme.emit(theme_)
+	on_startup.emit(open_last_project_on_startup)
+	editor.setup_theme()
 
 func load_tabs(cfg : ConfigFile) -> void:
 	if not open_last_project_on_startup: return
 	var tmp_arr = cfg.get_value("preferences", "open_tabs", [])
 	for tab in tmp_arr: open_file_dir(tab, tab.get_file())
-	on_startup.emit(open_last_project_on_startup)
 	
 func load_themes() -> void:
 	var themes_ : Array = []
@@ -227,3 +233,6 @@ func _on_tab_bar_active_tab_rearranged(idx_to: int) -> void:
 
 func _on_timer_timeout() -> void:
 	save()
+
+func _on_reload_timer_timeout() -> void:
+	update()

@@ -14,3 +14,7 @@ func _on_drag_ended(_value_changed: bool) -> void:
 		control.font_size = value
 		control.update_font_size()
 	else: editor.set(modifies_property, value)
+
+
+func _on_control_startup(should_load_last_project: Variant) -> void:
+	pass # Replace with function body.
