@@ -89,7 +89,7 @@ func set_keywords(keyword : String, color : String):
 	
 func set_gui(keyword : String, color : String):
 	if not (keyword in GUI.keys()):
-		print("Nope, nobody's here")
+		print("Nope, nobody's here, and definitely not this keyword: %s" % keyword)
 		return
 	
 	GUI[keyword] = str_to_clr(color)

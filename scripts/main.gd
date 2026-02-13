@@ -236,3 +236,4 @@ func _on_timer_timeout() -> void:
 
 func _on_reload_timer_timeout() -> void:
 	update()
+	load_themes()
