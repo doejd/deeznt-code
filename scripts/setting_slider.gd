@@ -16,6 +16,6 @@ func _on_control_on_startup(_should_load_last_project: Variant) -> void:
 		if property == null: return
 		set("value", property)
 	elif modifies_property == "indent_size":
-		var property = editor.get("indent_size")
+		var property = editor.get_tab_size()
 		if property == null: return
 		set("value", property)

@@ -8,6 +8,7 @@ var lua : LuaAPI = LuaAPI.new()
 var lua_theme : LuaAPI = LuaAPI.new()
 var keywords_to_highlight: Dictionary = {}
 var color_regions_to_highlight: Array = []
+var cur_theme_name = ""
 var keywords: Dictionary = {
 	"reserved":   str_to_clr("ff7ab2"),
 	"string":     str_to_clr("ecc48d"),
@@ -112,12 +113,7 @@ func setup_theme(gui : Dictionary = GUI):
 	$"../../../../ColorRect".color = gui.background_color
 
 func _on_option_button_on_theme_change(cur_theme: Variant) -> void:
-	var cfg = ConfigFile.new()
-	var err = cfg.load(main.save_file_path)
-	if err != OK:
-		print("Failed to load file: %s" % err)
-	cfg.set_value("preferences", "theme", cur_theme)
-	cfg.save(main.save_file_path)
+	cur_theme_name = cur_theme
 	setup_cur_theme(cur_theme)
 	
 func unique_array(arr: Array) -> Array:

@@ -65,8 +65,10 @@ func save_preferences():
 	if err != OK and err != ERR_FILE_NOT_FOUND:
 		print("Failed to initialize %s" % err)
 		return
+	cfg.set_value("preferences", "theme", editor.cur_theme_name)
 	cfg.set_value("preferences", "open_tabs", tab_path_arr)
 	cfg.set_value("preferences", "font_size", font_size)
+	cfg.set_value("preferences", "tab_size", editor.get_tab_size())
 	cfg.set_value("preferences", "show", intro_wind_popup)
 	cfg.set_value("preferences", "open_last_project_on_startup", open_last_project_on_startup)
 	cfg.set_value("preferences", "save_timer_delay", timer.wait_time)
@@ -85,13 +87,19 @@ func _ready() -> void:
 func on_load_emit_pref():
 	var cfg = ConfigFile.new()
 	var err = cfg.load(save_file_path)
+	var Lua_theme_dir : DirAccess = DirAccess.open("user://Lua/themes")
+	if Lua_theme_dir == null: return
+	var files = Lua_theme_dir.get_files()
+	if files.is_empty(): files = [""]
 	if err != OK: print("Failed to load file %s" % err); return
 	intro_wind_popup = cfg.get_value("preferences", "show", true)
 	font_size = cfg.get_value("preferences", "font_size", 16)
+	editor.set_tab_size(cfg.get_value("preferences", "tab_size", 4))
 	open_last_project_on_startup = cfg.get_value("preferences", "open_last_project_on_startup", true)
 	timer.wait_time = cfg.get_value("preferences", "save_timer_delay", 3)
 	reload_timer.wait_time = cfg.get_value("preferences", "reload_timer_delay", 3)
-	var theme_ = cfg.get_value("preferences", "theme", "Github Dark")
+	var theme_ = cfg.get_value("preferences", "theme", files[0].get_basename())
+	if !Lua_theme_dir.file_exists("%s.lua" % theme_): theme_ = files[0].get_basename()
 	load_tabs(cfg)
 	load_themes()
 	update_font_size()

@@ -311,6 +311,7 @@ script = ExtResource("7_272bh")
 
 [node name="Find Replace Window" type="Window" parent="." unique_id=559420306]
 handle_input_locally = false
+oversampling_override = 1.0
 title = "Find/Replace"
 position = Vector2i(376, 250)
 size = Vector2i(500, 200)
@@ -615,6 +616,19 @@ layout_mode = 2
 [node name="Label" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=250074968]
 layout_mode = 2
 text = "Theme editor"
+
+[node name="ThemeNameInput" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=527097460]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeNameInput" unique_id=1911581725]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Theme Name"
+
+[node name="LineEdit" type="LineEdit" parent="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeNameInput" unique_id=1460391777]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "My New Theme"
 
 [node name="KeywordColorSettings" type="HBoxContainer" parent="Settings Window/HBoxContainer/Settings/Theme Settings" unique_id=284546803]
 layout_mode = 2
