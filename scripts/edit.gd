@@ -40,7 +40,7 @@ func highlight(kword : String, color : String):
 	if not (color in keywords.keys()):
 		print("Dumbass")
 		return
-		
+
 	keywords_to_highlight[kword] = color
 	
 func highlight_region(start : String, end : String, color : String, single_line : bool = false):
@@ -70,20 +70,20 @@ func set_up_extensions(extension : String):
 		print("ERROR %d: %s" % [error.type, error.message])
 		return
 	
-func setup_highlighter(kwords : Dictionary = keywords) -> void:
+func setup_highlighter() -> void:
 	var CH: CodeHighlighter = CodeHighlighter.new()
 	syntax_highlighter = CH
-	CH.number_color = kwords.binary
-	CH.symbol_color = kwords.symbol
-	CH.function_color = kwords.function
-	CH.member_variable_color = kwords.member
+	CH.number_color = keywords.binary
+	CH.symbol_color = keywords.symbol
+	CH.function_color = keywords.function
+	CH.member_variable_color = keywords.member
 	var kth = keywords_to_highlight
 	var crth = color_regions_to_highlight
 	for key in kth:
-		CH.add_keyword_color(key, kwords[kth[key]])
+		CH.add_keyword_color(key, keywords[kth[key]])
 	for entry in crth:
 		if CH.has_color_region(entry[0]): continue
-		CH.add_color_region(entry[0], entry[1], kwords[entry[2]], entry[3])
+		CH.add_color_region(entry[0], entry[1], keywords[entry[2]], entry[3])
 	
 func set_keywords(keyword : String, color : String):
 	keywords[keyword] = str_to_clr(color)

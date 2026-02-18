@@ -4,25 +4,26 @@ extends CheckBox
 @onready var control : Control = $"../../../../.."
 
 func _ready() -> void:
-	var prop = editor.get(modifies_property)
-	if prop == null: return
-	set("button_pressed", prop)
-
+	control.connect("on_startup", on_load)
+	connect("pressed", _on_pressed)
+	
 func _on_pressed() -> void:
 	if modifies_property == "show_intro_wind":
 		control.intro_wind_popup = button_pressed
+		control.SettingManager.editor_setting_map[modifies_property] = button_pressed
 		return
 	elif modifies_property == "open_last_project_on_startup":
 		control.open_last_project_on_startup = button_pressed
+		control.SettingManager.editor_setting_map[modifies_property] = button_pressed
 		return
 	var prop = editor.get(modifies_property)
 	if prop == null: return
 	editor.set(modifies_property, button_pressed)
+	control.SettingManager.editor_setting_map[modifies_property] = button_pressed
 
-func _on_control_on_load_intro_window(show_: Variant) -> void:
-	if modifies_property == "show_intro_wind": button_pressed =  show_
-	return
-
-func _on_control_on_startup(should_load_last_project: Variant) -> void:
-	if modifies_property == "open_last_project_on_startup": button_pressed = should_load_last_project
-	return
+func on_load(_should_load_last_project : Variant):
+	var property = editor.get(modifies_property)
+	if property == null: property = false
+	if not control.SettingManager.editor_setting_map.has(modifies_property): return
+	button_pressed = control.SettingManager.editor_setting_map[modifies_property]
+	editor.set(modifies_property, button_pressed)

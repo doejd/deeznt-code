@@ -16,6 +16,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <poll.h>
 #include <string>
 
 using namespace godot;
@@ -291,7 +292,10 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
         return;
     }
     if (keycode == KEY_C && key_event->is_ctrl_pressed()) {
-        write_to_terminal("\x03");
+        if (master_fd == -1) return;
+        const pid_t fg_pgid = tcgetpgrp(master_fd);
+        if (fg_pgid > 0) kill(-fg_pgid, SIGINT);
+
         input = "";
         accept_event();
         return;
@@ -345,18 +349,14 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
 }
 
 void LinuxHost::_process(double p_delta) {
+    read_from_terminal();
+
     constexpr int MAX_LINES_PER_FRAME{50};
     int processed = 0;
-    std::queue<String> cur_queue;
 
-    {
-        std::lock_guard lock(queue_mutex);
-        std::swap(cur_queue, output_queue);
-    }
-
-    while (!cur_queue.empty() && processed < MAX_LINES_PER_FRAME) {
-        get_color_highlighting(cur_queue.front());
-        cur_queue.pop();
+    while (!output_queue.empty() && processed < MAX_LINES_PER_FRAME) {
+        get_color_highlighting(output_queue.front());
+        output_queue.pop();
         processed++;
     }
 
@@ -412,27 +412,26 @@ void LinuxHost::load_history(const int max_lines) {
     UtilityFunctions::print("Successfully loaded history");
 }
 
-void LinuxHost::reader_loop(){
-    constexpr size_t MAX_QUEUE_SIZE{5000};
-    char buffer[4097];
+void LinuxHost::read_from_terminal() {
+    if (!running || master_fd == -1) return;
 
-    while (running){
-        if (const ssize_t n = read(master_fd, buffer, sizeof(buffer) - 1); n > 0){
+    pollfd pfd{};
+    pfd.fd = master_fd;
+    pfd.events = POLLIN;
+
+    if (const int ret = poll(&pfd, 1, 0); ret <= 0) return;
+
+    if (pfd.revents & POLLIN) {
+        char buffer[4097];
+
+        if (const ssize_t n = read(master_fd, buffer, sizeof(buffer) - 1); n > 0) {
             buffer[n] = '\0';
-            {
-                String out(buffer);
-                std::lock_guard lock(queue_mutex);
-                if (output_queue.size() < MAX_QUEUE_SIZE) output_queue.push(out);
-            }
+            if (constexpr size_t MAX_QUEUE_SIZE{5000}; output_queue.size() < MAX_QUEUE_SIZE) output_queue.emplace(buffer);
         }
-        else if (n == 0) break;
-        else {
-            if (errno == EAGAIN || errno == EINTR) continue;
-            break;
-        }
+        else if (n == 0) running = false;
     }
-    running = false;
 }
+
 
 void LinuxHost::end_pseudoterminal(){
     if (!running) return;
@@ -449,8 +448,6 @@ void LinuxHost::end_pseudoterminal(){
         waitpid(child_pid, nullptr, 0);
         child_pid = -1;
     }
-
-    if (reader_thread.joinable()) reader_thread.join();
 }
 
 void LinuxHost::start_pseudoterminal(){
@@ -459,7 +456,7 @@ void LinuxHost::start_pseudoterminal(){
         UtilityFunctions::print("Openpty Failed");
         return;
     }
-    int flags = fcntl(master_fd, F_GETFL, 0);
+    const int flags = fcntl(master_fd, F_GETFL, 0);
     fcntl(master_fd, F_SETFL, flags | O_NONBLOCK);
 
     child_pid = fork();
@@ -485,24 +482,25 @@ void LinuxHost::start_pseudoterminal(){
 
     close(slave_fd);
     running = true;
-    reader_thread = std::thread(&LinuxHost::reader_loop, this);
 
     UtilityFunctions::print("PTY searched, PID: ", child_pid);
+
     write_to_terminal("export TERM=xterm-256color\n");
     load_history(500);
 }
 
 void LinuxHost::write_to_terminal(const String &text){
-    const std::string native_str_text = text.utf8().get_data();
-    ssize_t result = 0;
+    const std::string native = text.utf8().get_data();
 
-    if (native_str_text == "clear\n") {
+    if (native == "clear\n") {
         clear();
         highlighter->spans.clear();
     }
 
-    if (master_fd != -1) result = write(master_fd, native_str_text.c_str(), native_str_text.size());
-    if (result == -1) perror("write");
+    if (master_fd != -1) {
+        const ssize_t result = write(master_fd, native.c_str(), native.size());
+        if (result == -1) perror("write");
+    }
 }
 
 #else
@@ -510,7 +508,7 @@ void LinuxHost::write_to_terminal(const String &text){
 void LinuxHost::_bind_methods() {}
 void LinuxHost::start_pseudoterminal() {}
 void LinuxHost::end_pseudoterminal() {}
-void LinuxHost::reader_loop() {}
+void LinuxHost::read_from_terminal() {}
 void LinuxHost::write_to_terminal(const String &text) {}
 void LinuxHost::edit_text(const String &text) {}
 

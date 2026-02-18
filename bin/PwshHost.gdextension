@@ -1,7 +1,0 @@
-[configuration]
-entry_symbol = "PwshHost_library_init"
-compatibility_minimum = "4.4"
-
-[libraries]
-windows.x86_64 = "res://bin/PwshHost.windows.template_release.x86_64.dll"
-linux.x86_64 = "res://bin/PwshHost.linux.template_release.x86_64.so"

@@ -5,10 +5,8 @@
 #include <godot_cpp/classes/syntax_highlighter.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <sys/types.h>
-#include <thread>
 #include <atomic>
 #include <queue>
-#include <mutex>
 
 using namespace godot;
 
@@ -52,10 +50,8 @@ class LinuxHost : public TextEdit {
     int master_fd = -1;
     int slave_fd = -1;
     pid_t child_pid = -1;
-    std::thread reader_thread;
-    std::atomic<bool> running = false;
+    bool running = false;
     std::queue<String> output_queue;
-    std::mutex queue_mutex;
     String input;
     String history_temp;
     int32_t history_index = 0;
@@ -78,7 +74,7 @@ public:
     void _ready() override;
     void _exit_tree() override;
     void _process(double p_delta) override;
-    void reader_loop();
+    void read_from_terminal();
     void end_pseudoterminal();
     void start_pseudoterminal();
     void write_to_terminal(const String &text);

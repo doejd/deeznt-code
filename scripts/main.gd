@@ -11,6 +11,7 @@ extends Control
 @onready var tab_bar = $Editor_Container/VSplitContainer/VSplitContainer/TabBar
 @onready var timer : Timer = $"Timer"
 @onready var reload_timer : Timer = $"Reload Timer"
+@onready var SettingManager : Settings_Manager = Settings_Manager.new()
 @onready var icons = Icons.new()
 var dir = DirAccess.open(OS.get_user_data_dir())
 var cur_opened_file = ""
@@ -58,49 +59,29 @@ func save() -> void:
 		file.store_string(editor.text.replace("\t", "    "))
 		file.flush()
 		file.close()
-
-func save_preferences():
-	var cfg = ConfigFile.new()
-	var err = cfg.load(save_file_path)
-	if err != OK and err != ERR_FILE_NOT_FOUND:
-		print("Failed to initialize %s" % err)
-		return
-	cfg.set_value("preferences", "theme", editor.cur_theme_name)
-	cfg.set_value("preferences", "open_tabs", tab_path_arr)
-	cfg.set_value("preferences", "font_size", font_size)
-	cfg.set_value("preferences", "tab_size", editor.get_tab_size())
-	cfg.set_value("preferences", "show", intro_wind_popup)
-	cfg.set_value("preferences", "open_last_project_on_startup", open_last_project_on_startup)
-	cfg.set_value("preferences", "save_timer_delay", timer.wait_time)
-	cfg.set_value("preferences", "reload_timer_delay", reload_timer.wait_time)
-	cfg.save(save_file_path)
-
+		
 func _ready() -> void:
-	var dir_ : DirAccess = DirAccess.open("user://")
-	if not dir_.dir_exists("Preferance Data"): dir_.make_dir("Preferance Data")
+	SettingManager._on_startup_load_settings()
 	on_load_emit_pref()
-	update()
+	update_file_tree()
 	item_list.select(cur_ind)
-	get_tree().root.focus_entered.connect(update)
-	get_tree().root.close_requested.connect(save_preferences)
+	get_tree().root.focus_entered.connect(update_file_tree)
+	get_tree().root.close_requested.connect(SettingManager.save_settings)
 
 func on_load_emit_pref():
-	var cfg = ConfigFile.new()
-	var err = cfg.load(save_file_path)
 	var Lua_theme_dir : DirAccess = DirAccess.open("user://Lua/themes")
 	if Lua_theme_dir == null: return
 	var files = Lua_theme_dir.get_files()
 	if files.is_empty(): files = [""]
-	if err != OK: print("Failed to load file %s" % err); return
-	intro_wind_popup = cfg.get_value("preferences", "show", true)
-	font_size = cfg.get_value("preferences", "font_size", 16)
-	editor.set_tab_size(cfg.get_value("preferences", "tab_size", 4))
-	open_last_project_on_startup = cfg.get_value("preferences", "open_last_project_on_startup", true)
-	timer.wait_time = cfg.get_value("preferences", "save_timer_delay", 3)
-	reload_timer.wait_time = cfg.get_value("preferences", "reload_timer_delay", 3)
-	var theme_ = cfg.get_value("preferences", "theme", files[0].get_basename())
+	font_size = SettingManager.preference_setting_map.font_size
+	editor.set_tab_size(SettingManager.preference_setting_map.indent_size)
+	timer.wait_time = SettingManager.timer_map.save_timer_delay
+	reload_timer.wait_time = SettingManager.timer_map.reload_timer_delay
+	open_last_project_on_startup = SettingManager.editor_setting_map.open_last_project_on_startup
+	intro_wind_popup = SettingManager.editor_setting_map.show_intro_wind
+	var theme_ = SettingManager.preference_setting_map.theme
 	if !Lua_theme_dir.file_exists("%s.lua" % theme_): theme_ = files[0].get_basename()
-	load_tabs(cfg)
+	load_tabs(SettingManager.preference_setting_map.open_tabs)
 	load_themes()
 	update_font_size()
 	on_load_intro_window.emit(intro_wind_popup)
@@ -108,16 +89,16 @@ func on_load_emit_pref():
 	on_startup.emit(open_last_project_on_startup)
 	editor.setup_theme()
 
-func load_tabs(cfg : ConfigFile) -> void:
+func load_tabs(open_tabs : Array) -> void:
 	if not open_last_project_on_startup: return
-	var tmp_arr = cfg.get_value("preferences", "open_tabs", [])
-	for tab in tmp_arr: open_file_dir(tab, tab.get_file())
+	for tab in open_tabs: open_file_dir(tab, tab.get_file())
 	
 func load_themes() -> void:
+	var Lua_theme_dir : DirAccess = DirAccess.open("user://Lua/themes")
+	if Lua_theme_dir == null: return
 	var themes_ : Array = []
-	var Lua_dir : DirAccess = DirAccess.open("user://Lua/themes")
-	if !Lua_dir: return
-	for file in Lua_dir.get_files(): themes_.append(file.get_basename())
+	var files = Lua_theme_dir.get_files()
+	for file in files: themes_.append(file.get_basename())
 	on_load_get_themes.emit(themes_)
 
 func display_items(items: Array) -> void:
@@ -131,7 +112,7 @@ func open_file_dir(full_path : String, selected_name : String) -> void:
 	if DirAccess.open(full_path):
 		cur_ind = 0
 		dir.change_dir(selected_name)
-		update()
+		update_file_tree()
 	else:
 		save()
 		var file = FileAccess.open(full_path, FileAccess.READ)
@@ -180,7 +161,7 @@ func _input(_event: InputEvent) -> void:
 		open_file_dir(tab_path_arr[tab_bar.current_tab], tab_bar.get_tab_title(tab_bar.current_tab)) 
 		get_viewport().set_input_as_handled()
 
-func update() -> void:
+func update_file_tree() -> void:
 	display_items(get_dir_contents())
 
 func update_font_size():
@@ -189,6 +170,7 @@ func update_font_size():
 	item_list.add_theme_font_size_override("font_size", font_size)
 	terminal.add_theme_font_size_override("font_size", font_size)
 	theme.default_font_size = font_size
+	SettingManager.preference_setting_map.font_size = font_size
 	
 func remove_tab(tab : int):
 	tab_bar.remove_tab(tab)
@@ -227,6 +209,7 @@ func _on_opened_file(file_name: Variant, file_path : Variant) -> void:
 	tab_bar.add_tab(file_name)
 	tab_bar.current_tab = tab_bar.get_tab_count() - 1
 	tab_path_arr.push_back(file_path)
+	SettingManager.preference_setting_map.open_tabs = tab_path_arr
 
 func _on_tab_bar_tab_clicked(tab: int) -> void:
 	from_idx = tab_bar.current_tab
@@ -243,5 +226,5 @@ func _on_timer_timeout() -> void:
 	save()
 
 func _on_reload_timer_timeout() -> void:
-	update()
+	update_file_tree()
 	load_themes()

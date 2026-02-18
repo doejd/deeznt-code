@@ -8,7 +8,10 @@ func _on_drag_ended(_value_changed: bool) -> void:
 	if modifies_property == "font_size": 
 		control.font_size = value
 		control.update_font_size()
-	else: editor.set(modifies_property, value)
+		control.SettingManager.preference_setting_map.font_size = value
+	else: 
+		editor.set(modifies_property, value)
+		control.SettingManager.preference_setting_map[modifies_property] = value
 
 func _on_control_on_startup(_should_load_last_project: Variant) -> void:
 	if modifies_property == "font_size":
