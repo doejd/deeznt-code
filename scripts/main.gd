@@ -4,9 +4,6 @@ extends Control
 @onready var setting_wind = $"Settings Window"
 @onready var editor = $Editor_Container/VSplitContainer/VSplitContainer/Editor
 @onready var item_list = $Editor_Container/ItemList
-@onready var H_container = $Editor_Container
-@onready var V_container = $Editor_Container/VSplitContainer/VSplitContainer
-@onready var V_container2 = $Editor_Container/VSplitContainer
 @onready var terminal = $Editor_Container/VSplitContainer/Control.get_child(0)
 @onready var tab_bar = $Editor_Container/VSplitContainer/VSplitContainer/TabBar
 @onready var timer : Timer = $"Timer"

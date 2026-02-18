@@ -108,6 +108,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_fonts/font = ExtResource("6_2cqfq")
 theme_override_font_sizes/font_size = 16
+wrap_mode = 1
 caret_type = 1
 caret_blink = true
 caret_multiple = false
