@@ -1,4 +1,5 @@
 extends VBoxContainer
+@onready var control : Control = $"../../.."
 @onready var editor : CodeEdit = $"../../../Editor_Container/VSplitContainer/VSplitContainer/Editor"
 var theme_nodes = []
 
@@ -23,4 +24,7 @@ func _on_advanced_button_pressed() -> void:
 	find_child("Advanced Settings", false).visible = true
 
 func _on_reset_to_defaults_button_pressed() -> void:
-	pass # Replace with function body.
+	control.SettingManager.preference_setting_map = control.SettingManager.default_preference_setting_map
+	control.SettingManager.editor_setting_map = control.SettingManager.default_editor_setting_map
+	control.SettingManager.timer_map = control.SettingManager.default_timer_map
+	control.on_load_emit_pref()

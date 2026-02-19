@@ -13,7 +13,7 @@ func _on_drag_ended(_value_changed: bool) -> void:
 		editor.set(modifies_property, value)
 		control.SettingManager.preference_setting_map[modifies_property] = value
 
-func _on_control_on_startup(_should_load_last_project: Variant) -> void:
+func _on_control_emit_setting(_should_load_last_project: Variant) -> void:
 	if modifies_property == "font_size":
 		var property = editor.get_theme_font_size("font_size")
 		if property == null: return

@@ -28,7 +28,7 @@ signal opened_file(file_name, file_path)
 signal on_load_intro_window(show_)
 signal on_load_theme(theme_l)
 signal on_load_get_themes(themes)
-signal on_startup(should_load_last_project)
+signal emit_setting(should_load_last_project)
 
 func get_extension(stri : String) -> String:
 	var dot_index = stri.rfind(".")
@@ -83,7 +83,7 @@ func on_load_emit_pref():
 	update_font_size()
 	on_load_intro_window.emit(intro_wind_popup)
 	on_load_theme.emit(theme_)
-	on_startup.emit(open_last_project_on_startup)
+	emit_setting.emit(open_last_project_on_startup)
 	editor.setup_theme()
 
 func load_tabs(open_tabs : Array) -> void:

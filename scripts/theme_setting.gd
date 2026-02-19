@@ -4,7 +4,7 @@ extends ColorPickerButton
 @onready var control = $"../../../../../.."
 
 func _ready() -> void:
-	control.connect("on_startup", _on_starup_set_value)
+	control.connect("emit_setting", _on_starup_set_value)
 
 func _on_color_changed(new_color: Color) -> void:
 	if editor.keywords.has(key_referring_to):

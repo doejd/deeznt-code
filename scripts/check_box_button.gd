@@ -4,7 +4,7 @@ extends CheckBox
 @onready var control : Control = $"../../../../.."
 
 func _ready() -> void:
-	control.connect("on_startup", on_load)
+	control.connect("emit_setting", on_emit_setting)
 	connect("pressed", _on_pressed)
 	
 func _on_pressed() -> void:
@@ -21,7 +21,7 @@ func _on_pressed() -> void:
 	editor.set(modifies_property, button_pressed)
 	control.SettingManager.editor_setting_map[modifies_property] = button_pressed
 
-func on_load(_should_load_last_project : Variant):
+func on_emit_setting(_should_load_last_project : Variant):
 	var property = editor.get(modifies_property)
 	if property == null: property = false
 	if not control.SettingManager.editor_setting_map.has(modifies_property): return

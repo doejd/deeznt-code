@@ -13,6 +13,6 @@ func _on_drag_ended(_value_changed: bool) -> void:
 		timer.start()
 	$"../../../../../..".SettingManager.timer_map[modifies_timer] = value
 
-func _on_control_startup(_should_load_last_project: Variant) -> void:
+func _on_control_edit_setting(_should_load_last_project: Variant) -> void:
 	if modifies_timer == "reload_timer_delay": value = reload_timer.wait_time
 	elif modifies_timer == "save_timer_delay": value = timer.wait_time

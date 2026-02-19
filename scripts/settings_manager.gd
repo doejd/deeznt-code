@@ -14,8 +14,8 @@ var default_editor_setting_map : Dictionary = {
 	"auto_brace_completion_highlight_matching" : true,
 	"gutters_draw_line_numbers" : true,
 	"highlight_current_line" : true,
-	"minimap_draw" : true,
-	"show_intro_wind" : false,
+	"minimap_draw" : false,
+	"show_intro_wind" : true,
 	"gutters_draw_breakpoints_gutter" : false
 }
 var default_timer_map : Dictionary = {

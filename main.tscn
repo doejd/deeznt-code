@@ -908,15 +908,15 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
+[connection signal="emit_setting" from="." to="Settings Window/HBoxContainer/Settings/General Settings/SaveTimeDelaySetting/HSlider" method="_on_control_edit_setting"]
+[connection signal="emit_setting" from="." to="Settings Window/HBoxContainer/Settings/General Settings/ReloadTimeDelaySetting/HSlider" method="_on_control_edit_setting"]
+[connection signal="emit_setting" from="." to="Settings Window/HBoxContainer/Settings/Editor Settings/FontSizeSetting/HSlider" method="_on_control_emit_setting"]
+[connection signal="emit_setting" from="." to="Settings Window/HBoxContainer/Settings/Editor Settings/TabSizeSetting/HSlider" method="_on_control_emit_setting"]
 [connection signal="on_load_get_themes" from="." to="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" method="_on_control_on_load_get_themes"]
 [connection signal="on_load_intro_window" from="." to="Intro Window" method="_on_control_on_load_intro_window"]
 [connection signal="on_load_intro_window" from="." to="Intro Window/VBoxContainer/Never Show Again Dialog/CheckBox" method="_on_control_on_load_intro_window"]
 [connection signal="on_load_theme" from="." to="Editor_Container/VSplitContainer/VSplitContainer/Editor" method="_on_control_on_load_theme"]
 [connection signal="on_load_theme" from="." to="Settings Window/HBoxContainer/Settings/Theme Settings/ThemeSetting/OptionButton2" method="_on_control_on_load_theme"]
-[connection signal="on_startup" from="." to="Settings Window/HBoxContainer/Settings/General Settings/SaveTimeDelaySetting/HSlider" method="_on_control_startup"]
-[connection signal="on_startup" from="." to="Settings Window/HBoxContainer/Settings/General Settings/ReloadTimeDelaySetting/HSlider" method="_on_control_startup"]
-[connection signal="on_startup" from="." to="Settings Window/HBoxContainer/Settings/Editor Settings/FontSizeSetting/HSlider" method="_on_control_on_startup"]
-[connection signal="on_startup" from="." to="Settings Window/HBoxContainer/Settings/Editor Settings/TabSizeSetting/HSlider" method="_on_control_on_startup"]
 [connection signal="opened_file" from="." to="." method="_on_opened_file"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
 [connection signal="timeout" from="Reload Timer" to="." method="_on_reload_timer_timeout"]
