@@ -9,8 +9,7 @@
 #include <godot_cpp/classes/input_event_action.hpp>
 #include <godot_cpp/classes/syntax_highlighter.hpp>
 #include <windows.h>
-#include <atomic>
-#include <thread>
+#include <queue>
 
 using namespace godot;
 
@@ -54,7 +53,6 @@ class WindowsHost : public TextEdit {
     SECURITY_ATTRIBUTES sa{};
     HANDLE child_stdin_read, parent_stdin_write;
     HANDLE parent_stdout_read, child_stdout_write;
-    HANDLE reader_thread_handle = nullptr;
     HPCON hPC;
     COORD size{80, 25};
     SIZE_T attrSize = 0;
@@ -62,8 +60,12 @@ class WindowsHost : public TextEdit {
     PROCESS_INFORMATION pi{};
     String input;
     int32_t input_start_index = 0;
-    std::thread reader_thread;
-    std::atomic<bool> running = false;
+    bool running = false;
+    const int16_t MAX_QUEUE_SIZE{5000};
+    String history_temp;
+    int32_t history_index = 0;
+    PackedStringArray history;
+    std::queue<String> output_queue;
     Ref<AnsiHighlighter> highlighter;
     Vector<Segment> segments;
     static void apply_style(int code, Segment &seg);
@@ -78,7 +80,8 @@ protected:
 public:
     void _ready() override;
     void _exit_tree() override;
-    void reader_loop();
+    void _process(double delta);
+    void read_from_terminal();
     void end_pseudoconsole_session();
     void start_pseudoconsole_session();
     void write_to_pwsh(const String &text);

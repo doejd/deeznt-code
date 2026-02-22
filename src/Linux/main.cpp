@@ -211,9 +211,8 @@ void LinuxHost::get_color_highlighting(const String &ansi_strip){
                 const char32_t command = ansi_strip[i];
                 i++;
                 if (command == 'm') apply_args(current, cur_args);
-                if (command == 'J') clear();
-                if (command == 'K') remove_text(get_line_count() - 1, 0, get_line_count() - 1,
-                                                static_cast<int32_t>(get_line(get_line_count() - 1).length()));
+                if (command == 'J') {segments.clear(); current = Segment();}
+                if (command == 'K') current = Segment();
             }
         }
         else {

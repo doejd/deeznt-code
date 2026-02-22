@@ -1,6 +1,5 @@
 #define _CRT_SECURE_NO__WARNINGS
 #define WIN32_LEAN_AND_MEAN
-#define UNICODE
 
 #include "main.h"
 #include <godot_cpp/core/class_db.hpp>
@@ -142,16 +141,47 @@ void WindowsHost::apply_style(const int code, Segment &seg){
         case 23: seg.italics = false; break;
         case 24: seg.underlined = false; break;
 
-        case 30 ... 37: seg.color = ansi_to_color(code - 30); break;
-        case 40 ... 47: seg.bg_color = ansi_to_color(code - 40); break;
-        case 90 ... 97: seg.color = ansi_to_color(code - 90 + 8); break;
-        case 100 ... 107: seg.bg_color = ansi_to_color(code - 100 + 8); break;
+        case 30:
+        case 31:
+        case 32:
+        case 33:
+        case 34:
+        case 35:
+        case 36:
+        case 37: seg.color = ansi_to_color(code - 30); break;
+
+        case 40:
+        case 41:
+        case 42:
+        case 43:
+        case 44:
+        case 45:
+        case 46:
+        case 47: seg.bg_color = ansi_to_color(code - 40); break;
+
+        case 90:
+        case 91:
+        case 92:
+        case 93:
+        case 94:
+        case 95:
+        case 96:
+        case 97: seg.color = ansi_to_color(code - 90 + 8); break;
+
+        case 100:
+        case 101:
+        case 102:
+        case 103:
+        case 104:
+        case 105:
+        case 106:
+        case 107: seg.bg_color = ansi_to_color(code - 100 + 8); break;
     }
 }
 
 void WindowsHost::apply_args(Segment &seg, const String &args){
     auto params = args.split(";");
-    for (ssize_t i = 0; i < params.size();){
+    for (int32_t i = 0; i < params.size();){
         const int code = static_cast<int>(params[i].to_int());
 
         if (code == 38 || code == 48){
@@ -187,19 +217,20 @@ void WindowsHost::apply_args(Segment &seg, const String &args){
 }
 
 void WindowsHost::get_color_highlighting(const String &ansi_strip){
+    segments.clear();
     Segment current;
     String cur_args = "";
     String res = "";
-    for (ssize_t i = 0; i < ansi_strip.length();){
-        if (ansi_strip[i] == '\e' && i+1 < ansi_strip.length() && ansi_strip[i+1] == '['){
-            if (!current.text.is_empty()){
+    for (int32_t i = 0; i < ansi_strip.length();){
+        if (ansi_strip[i] == '\x1b' && i+1 < ansi_strip.length() && ansi_strip[i+1] == '['){
+            if (!current.text.strip_edges().is_empty()){
                 segments.push_back(current);
                 current.text = "";
             }
             cur_args = "";
             i += 2;
 
-            while (i < ansi_strip.length() && !( (ansi_strip[i] >= '@' && ansi_strip[i] <= '~') )) // command characters
+            while (i < ansi_strip.length() && !((ansi_strip[i] >= '@' && ansi_strip[i] <= '~'))) // command characters
             {
                 cur_args += ansi_strip[i];
                 i++;
@@ -209,6 +240,8 @@ void WindowsHost::get_color_highlighting(const String &ansi_strip){
                 const char32_t command = ansi_strip[i];
                 i++;
                 if (command == 'm') apply_args(current, cur_args);
+                if (command == 'J') {segments.clear(); current = Segment();}
+                if (command == 'K') current = Segment();
             }
         }
         else {
@@ -222,7 +255,7 @@ void WindowsHost::get_color_highlighting(const String &ansi_strip){
         this->insert_text_at_caret(seg.text);
         const int32_t end = static_cast<int32_t>(this->get_text().length());
 
-        highlighter->rebuild_line_indexing();
+        
         highlighter->spans.push_back({
             start,
             end-start,
@@ -232,8 +265,9 @@ void WindowsHost::get_color_highlighting(const String &ansi_strip){
             seg.underlined,
             seg.italics
         });
-        input_start_index = static_cast<int>(get_text().length());
     }
+    input_start_index = static_cast<int>(get_text().length());
+    highlighter->rebuild_line_indexing();
 }
 
 int32_t WindowsHost::get_caret_index() const {
@@ -254,7 +288,7 @@ void WindowsHost::clamp_caret() {
 }
 
 void WindowsHost::_bind_methods(){
-    ClassDB::bind_method(D_METHOD("edit_text", "new_text"), &WindowsHost::edit_text);
+    ClassDB::bind_method(D_METHOD("get_color_highlighting", "ansi_strip"), &WindowsHost::get_color_highlighting);
     ClassDB::bind_method(D_METHOD("start_pseudoconsole_session"), &WindowsHost::start_pseudoconsole_session);
     ClassDB::bind_method(D_METHOD("end_pseudoconsole_session"), &WindowsHost::end_pseudoconsole_session);
     ClassDB::bind_method(D_METHOD("write_to_pwsh", "input"), &WindowsHost::write_to_pwsh);
@@ -262,6 +296,7 @@ void WindowsHost::_bind_methods(){
 
 void WindowsHost::_ready(){
     set_focus_mode(FOCUS_ALL);
+    set_process(true);
 
     const Ref hl = memnew(AnsiHighlighter);
     this->set_syntax_highlighter(hl);
@@ -269,11 +304,23 @@ void WindowsHost::_ready(){
     hl->default_style_dict();
 
     start_pseudoconsole_session();
-    reader_loop();
 }
 
 void WindowsHost::_exit_tree(){
     end_pseudoconsole_session();
+}
+
+void WindowsHost::_process(double delta){
+    read_from_terminal();
+
+    constexpr int MAX_LINE_READ_PER_FRAME = 50;
+    int processed = 0;
+
+    while (!output_queue.empty() && processed < MAX_LINE_READ_PER_FRAME){
+        get_color_highlighting(output_queue.front());
+        output_queue.pop();
+        processed++;
+    }
 }
 
 void WindowsHost::start_pseudoconsole_session(){
@@ -320,12 +367,6 @@ void WindowsHost::start_pseudoconsole_session(){
 
 void WindowsHost::end_pseudoconsole_session(){
     running = false;
-    if (reader_thread_handle) {
-    CancelSynchronousIo(reader_thread_handle);
-    CloseHandle(reader_thread_handle); // release handle
-    reader_thread_handle = nullptr;
-    }
-    if (reader_thread.joinable()) reader_thread.join();
     ClosePseudoConsole(hPC);
     CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
@@ -335,42 +376,37 @@ void WindowsHost::end_pseudoconsole_session(){
     CloseHandle(parent_stdout_read);
 }
 
-void WindowsHost::reader_loop(){
-    running = true;
-    reader_thread = std::thread([this]() {
-        CHAR buf[256];
-        DWORD read;
-        while (running) {
-            BOOL success = ReadFile(parent_stdout_read, buf, sizeof(buf) - 1, &read, NULL);
-            if (!success || read == 0) {
-                if (!running){
-                    UtilityFunctions::print("ReadFile returned, shutting down reader thread...");
-                    break;
-                    }
-                std::this_thread::sleep_for(std::chrono::milliseconds(10)); // prevent CPU spin
-                continue;
-            }
-            buf[read] = '\0';
-            String raw_out = String::utf8(buf);
-            String clean_out = strip_ansi_sequences(raw_out);
-            call_deferred("edit_text", clean_out);
-        }
-    });
-    reader_thread_handle = OpenThread(THREAD_ALL_ACCESS, FALSE, GetThreadId(static_cast<HANDLE>(reader_thread.native_handle())));
+void WindowsHost::read_from_terminal(){
+    if (parent_stdout_read == NULL) return;
+    DWORD bytes_available = 0;
+    if (!PeekNamedPipe(parent_stdout_read, NULL, 0, NULL, &bytes_available, NULL)) return;
+    if (bytes_available == 0) return;
+
+    CHAR buf[4097];
+    DWORD read = 0;
+
+    BOOL success = ReadFile(parent_stdout_read, buf, sizeof(buf) - 1, &read, NULL);
+    if (!success || read == 0) return;
+
+    buf[read] = '\0';
+    if (output_queue.size() < MAX_QUEUE_SIZE) output_queue.emplace(String::utf8(buf));
 }
 
 
-void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
+void WindowsHost::_gui_input(const Ref<InputEvent> &event) {
     const Ref<InputEventKey> key_event = event;
-    if (event->is_class("InputEventMouseButton") || event->is_class("InputEventMouseMotion")) call_deferred("clamp_caret");
+    if (event->is_class("InputEventMouseButton") || event->is_class("InputEventMouseMotion")) clamp_caret();
     if (!key_event.is_valid() || !key_event->is_pressed()) return;
     const int keycode = key_event->get_keycode();
-    if (keycode == KEY_LEFT || keycode == KEY_UP || keycode == KEY_PAGEUP || keycode == KEY_HOME) {
-        call_deferred("clamp_caret");
+    if (keycode == KEY_LEFT || keycode == KEY_PAGEUP || keycode == KEY_HOME) {
+        clamp_caret();
         return;
     }
     if (keycode == KEY_ENTER) {
-        write_to_terminal(input + "\n");
+        if (!input.strip_edges().is_empty()) history.push_back(input); history_index = static_cast<int32_t>(history.size());
+        const Vector2i line_col = highlighter->from_index_get_line_column(input_start_index);
+        remove_text(line_col.x, line_col.y, get_line_count() - 1, static_cast<int32_t>(get_line(get_line_count() - 1).length()));
+        write_to_pwsh(input);
         input = "";
         accept_event();
         return;
@@ -378,31 +414,52 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
     if (keycode == KEY_BACKSPACE) {
         if (const int caret_index = get_caret_index(); caret_index > input_start_index) {
             const int rel = caret_index - input_start_index;
-            input = input.substr(0, rel-1) + input.substr(rel + 2);
+            input = input.substr(0, rel-1) + input.substr(rel + 1);
             backspace();
         }
         else clamp_caret();
         accept_event();
         return;
     }
-    if (const char32_t unicode = key_event->get_unicode(); unicode != 0) {
-        const int rel = get_caret_index() - input_start_index;
-        input = input.substr(0, rel) + String::chr(unicode) + input.substr(rel + 1);
+    if (keycode == KEY_UP) {
+        if (history.is_empty()) { accept_event(); return; }
+        if (history_index == history.size()) history_temp = input;
+        if (history_index > 0) history_index--;
+        input = history[history_index];
+        const Vector2i line_col = highlighter->from_index_get_line_column(input_start_index);
+        remove_text(line_col.x, line_col.y, get_line_count() - 1, get_line(get_line_count() - 1).length());
+        insert_text(input, line_col.x, line_col.y);
+        accept_event();
+        return;
+    }
+    if (keycode == KEY_DOWN) {
+        if (history_index < history.size()) history_index++;
+        if (history_index == history.size()) input = history_temp;
+        else input = history[history_index];
+        const Vector2i line_col = highlighter->from_index_get_line_column(input_start_index);
+        remove_text(line_col.x, line_col.y, get_line_count() - 1, get_line(get_line_count() - 1).length());
+        insert_text(input, line_col.x, line_col.y);
+        accept_event();
+        return;
+    }
+    if (!key_event->is_ctrl_pressed() && !key_event->is_alt_pressed()) {
+        if (const char32_t unicode = key_event->get_unicode(); unicode != 0) {
+            const int rel = get_caret_index() - input_start_index;
+            input = input.substr(0, rel) + String::chr(unicode) + input.substr(rel + 1);
+        }
     }
 }
-
 
 void WindowsHost::write_to_pwsh(const String &input){
     if (parent_stdin_write == nullptr) return;
     String full_input = input + String("\r\n");
     std::string utf8_input = full_input.utf8().get_data();
-    if (to_lower(utf8_input) == "exit\r\n"){
-        utf8_input = "\r\n";
+
+    if (utf8_input == "cls\r\n") {
+        clear();
+        highlighter->spans.clear();
     }
-    if (to_lower(utf8_input) == "cls\r\n"){
-        utf8_input = "\r\n";
-        set_text("");
-    }
+
     DWORD written = 0;
     BOOL success = WriteFile(
         parent_stdin_write,

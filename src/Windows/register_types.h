@@ -5,7 +5,7 @@
 
 using namespace godot;
 
-void initialize_PwshHost_module(ModuleInitializationLevel p_level);
-void uninitialize_PwshHost_module(ModuleInitializationLevel p_level);
+void initialize_WindowsHost_module(ModuleInitializationLevel p_level);
+void uninitialize_WindowsHost_module(ModuleInitializationLevel p_level);
 
 #endif
