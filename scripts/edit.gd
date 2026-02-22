@@ -65,7 +65,7 @@ func set_up_extensions(extension : String):
 	if extension == "html": pairs["<"] = ">"
 	else: pairs.erase("<") 
 	auto_brace_completion_pairs = pairs
-	var error = lua.do_file("Lua/langs/" + extension + ".lua")
+	var error = lua.do_file("user://Lua/langs/" + extension + ".lua")
 	if error is LuaError:
 		print("ERROR %d: %s" % [error.type, error.message])
 		return
