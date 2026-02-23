@@ -40,7 +40,7 @@ public:
     };
     Dictionary default_style;
     Vector<Span> spans;
-    Vector<int32_t> line_start_index;
+    Vector<int64_t> line_start_index;
     void rebuild_line_indexing();
     Vector2i from_index_get_line_column(const int32_t &index) const;
     Dictionary _get_line_syntax_highlighting(int line) const override;

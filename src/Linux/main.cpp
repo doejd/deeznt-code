@@ -40,23 +40,23 @@ void AnsiHighlighter::default_style_dict() {
 void AnsiHighlighter::rebuild_line_indexing() {
     int64_t cur_index = 0;
     line_start_index.clear();
-    line_start_index.push_back(static_cast<int32_t>(cur_index));
+    line_start_index.push_back(cur_index);
 
     for (int32_t i = 0; i < get_text_edit()->get_line_count(); i++) {
         cur_index += get_text_edit()->get_line(i).length() + 1;
-        line_start_index.push_back(static_cast<int32_t>(cur_index));
+        line_start_index.push_back(cur_index);
     }
 }
 
 
-Vector2i AnsiHighlighter::from_index_get_line_column(const int32_t &index) const {
+Vector2i AnsiHighlighter::from_index_get_line_column(const int64_t &index) const {
     int32_t L = 0, R = static_cast<int32_t>(line_start_index.size()) - 1;
     while (L <= R) {
         if (const int32_t M = (L + R) / 2; line_start_index[M] <= index) L = M + 1;
         else R = M - 1;
     }
 
-    return {R, index - line_start_index[R]};
+    return {R, static_cast<int32_t>(index - line_start_index[R])};
 }
 
 
