@@ -1,6 +1,6 @@
 extends HSlider
 @export var modifies_property : String = ""
-@onready var editor = $"../../../../../../Editor_Container/VSplitContainer/VSplitContainer/Editor"
+@onready var editor = $"../../../../../../Editor_Container".find_child("Editor")
 @onready var control = $"../../../../../.."
 
 func _on_drag_ended(_value_changed: bool) -> void:

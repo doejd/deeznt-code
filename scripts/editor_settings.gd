@@ -1,6 +1,6 @@
 extends VBoxContainer
 @onready var control : Control = $"../../.."
-@onready var editor : CodeEdit = $"../../../Editor_Container/VSplitContainer/VSplitContainer/Editor"
+@onready var editor : CodeEdit = $"../../../Editor_Container".find_child("Editor")
 var theme_nodes = []
 
 func _ready() -> void:

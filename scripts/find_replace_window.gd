@@ -3,7 +3,7 @@ extends Window
 @onready var find_input = $VBoxContainer/Find/HBoxContainer/LineEdit
 @onready var replace_selected_input = $"VBoxContainer/Replace selected/LineEdit"
 @onready var replace_input = $"VBoxContainer/Replace All/LineEdit2"
-@onready var editor = get_node("../Editor_Container/VSplitContainer/VSplitContainer/Editor")
+@onready var editor = get_node("../Editor_Container").find_child("Editor")
 @onready var main = get_node("..")
 @onready var buttons = [$"VBoxContainer/Find/HBoxContainer/Up Arrow", $"VBoxContainer/Find/HBoxContainer/Down Arrow"]
 var all_matches = []

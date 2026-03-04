@@ -2,10 +2,10 @@ extends Control
 @onready var intro_wind = $"Intro Window"
 @onready var find_replace_wind = $"Find Replace Window"
 @onready var setting_wind = $"Settings Window"
-@onready var editor = $Editor_Container/VSplitContainer/VSplitContainer/Editor
+@onready var editor = $Editor_Container.find_child("Editor")
 @onready var item_list = $Editor_Container/ItemList
-@onready var terminal = $Editor_Container/VSplitContainer/Control.get_child(0)
-@onready var tab_bar = $Editor_Container/VSplitContainer/VSplitContainer/TabBar
+@onready var terminal = $Editor_Container.find_child("*Host")
+@onready var tab_bar = $Editor_Container.find_child("TabBar")
 @onready var timer : Timer = $"Timer"
 @onready var reload_timer : Timer = $"Reload Timer"
 @onready var SettingManager : Settings_Manager = Settings_Manager.new()
@@ -159,7 +159,11 @@ func _input(_event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func update_file_tree() -> void:
+	var cur_selected = item_list.get_selected_items()
 	display_items(get_dir_contents())
+	if not cur_selected.is_empty():
+		if cur_selected[0] < item_list.item_count: item_list.select(cur_selected[0])
+		else: item_list.select(0)
 
 func update_font_size():
 	tab_bar.add_theme_font_size_override("font_size", font_size)

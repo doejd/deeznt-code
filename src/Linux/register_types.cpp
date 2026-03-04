@@ -4,12 +4,7 @@
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
-#include <godot_cpp/classes/global_constants.hpp>
-#include <godot_cpp/classes/input.hpp>
 #include <godot_cpp/classes/input_event.hpp>
-#include <godot_cpp/classes/input_event_action.hpp>
-#include <godot_cpp/classes/input_event_key.hpp>
-
 
 using namespace godot;
 
@@ -17,8 +12,8 @@ void initialize_linuxhost_module(ModuleInitializationLevel p_level) {
     if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
         return;
     }
-    GDREGISTER_RUNTIME_CLASS(LinuxHost);
-    GDREGISTER_RUNTIME_CLASS(AnsiHighlighter);
+    ClassDB::register_class<LinuxHost>();
+    ClassDB::register_class<AnsiHighlighter>();
 }
 
 void uninitialize_linuxhost_module(ModuleInitializationLevel p_level) {
@@ -30,7 +25,6 @@ void uninitialize_linuxhost_module(ModuleInitializationLevel p_level) {
 extern "C" {
     GDExtensionBool GDE_EXPORT terminalhost_library_init(GDExtensionInterfaceGetProcAddress p_get_proc_address, const GDExtensionClassLibraryPtr p_library, GDExtensionInitialization *r_initialization) {
         GDExtensionBinding::InitObject init_obj(p_get_proc_address, p_library, r_initialization);
-
         init_obj.register_initializer(initialize_linuxhost_module);
         init_obj.register_terminator(uninitialize_linuxhost_module);
         init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);

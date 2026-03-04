@@ -1,6 +1,6 @@
 extends ColorPickerButton
 @export var key_referring_to : String = ""
-@onready var editor = $"../../../../../../Editor_Container/VSplitContainer/VSplitContainer/Editor"
+@onready var editor = $"../../../../../../Editor_Container".find_child("Editor")
 @onready var control = $"../../../../../.."
 
 func _ready() -> void:

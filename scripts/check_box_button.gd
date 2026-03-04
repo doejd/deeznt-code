@@ -1,6 +1,6 @@
 extends CheckBox
 @export var modifies_property : String = ""
-@onready var editor : CodeEdit = $"../../../../../Editor_Container/VSplitContainer/VSplitContainer/Editor"
+@onready var editor : CodeEdit = $"../../../../../Editor_Container".find_child("Editor")
 @onready var control : Control = $"../../../../.."
 
 func _ready() -> void:

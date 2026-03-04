@@ -10,13 +10,16 @@
 
 using namespace godot;
 
-struct Segment {
-    String text = "";
-    int color = 0xffffff; // Color in hex format
-    int bg_color = 0x000000; // Color in hex format
+struct Span {
+    int64_t start{};
+    int32_t length{};
+    int color{0xffffff};
+    int bg_color{0x000000};
     bool bold = false;
-    bool underlined = false;
     bool italics = false;
+    bool underline = false;
+    bool operator==(const Span &other) const;
+    bool operator!=(const Span &other) const;
 };
 
 class AnsiHighlighter : public SyntaxHighlighter {
@@ -26,22 +29,14 @@ class AnsiHighlighter : public SyntaxHighlighter {
         static void _bind_methods();
 
     public:
-        struct Span {
-            int32_t start{};
-            int32_t length{};
-            Color color;
-            Color bg_color;
-            bool bold = false;
-            bool italics = false;
-            bool underline = false;
-        };
         Dictionary default_style;
-        Vector<Span> spans;
+        Vector<Vector<Span>> spans_per_line;
         Vector<int64_t> line_start_index;
         void rebuild_line_indexing();
         Vector2i from_index_get_line_column(const int64_t &index) const;
         Dictionary _get_line_syntax_highlighting(int line) const override;
         void default_style_dict();
+        void append_span(const Span &new_span);
 };
 
 class LinuxHost : public TextEdit {
@@ -57,15 +52,15 @@ class LinuxHost : public TextEdit {
     int32_t history_index = 0;
     int32_t input_start_index = 0;
     Ref<AnsiHighlighter> highlighter;
-    Vector<Segment> segments;
     PackedStringArray history;
-    static void apply_style(int code, Segment &seg);
     static int ansi256_to_color(const int &code);
     static int ansi_to_color(const int &code);
-    static void apply_args(Segment &seg, const String &args);
+    static void apply_args(Span &span, const String &args);
+    static void apply_style(int code, Span &span);
     static bool file_exists(const char* path);
-    int32_t get_caret_index() const;
+    [[nodiscard]] int64_t get_caret_index() const;
     void load_history(int max_lines);
+    static void merge_same_spans(Vector<Span> &spans);
 
 protected:
     static void _bind_methods();
@@ -79,8 +74,7 @@ public:
     void start_pseudoterminal();
     void write_to_terminal(const String &text);
     void _gui_input(const Ref<InputEvent> &event) override;
-    void get_color_highlighting(const String &ansi_strip);
+    Vector<Span> get_color_highlighting(const String &ansi_strip, String &frame_text) const;
     void clamp_caret();
 };
-
 #endif
