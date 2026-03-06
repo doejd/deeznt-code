@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://bctpagkgq0qgi" path="res://scripts/edit.gd" id="2_0xm2m"]
 [ext_resource type="Script" uid="uid://dsf42r8isrgph" path="res://scripts/theme_select.gd" id="2_272bh"]
 [ext_resource type="FontFile" uid="uid://cbkrfirh0p48" path="res://Font/FiraCodeNerdFont-Regular.ttf" id="2_h2yge"]
+[ext_resource type="FontFile" uid="uid://d07tnsenhhjk3" path="res://Font/JetBrainsMono-Regular.ttf" id="5_2cqfq"]
 [ext_resource type="FontFile" uid="uid://cfoksy326afx" path="res://Font/Inconsolata-Regular.ttf" id="5_7mycd"]
 [ext_resource type="Script" uid="uid://cads53hj1d2w1" path="res://scripts/intro_window.gd" id="6_7mycd"]
 [ext_resource type="Script" uid="uid://nkw8h3awv1jx" path="res://scripts/never_show_again_button.gd" id="7_272bh"]
@@ -21,7 +22,7 @@ resource_local_to_scene = true
 default_font = ExtResource("5_7mycd")
 default_font_size = 16
 
-[sub_resource type="AnsiHighlighter" id="AnsiHighlighter_vivmo"]
+[sub_resource type="AnsiHighlighter" id="AnsiHighlighter_2cqfq"]
 
 [node name="Control" type="Control" unique_id=1706729041]
 layout_mode = 3
@@ -100,7 +101,9 @@ script = ExtResource("2_0xm2m")
 [node name="LinuxHost" type="LinuxHost" parent="Editor_Container/HBoxContainer" unique_id=881927907]
 layout_mode = 2
 size_flags_vertical = 3
-syntax_highlighter = SubResource("AnsiHighlighter_vivmo")
+theme_override_fonts/font = ExtResource("5_2cqfq")
+placeholder_text = "If you are seeing this then the terminal didn't work (lol). Go read the docs"
+syntax_highlighter = SubResource("AnsiHighlighter_2cqfq")
 
 [node name="Intro Window" type="Window" parent="." unique_id=1273299596]
 handle_input_locally = false

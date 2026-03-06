@@ -369,7 +369,7 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
     if (!key_event->is_ctrl_pressed() && !key_event->is_alt_pressed()) {
         if (const char32_t unicode = key_event->get_unicode(); unicode != 0) {
             const int64_t rel = get_caret_index() - input_start_index;
-            input = input.substr(0, rel) + String::chr(unicode) + input.substr(rel + 1);
+            input = input.substr(0, rel) + String::chr(unicode) + input.substr(rel);
         }
     }
 }
