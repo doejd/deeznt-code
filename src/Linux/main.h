@@ -1,11 +1,11 @@
-#ifndef CMDHOST_H
-#define CMDHOST_H
+#ifndef LINUXHOST_H
+#define LINUXHOST_H
 
 #include <godot_cpp/classes/text_edit.hpp>
 #include <godot_cpp/classes/syntax_highlighter.hpp>
 #include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/classes/font.hpp>
 #include <sys/types.h>
-#include <atomic>
 #include <queue>
 
 using namespace godot;
@@ -52,6 +52,7 @@ class LinuxHost : public TextEdit {
     int32_t history_index = 0;
     int32_t input_start_index = 0;
     Ref<AnsiHighlighter> highlighter;
+    Ref<Font> font;
     PackedStringArray history;
     static int ansi256_to_color(const int &code);
     static int ansi_to_color(const int &code);
@@ -69,12 +70,13 @@ public:
     void _ready() override;
     void _exit_tree() override;
     void _process(double p_delta) override;
+    void _draw() override;
     void read_from_terminal();
     void end_pseudoterminal();
     void start_pseudoterminal();
     void write_to_terminal(const String &text);
     void _gui_input(const Ref<InputEvent> &event) override;
-    Vector<Span> get_color_highlighting(const String &ansi_strip, String &frame_text) const;
+    Vector<Span> get_color_highlighting(const String &ansi_strip, String &frame_text, const int64_t &base_offset=0) const;
     void clamp_caret();
 };
 #endif

@@ -98,11 +98,11 @@ auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
 script = ExtResource("2_0xm2m")
 
-[node name="LinuxHost" type="LinuxHost" parent="Editor_Container/HBoxContainer" unique_id=881927907]
+[node name="LinuxHost" type="LinuxHost" parent="Editor_Container/HBoxContainer" unique_id=897563819]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("5_2cqfq")
-placeholder_text = "If you are seeing this then the terminal didn't work (lol). Go read the docs"
+placeholder_text = "If you are seeing this(not in the editor) then the terminal didn't work (lol). Go read the docs or smth."
 syntax_highlighter = SubResource("AnsiHighlighter_2cqfq")
 
 [node name="Intro Window" type="Window" parent="." unique_id=1273299596]

@@ -23,21 +23,15 @@ using namespace godot;
 
 bool Span::operator==(const Span &other) const {
     return this->color == other.color &&
-        this->bg_color == other.bg_color &&
-        this->italics == other.italics &&
-        this->underline == other.underline &&
-        this->bold == other.bold;
+           this->bg_color == other.bg_color &&
+           this->italics == other.italics &&
+           this->underline == other.underline &&
+           this->bold == other.bold;
 }
 
 bool Span::operator!=(const Span &other) const {return !operator==(other);}
 
-void AnsiHighlighter::default_style_dict() {
-    default_style["color"] = Color(1, 1, 1);
-    default_style["bg_color"] = Color(0, 0, 0, 0);
-    default_style["bold"] = false;
-    default_style["italic"] = false;
-    default_style["underline"] = false;
-}
+void AnsiHighlighter::_bind_methods() {}
 
 void AnsiHighlighter::rebuild_line_indexing() {
     int64_t cur_index = 0;
@@ -51,19 +45,6 @@ void AnsiHighlighter::rebuild_line_indexing() {
     spans_per_line.resize(line_start_index.size() - 1);
 }
 
-void AnsiHighlighter::append_span(const Span &new_span) {
-    if (line_start_index.is_empty()) rebuild_line_indexing();
-
-    constexpr int last_line_idx = 0;
-    int line_idx = last_line_idx;
-
-    while (line_idx + 1 < line_start_index.size() && new_span.start >= line_start_index[line_idx + 1]) ++line_idx;
-
-    if (spans_per_line.size() <= line_idx) spans_per_line.resize(line_idx + 1);
-
-    const_cast<Vector<Span> &>(spans_per_line[line_idx]).push_back(new_span);
-}
-
 Vector2i AnsiHighlighter::from_index_get_line_column(const int64_t &index) const {
     int32_t L = 0, R = static_cast<int32_t>(line_start_index.size()) - 1;
     while (L <= R) {
@@ -73,7 +54,6 @@ Vector2i AnsiHighlighter::from_index_get_line_column(const int64_t &index) const
 
     return {R, static_cast<int32_t>(index - line_start_index[R])};
 }
-
 
 Dictionary AnsiHighlighter::_get_line_syntax_highlighting(const int line) const {
     Dictionary res;
@@ -91,19 +71,44 @@ Dictionary AnsiHighlighter::_get_line_syntax_highlighting(const int line) const 
         const int end_col   = (line == p1.x) ? p1.y : static_cast<int>(host->get_line(line).length());
 
         Dictionary style;
-        style["color"]     = Color::hex(span.color << 8 | 0xFF);
-        style["bg_color"]  = Color::hex(span.bg_color << 8 | 0xFF);
-        style["bold"]      = span.bold;
-        style["italic"]    = span.italics;
-        style["underline"] = span.underline;
-
+        style["color"]= Color::hex(span.color << 8 | 0xFF);
         for (int col = start_col; col < end_col; ++col) res[static_cast<Variant>(col)] = style;
     }
     return res;
 }
 
-void AnsiHighlighter::_bind_methods() {}
 
+void AnsiHighlighter::default_style_dict() {default_style["color"] = Color(1, 1, 1);}
+
+void AnsiHighlighter::append_span(const Span &new_span) {
+    if (line_start_index.is_empty()) rebuild_line_indexing();
+
+    constexpr int last_line_idx = 0;
+    int line_idx = last_line_idx;
+
+    while (line_idx + 1 < line_start_index.size() && new_span.start >= line_start_index[line_idx + 1]) ++line_idx;
+
+    if (spans_per_line.size() <= line_idx) spans_per_line.resize(line_idx + 1);
+
+    const_cast<Vector<Span> &>(spans_per_line[line_idx]).push_back(new_span);
+}
+
+int LinuxHost::ansi256_to_color(const int &code){
+    if (code >= 16 && code <= 231){
+        const int idx = code - 16;
+
+        const int r = idx / 36;
+        const int g = (idx % 36) / 6;
+        const int b = idx % 6;
+
+        const int steps[6] = {0, 95, 135, 175, 215, 255};
+
+        return steps[r] << 16 | steps[g] << 8 | steps[b];
+
+    }
+    const int gray = 8 + (code - 232) * 10;
+    return gray << 16 | gray << 8 | gray;
+}
 
 int LinuxHost::ansi_to_color(const int &code) {
     switch (code) {
@@ -126,45 +131,6 @@ int LinuxHost::ansi_to_color(const int &code) {
     }
 }
 
-int LinuxHost::ansi256_to_color(const int &code){
-    if (code >= 16 && code <= 231){
-        const int idx = code - 16;
-
-        const int r = idx / 36;
-        const int g = (idx % 36) / 6;
-        const int b = idx % 6;
-
-        const int steps[6] = {0, 95, 135, 175, 215, 255};
-
-        return steps[r] << 16 | steps[g] << 8 | steps[b];
-
-    }
-    const int gray = 8 + (code - 232) * 10;
-    return gray << 16 | gray << 8 | gray;
-}
-
-
-void LinuxHost::apply_style(const int code, Span &span){
-    switch(code){
-        case 0:
-            span = Span();
-            break;
-
-        case 1: span.bold = true; break;
-        case 3: span.italics = true; break;
-        case 4: span.underline = true; break;
-
-        case 22: span.bold = false; break;
-        case 23: span.italics = false; break;
-        case 24: span.underline = false; break;
-
-        case 30 ... 37: span.color = ansi_to_color(code - 30); break;
-        case 40 ... 47: span.bg_color = ansi_to_color(code - 40); break;
-        case 90 ... 97: span.color = ansi_to_color(code - 90 + 8); break;
-        case 100 ... 107: span.bg_color = ansi_to_color(code - 100 + 8); break;
-        default: ;
-    }
-}
 
 void LinuxHost::apply_args(Span &span, const String &args){
     auto params = args.split(";");
@@ -203,52 +169,84 @@ void LinuxHost::apply_args(Span &span, const String &args){
     }
 }
 
-Vector<Span> LinuxHost::get_color_highlighting(const String &ansi_strip, String &frame_text) const {
-    String normalised = ansi_strip.replace("\r\n", "\n").replace("\r", "");
-    Vector<Span> local_spans;
-    Span current;
-    String cur_args = "", cur_text = "";
-    int32_t local_offset = 0;
-    for (ssize_t i = 0; i < normalised.length();){
-        if (normalised[i] == '\e' && i+1 < normalised.length() && normalised[i+1] == '['){
-            if (!cur_text.is_empty()){
-                current.start = local_offset;
-                current.length = static_cast<int32_t>(cur_text.length());
-                local_spans.push_back(current);
-                frame_text += cur_text;
-                local_offset += current.length;
-                cur_text = "";
-            }
-            cur_args = "";
-            i += 2;
+void LinuxHost::apply_style(const int code, Span &span){
+    switch(code){
+        case 0:
+            span = Span();
+            break;
 
-            while (i < normalised.length() && !(normalised[i] >= '@' && normalised[i] <= '~')) // command characters
-            {
-                cur_args += normalised[i];
-                i++;
-            }
+        case 1: span.bold = true; break;
+        case 3: span.italics = true; break;
+        case 4: span.underline = true; break;
 
-            if (i < normalised.length()) {
-                const char32_t command = normalised[i];
-                i++;
-                if (command == 'm') apply_args(current, cur_args);
-                if (command == 'J') {highlighter->spans_per_line.clear(); current = Span();}
-                if (command == 'K') current = Span();
-            }
-        }
-        else {
-            cur_text += normalised[i];
-            i++;
-        }
+        case 22: span.bold = false; break;
+        case 23: span.italics = false; break;
+        case 24: span.underline = false; break;
+
+        case 30 ... 37: span.color = ansi_to_color(code - 30); break;
+        case 40 ... 47: span.bg_color = ansi_to_color(code - 40); break;
+        case 90 ... 97: span.color = ansi_to_color(code - 90 + 8); break;
+        case 100 ... 107: span.bg_color = ansi_to_color(code - 100 + 8); break;
+        default: ;
     }
-    if (!cur_text.is_empty()) {
-        current.start = local_offset;
-        current.length = static_cast<int32_t>(cur_text.length());
-        local_spans.push_back(current);
-        frame_text += cur_text;
+}
+
+bool LinuxHost::file_exists(const char *path) {
+    struct stat st{};
+    return path && stat(path, &st) == 0 && S_ISREG(st.st_mode);
+}
+
+int64_t LinuxHost::get_caret_index() const {
+    const int cl = get_caret_line();
+    const int cc = get_caret_column();
+    int32_t caret_index = static_cast<int>(get_line(cl).substr(0, cc).length());
+    for (int i = 0; i < cl; i++) caret_index += static_cast<int>(get_line(i).length() + 1);
+    return caret_index;
+}
+
+
+void LinuxHost::load_history(const int max_lines) {
+    const char* hist_path = getenv("HISTFILE");
+    String path;
+    if (!hist_path) {
+        const char* home_path = getenv("HOME");
+        if (!home_path) {history=PackedStringArray(); return;}
+        path = String(home_path) + "/.bash_history";
     }
-    merge_same_spans(local_spans);
-    return local_spans;
+    else path = hist_path;
+    if (!file_exists(path.utf8().get_data())) {history=PackedStringArray(); return;}
+
+    const Ref<FileAccess> file = FileAccess::open(String(path), FileAccess::READ);
+    if (file.is_null()) {history=PackedStringArray(); return;}
+
+    const auto file_size = static_cast<int64_t>(file->get_length());
+
+    int64_t pos{file_size};
+    int newline_count{0};
+    String buffer;
+
+    while (pos > 0 && newline_count <= max_lines) {
+        constexpr int64_t chunk_size{4096};
+        const int64_t read_size = Math::min(chunk_size, pos);
+        pos -= read_size;
+
+        file->seek(pos);
+        PackedByteArray bytes = file->get_buffer(read_size);
+        String chunk = bytes.get_string_from_utf8();
+
+        buffer = chunk + buffer;
+        newline_count += static_cast<int>(chunk.count("\n"));
+    }
+
+    file->close();
+
+    PackedStringArray lines = buffer.split("\n", false);
+    if (lines.size() > max_lines) lines = lines.slice(lines.size() - max_lines, lines.size());
+
+    history = lines;
+    history_index = static_cast<int>(history.size());
+    history_temp = "";
+    UtilityFunctions::print("Successfully loaded history");
 }
 
 void LinuxHost::merge_same_spans(Vector<Span> &spans) {
@@ -267,24 +265,6 @@ void LinuxHost::merge_same_spans(Vector<Span> &spans) {
     spans = merged;
 }
 
-
-int64_t LinuxHost::get_caret_index() const {
-    const int cl = get_caret_line();
-    const int cc = get_caret_column();
-    int32_t caret_index = static_cast<int>(get_line(cl).substr(0, cc).length());
-    for (int i = 0; i < cl; i++) caret_index += static_cast<int>(get_line(i).length() + 1);
-    return caret_index;
-}
-
-void LinuxHost::clamp_caret() {
-    const Vector2i p = highlighter->from_index_get_line_column(input_start_index);
-
-    if (const int64_t caret_index = get_caret_index(); caret_index < input_start_index) {
-        set_caret_line(p.x);
-        set_caret_column(p.y);
-    }
-}
-
 void LinuxHost::_bind_methods(){
     ClassDB::bind_method(D_METHOD("end_pseudoterminal"), &LinuxHost::end_pseudoterminal);
     ClassDB::bind_method(D_METHOD("start_pseudoterminal"), &LinuxHost::start_pseudoterminal);
@@ -299,12 +279,152 @@ void LinuxHost::_ready(){
     this->set_syntax_highlighter(hl);
     highlighter = hl;
     hl->default_style_dict();
+    font = get_theme_font("font", "TextEdit");
 
     start_pseudoterminal();
 }
 
 void LinuxHost::_exit_tree(){
     end_pseudoterminal();
+}
+
+void LinuxHost::_process(double p_delta) {
+    read_from_terminal();
+
+    constexpr int MAX_LINES_PER_FRAME{50};
+    int processed = 0;
+    String frame_text{""};
+    Vector<Span> frame_spans;
+    const int64_t base_offset = get_text().length();
+
+    while (!output_queue.empty() && processed < MAX_LINES_PER_FRAME) {
+        const auto parsed = get_color_highlighting(output_queue.front(), frame_text, base_offset);
+        output_queue.pop();
+        frame_spans.append_array(parsed);
+        processed++;
+    }
+    if (frame_text.is_empty()) return;
+    set_caret_line(get_line_count() - 1);
+    set_caret_column(static_cast<int32_t>(get_line(get_line_count() - 1).length()));
+    insert_text_at_caret(frame_text);
+    highlighter->rebuild_line_indexing();
+    input_start_index = static_cast<int32_t>(get_text().length());
+    for (Span &span : frame_spans) highlighter->append_span(span);
+    queue_redraw();
+}
+
+void LinuxHost::_draw() {
+    if (highlighter->spans_per_line.is_empty()) return;
+
+    const int first_visible = get_first_visible_line();
+    const int last_visible = first_visible + get_visible_line_count();
+
+    const int font_size = get_theme_font_size("font_size");
+    const float ascent = font->get_ascent(font_size);
+    const float char_width = font->get_char_size('M', font_size).x;
+
+    for (int line = first_visible; line < last_visible; line++) {
+        if (line >= highlighter->spans_per_line.size()) continue;
+
+        for (const auto &span : highlighter->spans_per_line[line]) {
+            if (span.bg_color == 0x000000) continue;
+            const int char_column = Math::max(0 , static_cast<int>(span.start - highlighter->line_start_index[line]));
+            const Vector2i pos = get_pos_at_line_column(line, char_column);
+
+            Rect2 rect{static_cast<real_t>(pos.x), static_cast<real_t>(pos.y) - ascent, char_width * static_cast<float>(span.length), ascent};
+            draw_rect(rect, Color::hex(span.bg_color << 8 | 0xFF));
+        }
+    }
+}
+
+void LinuxHost::read_from_terminal() {
+    if (!running || master_fd == -1) return;
+
+    pollfd pfd{};
+    pfd.fd = master_fd;
+    pfd.events = POLLIN;
+
+    if (const int ret = poll(&pfd, 1, 0); ret <= 0) return;
+
+    if (pfd.revents & POLLIN) {
+        char buffer[4097];
+
+        if (const ssize_t n = read(master_fd, buffer, sizeof(buffer) - 1); n > 0) {
+            buffer[n] = '\0';
+            if (constexpr size_t MAX_QUEUE_SIZE{5000}; output_queue.size() < MAX_QUEUE_SIZE) output_queue.emplace(buffer);
+        }
+        else if (n == 0) running = false;
+    }
+}
+
+void LinuxHost::end_pseudoterminal(){
+    if (!running) return;
+
+    running = false;
+
+    if (master_fd != -1){
+        close(master_fd);
+        master_fd = -1;
+    }
+
+    if (child_pid > 0){
+        kill(child_pid, SIGHUP);
+        waitpid(child_pid, nullptr, 0);
+        child_pid = -1;
+    }
+}
+
+void LinuxHost::start_pseudoterminal(){
+    if (running) return;
+    if (openpty(&master_fd, &slave_fd, nullptr, nullptr, nullptr) == -1){
+        UtilityFunctions::print("Openpty Failed");
+        return;
+    }
+    const int flags = fcntl(master_fd, F_GETFL, 0);
+    fcntl(master_fd, F_SETFL, flags | O_NONBLOCK);
+
+    child_pid = fork();
+    if (child_pid == -1){
+        UtilityFunctions::print("Fork Failed");
+        return;
+    }
+
+    if (child_pid == 0){
+        close(master_fd);
+        if (setsid() == -1) {
+            perror("setsid");
+            _exit(1);
+        }
+
+        login_tty(slave_fd);
+
+        execlp("bash", "bash", nullptr);
+
+        perror("execlp");
+        _exit(1);
+    }
+
+    close(slave_fd);
+    running = true;
+
+    UtilityFunctions::print("PTY searched, PID: ", child_pid);
+
+    write_to_terminal("export TERM=xterm-256color\n");
+    load_history(500);
+}
+
+void LinuxHost::write_to_terminal(const String &text) {
+    const std::string native = text.utf8().get_data();
+
+    if (native == "clear\n") {
+        clear();
+        highlighter->spans_per_line.clear();
+    }
+
+    if (master_fd != -1) {
+        const ssize_t result = write(master_fd, native.c_str(), native.size());
+        if (result == -1) perror("write");
+    }
 }
 
 void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
@@ -374,171 +494,60 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
     }
 }
 
-void LinuxHost::_process(double p_delta) {
-    read_from_terminal();
+Vector<Span> LinuxHost::get_color_highlighting(const String &ansi_strip, String &frame_text, const int64_t &base_offset) const {
+    String normalised = ansi_strip.replace("\r\n", "\n").replace("\r", "");
+    Vector<Span> local_spans;
+    Span current;
+    String cur_args = "", cur_text = "";
+    int32_t local_offset = 0;
+    for (ssize_t i = 0; i < normalised.length();){
+        if (normalised[i] == '\e' && i+1 < normalised.length() && normalised[i+1] == '['){
+            if (!cur_text.is_empty()){
+                current.start = local_offset + base_offset;
+                current.length = static_cast<int32_t>(cur_text.length());
+                local_spans.push_back(current);
+                frame_text += cur_text;
+                local_offset += current.length;
+                cur_text = "";
+            }
+            cur_args = "";
+            i += 2;
 
-    constexpr int MAX_LINES_PER_FRAME{150};
-    int processed = 0;
-    String frame_text{""};
-    Vector<Span> frame_spans;
+            while (i < normalised.length() && !(normalised[i] >= '@' && normalised[i] <= '~')) // command characters
+            {
+                cur_args += normalised[i];
+                i++;
+            }
 
-    while (!output_queue.empty() && processed < MAX_LINES_PER_FRAME) {
-        const auto parsed = get_color_highlighting(output_queue.front(), frame_text);
-        output_queue.pop();
-        frame_spans.append_array(parsed);
-        processed++;
-    }
-    if (frame_text.is_empty()) return;
-    const int64_t base_offset = get_text().length();
-    set_caret_line(get_line_count() - 1);
-    set_caret_column(static_cast<int32_t>(get_line(get_line_count() - 1).length()));
-    insert_text_at_caret(frame_text);
-    highlighter->rebuild_line_indexing();
-    input_start_index = static_cast<int32_t>(get_text().length());
-    for (Span &span : frame_spans) {
-        span.start += base_offset;
-        highlighter->append_span(span);
-    }
-}
-
-bool LinuxHost::file_exists(const char *path) {
-    struct stat st{};
-    return path && stat(path, &st) == 0 && S_ISREG(st.st_mode);
-}
-
-
-void LinuxHost::load_history(const int max_lines) {
-    const char* hist_path = getenv("HISTFILE");
-    String path;
-    if (!hist_path) {
-        const char* home_path = getenv("HOME");
-        if (!home_path) {history=PackedStringArray(); return;}
-        path = String(home_path) + "/.bash_history";
-    }
-    else path = hist_path;
-    if (!file_exists(path.utf8().get_data())) {history=PackedStringArray(); return;}
-
-    const Ref<FileAccess> file = FileAccess::open(String(path), FileAccess::READ);
-    if (file.is_null()) {history=PackedStringArray(); return;}
-
-    const auto file_size = static_cast<int64_t>(file->get_length());
-
-    int64_t pos{file_size};
-    int newline_count{0};
-    String buffer;
-
-    while (pos > 0 && newline_count <= max_lines) {
-        constexpr int64_t chunk_size{4096};
-        const int64_t read_size = Math::min(chunk_size, pos);
-        pos -= read_size;
-
-        file->seek(pos);
-        PackedByteArray bytes = file->get_buffer(read_size);
-        String chunk = bytes.get_string_from_utf8();
-
-        buffer = chunk + buffer;
-        newline_count += static_cast<int>(chunk.count("\n"));
-    }
-
-    file->close();
-
-    PackedStringArray lines = buffer.split("\n", false);
-    if (lines.size() > max_lines) lines = lines.slice(lines.size() - max_lines, lines.size());
-
-    history = lines;
-    history_index = static_cast<int>(history.size());
-    history_temp = "";
-    UtilityFunctions::print("Successfully loaded history");
-}
-
-void LinuxHost::read_from_terminal() {
-    if (!running || master_fd == -1) return;
-
-    pollfd pfd{};
-    pfd.fd = master_fd;
-    pfd.events = POLLIN;
-
-    if (const int ret = poll(&pfd, 1, 0); ret <= 0) return;
-
-    if (pfd.revents & POLLIN) {
-        char buffer[4097];
-
-        if (const ssize_t n = read(master_fd, buffer, sizeof(buffer) - 1); n > 0) {
-            buffer[n] = '\0';
-            if (constexpr size_t MAX_QUEUE_SIZE{5000}; output_queue.size() < MAX_QUEUE_SIZE) output_queue.emplace(buffer);
+            if (i < normalised.length()) {
+                const char32_t command = normalised[i];
+                i++;
+                if (command == 'm') apply_args(current, cur_args);
+                if (command == 'J') {highlighter->spans_per_line.clear(); current = Span();}
+                if (command == 'K') current = Span();
+            }
         }
-        else if (n == 0) running = false;
-    }
-}
-
-
-void LinuxHost::end_pseudoterminal(){
-    if (!running) return;
-
-    running = false;
-
-    if (master_fd != -1){
-        close(master_fd);
-        master_fd = -1;
-    }
-
-    if (child_pid > 0){
-        kill(child_pid, SIGHUP);
-        waitpid(child_pid, nullptr, 0);
-        child_pid = -1;
-    }
-}
-
-void LinuxHost::start_pseudoterminal(){
-    if (running) return;
-    if (openpty(&master_fd, &slave_fd, nullptr, nullptr, nullptr) == -1){
-        UtilityFunctions::print("Openpty Failed");
-        return;
-    }
-    const int flags = fcntl(master_fd, F_GETFL, 0);
-    fcntl(master_fd, F_SETFL, flags | O_NONBLOCK);
-
-    child_pid = fork();
-    if (child_pid == -1){
-        UtilityFunctions::print("Fork Failed");
-        return;
-    }
-
-    if (child_pid == 0){
-        close(master_fd);
-        if (setsid() == -1) {
-            perror("setsid");
-            _exit(1);
+        else {
+            cur_text += normalised[i];
+            i++;
         }
-
-        login_tty(slave_fd);
-
-        execlp("bash", "bash", nullptr);
-
-        perror("execlp");
-        _exit(1);
     }
-
-    close(slave_fd);
-    running = true;
-
-    UtilityFunctions::print("PTY searched, PID: ", child_pid);
-
-    write_to_terminal("export TERM=xterm-256color\n");
-    load_history(500);
+    if (!cur_text.is_empty()) {
+        current.start = local_offset + base_offset;
+        current.length = static_cast<int32_t>(cur_text.length());
+        local_spans.push_back(current);
+        frame_text += cur_text;
+    }
+    merge_same_spans(local_spans);
+    return local_spans;
 }
 
-void LinuxHost::write_to_terminal(const String &text) {
-    const std::string native = text.utf8().get_data();
+void LinuxHost::clamp_caret() {
+    const Vector2i p = highlighter->from_index_get_line_column(input_start_index);
 
-    if (native == "clear\n") {
-        clear();
-        highlighter->spans_per_line.clear();
-    }
-
-    if (master_fd != -1) {
-        const ssize_t result = write(master_fd, native.c_str(), native.size());
-        if (result == -1) perror("write");
+    if (const int64_t caret_index = get_caret_index(); caret_index < input_start_index) {
+        set_caret_line(p.x);
+        set_caret_column(p.y);
     }
 }
 
