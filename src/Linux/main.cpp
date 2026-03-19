@@ -24,8 +24,6 @@ using namespace godot;
 bool Span::operator==(const Span &other) const {
     return this->color == other.color &&
            this->bg_color == other.bg_color &&
-           this->italics == other.italics &&
-           this->underline == other.underline &&
            this->bold == other.bold;
 }
 
@@ -34,25 +32,25 @@ bool Span::operator!=(const Span &other) const {return !operator==(other);}
 void AnsiHighlighter::_bind_methods() {}
 
 void AnsiHighlighter::rebuild_line_indexing() {
-    int64_t cur_index = 0;
+    int32_t cur_index = 0;
     line_start_index.clear();
     line_start_index.push_back(cur_index);
 
     for (int32_t i = 0; i < get_text_edit()->get_line_count(); i++) {
-        cur_index += get_text_edit()->get_line(i).length() + 1;
+        cur_index += static_cast<int32_t>(get_text_edit()->get_line(i).length()) + 1;
         line_start_index.push_back(cur_index);
     }
     spans_per_line.resize(line_start_index.size() - 1);
 }
 
-Vector2i AnsiHighlighter::from_index_get_line_column(const int64_t &index) const {
+Vector2i AnsiHighlighter::from_index_get_line_column(const int32_t &index) const {
     int32_t L = 0, R = static_cast<int32_t>(line_start_index.size()) - 1;
     while (L <= R) {
         if (const int32_t M = (L + R) / 2; line_start_index[M] <= index) L = M + 1;
         else R = M - 1;
     }
 
-    return {R, static_cast<int32_t>(index - line_start_index[R])};
+    return {R, index - line_start_index[R]};
 }
 
 Dictionary AnsiHighlighter::_get_line_syntax_highlighting(const int line) const {
@@ -93,24 +91,24 @@ void AnsiHighlighter::append_span(const Span &new_span) {
     const_cast<Vector<Span> &>(spans_per_line[line_idx]).push_back(new_span);
 }
 
-int LinuxHost::ansi256_to_color(const int &code){
+uint32_t LinuxHost::ansi256_to_color(const uint32_t &code){
     if (code >= 16 && code <= 231){
-        const int idx = code - 16;
+        const uint32_t idx = code - 16;
 
-        const int r = idx / 36;
-        const int g = (idx % 36) / 6;
-        const int b = idx % 6;
+        const uint32_t r = idx / 36;
+        const uint32_t g = (idx % 36) / 6;
+        const uint32_t b = idx % 6;
 
         const int steps[6] = {0, 95, 135, 175, 215, 255};
 
         return steps[r] << 16 | steps[g] << 8 | steps[b];
 
     }
-    const int gray = 8 + (code - 232) * 10;
+    const uint32_t gray = 8 + (code - 232) * 10;
     return gray << 16 | gray << 8 | gray;
 }
 
-int LinuxHost::ansi_to_color(const int &code) {
+uint32_t LinuxHost::ansi_to_color(const uint32_t &code) {
     switch (code) {
         case 0: return 0x000000;     // black
         case 1: return 0xff0000;     // red
@@ -141,8 +139,8 @@ void LinuxHost::apply_args(Span &span, const String &args){
             const bool is_fg = (code == 38);
             const int mode = static_cast<int>(params[i+1].to_int());
             if (mode == 5){
-                int idx = static_cast<int>(params[i+2].to_int());
-                const int rgb = ansi256_to_color(idx);
+                const int idx = static_cast<int>(params[i+2].to_int());
+                const uint32_t rgb = ansi256_to_color(idx);
 
                 if (is_fg) span.color = rgb;
                 else span.bg_color = rgb;
@@ -169,19 +167,14 @@ void LinuxHost::apply_args(Span &span, const String &args){
     }
 }
 
-void LinuxHost::apply_style(const int code, Span &span){
+void LinuxHost::apply_style(const uint32_t code, Span &span){
     switch(code){
         case 0:
             span = Span();
             break;
 
         case 1: span.bold = true; break;
-        case 3: span.italics = true; break;
-        case 4: span.underline = true; break;
-
         case 22: span.bold = false; break;
-        case 23: span.italics = false; break;
-        case 24: span.underline = false; break;
 
         case 30 ... 37: span.color = ansi_to_color(code - 30); break;
         case 40 ... 47: span.bg_color = ansi_to_color(code - 40); break;
@@ -196,7 +189,7 @@ bool LinuxHost::file_exists(const char *path) {
     return path && stat(path, &st) == 0 && S_ISREG(st.st_mode);
 }
 
-int64_t LinuxHost::get_caret_index() const {
+uint32_t LinuxHost::get_caret_index() const {
     const int cl = get_caret_line();
     const int cc = get_caret_column();
     int32_t caret_index = static_cast<int>(get_line(cl).substr(0, cc).length());
@@ -205,7 +198,7 @@ int64_t LinuxHost::get_caret_index() const {
 }
 
 
-void LinuxHost::load_history(const int max_lines) {
+void LinuxHost::load_history(const uint32_t max_lines) {
     const char* hist_path = getenv("HISTFILE");
     String path;
     if (!hist_path) {
@@ -291,7 +284,6 @@ void LinuxHost::_exit_tree(){
 void LinuxHost::_process(double p_delta) {
     read_from_terminal();
 
-    constexpr int MAX_LINES_PER_FRAME{50};
     int processed = 0;
     String frame_text{""};
     Vector<Span> frame_spans;
@@ -468,7 +460,7 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
     if (keycode == KEY_UP) {
         if (history.is_empty()) {accept_event(); return;}
         if (history_index == history.size()) history_temp = input;
-        history_index = std::max(0, history_index - 1);
+        history_index = std::max(static_cast<uint32_t>(0), history_index - 1);
         input = history[history_index];
         const Vector2i line_col = highlighter->from_index_get_line_column(input_start_index);
         remove_text(line_col.x, line_col.y, get_line_count() - 1, static_cast<int32_t>(get_line(get_line_count() - 1).length()));
@@ -477,7 +469,7 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
         return;
     }
     if (keycode == KEY_DOWN) {
-        history_index = std::min(static_cast<int>(history.size()), history_index + 1);
+        history_index = std::min(static_cast<uint32_t>(history.size()) , history_index + 1);
         if (history_index == history.size()) input = history_temp;
         else if (history_index < history.size()) input = history[history_index];
         const Vector2i line_col = highlighter->from_index_get_line_column(input_start_index);
@@ -494,17 +486,17 @@ void LinuxHost::_gui_input(const Ref<InputEvent> &event) {
     }
 }
 
-Vector<Span> LinuxHost::get_color_highlighting(const String &ansi_strip, String &frame_text, const int64_t &base_offset) const {
+Vector<Span> LinuxHost::get_color_highlighting(const String &ansi_strip, String &frame_text, const uint32_t &base_offset) const {
     String normalised = ansi_strip.replace("\r\n", "\n").replace("\r", "");
     Vector<Span> local_spans;
     Span current;
     String cur_args = "", cur_text = "";
-    int32_t local_offset = 0;
+    uint32_t local_offset = 0;
     for (ssize_t i = 0; i < normalised.length();){
         if (normalised[i] == '\e' && i+1 < normalised.length() && normalised[i+1] == '['){
             if (!cur_text.is_empty()){
                 current.start = local_offset + base_offset;
-                current.length = static_cast<int32_t>(cur_text.length());
+                current.length = static_cast<uint32_t>(cur_text.length());
                 local_spans.push_back(current);
                 frame_text += cur_text;
                 local_offset += current.length;
