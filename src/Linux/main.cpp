@@ -374,13 +374,6 @@ void LinuxHost::end_pseudoterminal(){
 void LinuxHost::_process(double p_delta) {
     read_from_terminal();
 
-    int excess = get_line_count() - TOTAL_MAX_LINES;
-    if (excess > 0) {
-        remove_text(0, 0, excess, static_cast<int32_t>(get_line(excess).length()));
-        bulk_remove(excess);
-        center_viewport_to_caret();
-    }
-
     int32_t processed{0};
     godot::String frame_text{""};
 
@@ -390,6 +383,11 @@ void LinuxHost::_process(double p_delta) {
         processed++;
     }
     if (frame_text.is_empty()) return;
+    if (const int excess = get_line_count() - TOTAL_MAX_LINES; excess > 0) {
+        remove_text(0, 0, excess, static_cast<int32_t>(get_line(excess).length()));
+        bulk_remove(excess);
+        center_viewport_to_caret();
+    }
     set_caret_line(get_line_count() - 1);
     set_caret_column(static_cast<int32_t>(get_line(get_line_count() - 1).length()));
     insert_text_at_caret(frame_text);
