@@ -7,76 +7,80 @@
 #include <godot_cpp/classes/font.hpp>
 #include <sys/types.h>
 #include <queue>
+#include <deque>
 
-using namespace godot;
-
-struct Span {
-    uint32_t start{};
-    uint32_t length{};
-    uint32_t color{0xffffff};
-    uint32_t bg_color{0x000000};
-    bool bold = false;
-    bool operator==(const Span &other) const;
-    bool operator!=(const Span &other) const;
+enum class ParseState {
+    Normal,
+    Escape,
+    CSI
 };
 
-class AnsiHighlighter : public SyntaxHighlighter {
-    GDCLASS(AnsiHighlighter, SyntaxHighlighter);
+
+struct Segment {
+    godot::String text{""};
+    int32_t starting_column{0};
+    uint32_t color{0xffffff};
+    uint32_t bg_color{0x000000};
+    bool bold{false};
+    bool operator==(const Segment &other) const;
+};
+
+class AnsiHighlighter : public godot::SyntaxHighlighter {
+    GDCLASS(AnsiHighlighter, godot::SyntaxHighlighter);
 
     protected:
         static void _bind_methods();
 
     public:
-        Dictionary default_style;
-        Vector<Vector<Span>> spans_per_line;
-        Vector<int32_t> line_start_index;
-        void rebuild_line_indexing();
-        Vector2i from_index_get_line_column(const int32_t &index) const;
-        Dictionary _get_line_syntax_highlighting(int line) const override;
-        void default_style_dict();
-        void append_span(const Span &new_span);
+     [[nodiscard]] godot::Dictionary _get_line_syntax_highlighting(int line) const override;
 };
 
-class LinuxHost : public TextEdit {
-    GDCLASS(LinuxHost, TextEdit);
+class LinuxHost : public godot::TextEdit {
+    GDCLASS(LinuxHost, godot::TextEdit);
 
-    int master_fd = -1;
-    int slave_fd = -1;
-    pid_t child_pid = -1;
-    bool running = false;
-    std::queue<String> output_queue;
-    String input;
-    String history_temp;
-    uint32_t history_index = 0;
-    uint32_t input_start_index = 0;
+
+    int master_fd{-1};
+    int slave_fd{-1};
+    pid_t child_pid{-1};
+    bool running{false};
+    std::queue<godot::String> output_queue;
+    godot::String input;
+    godot::String history_temp;
+    int32_t history_index{0};
+    godot::Vector2i input_start_line_col{0, 0};
     int MAX_LINES_PER_FRAME{50};
     int TOTAL_MAX_LINES{22560};
-    Ref<AnsiHighlighter> highlighter;
-    Ref<Font> font;
-    PackedStringArray history;
-    static uint32_t ansi256_to_color(const uint32_t &code);
-    static uint32_t ansi_to_color(const uint32_t &code);
-    static void apply_args(Span &span, const String &args);
-    static void apply_style(uint32_t code, Span &span);
-    static bool file_exists(const char* path);
-    [[nodiscard]] uint32_t get_caret_index() const;
-    void load_history(uint32_t max_lines);
-    static void merge_same_spans(Vector<Span> &spans);
+    godot::Ref<AnsiHighlighter> highlighter;
+    godot::Ref<godot::Font> font;
+    godot::PackedStringArray history;
+    std::deque<godot::Vector<Segment>> segments_to_line;
+
+    void load_history(const uint32_t &max_lines);
+    [[nodiscard]] int64_t get_relative_caret_idx() const;
+    static bool file_exists(const char *path);
+    bool clamp_caret();
+    void bulk_remove(const int32_t &to_line);
+
+    static int ansi_to_color(const int &code);
+    static int ansi256_to_color(const int &code);
+
+    static void apply_style(int code, Segment &seg);
+
+    static void apply_args(Segment &seg, const godot::String &args);
+    void get_color_highlighting(const godot::String &ansi_string, godot::String &frame_text);
 
 protected:
     static void _bind_methods();
 
 public:
     void _ready() override;
-    void _exit_tree() override;
+    void start_pseudoterminal();
+    void end_pseudoterminal();
+    void write_to_terminal(const godot::String &text);
+    void _gui_input(const godot::Ref<godot::InputEvent> &event) override;
     void _process(double p_delta) override;
     void _draw() override;
     void read_from_terminal();
-    void end_pseudoterminal();
-    void start_pseudoterminal();
-    void write_to_terminal(const String &text);
-    void _gui_input(const Ref<InputEvent> &event) override;
-    Vector<Span> get_color_highlighting(const String &ansi_strip, String &frame_text, const uint32_t &base_offset) const;
-    void clamp_caret();
+    [[nodiscard]] std::deque<godot::Vector<Segment>> get_segments_to_line() const;
 };
 #endif
