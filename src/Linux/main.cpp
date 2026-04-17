@@ -248,7 +248,6 @@ void LinuxHost::get_color_highlighting(const godot::String &ansi_string, godot::
     int32_t line{get_line_count() - 1};
     godot::String cur_args;
     auto parse_state = ParseState::Normal;
-
     for (int i{0}; i < ansi_string.length(); i++) {
         const auto ch = ansi_string[i];
         if (parse_state == ParseState::Normal) {
@@ -410,7 +409,7 @@ void  LinuxHost::_draw() {
             if (seg.bg_color == 0x000000) continue;
             const int char_column = godot::Math::max(0 , seg.starting_column);
             const godot::Rect2i rect = get_rect_at_line_column(line, char_column + 1); // get_rect_at_line_column(line, char_column) returns the rect of the previous char because that makes sense
-            const godot::Rect2i drawRect{rect.position, godot::Size2i{static_cast<signed int>((seg.text.length()+1) * cell_width), rect.size.height}};
+            const godot::Rect2i drawRect{rect.position, godot::Size2i{static_cast<int>(font->get_string_size(seg.text, godot::HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x) + cell_width, rect.size.height}}; // very cursed but it works
             draw_rect(drawRect, godot::Color::hex(seg.bg_color << 8 | 0xFF));
         }
     }
@@ -501,6 +500,5 @@ void LinuxHost::read_from_terminal() {
         else if (n == 0) running = false;
     }
 }
-
 
 #endif
