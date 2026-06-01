@@ -71,9 +71,11 @@ class LinuxHost : public godot::TextEdit {
 
 protected:
     static void _bind_methods();
+    void _notification(int p_what);
 
 public:
     void _ready() override;
+    void _exit_tree() override;
     void start_pseudoterminal();
     void end_pseudoterminal();
     void write_to_terminal(const godot::String &text);

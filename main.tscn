@@ -67,7 +67,7 @@ layout_mode = 2
 theme_override_fonts/font = ExtResource("2_h2yge")
 theme_override_font_sizes/font_size = 16
 
-[node name="HBoxContainer" type="VBoxContainer" parent="Editor_Container" unique_id=1214431789]
+[node name="HBoxContainer" type="VBoxContainer" parent="Editor_Container" unique_id=1383174173]
 layout_mode = 2
 
 [node name="VSplitContainer" type="VSplitContainer" parent="Editor_Container/HBoxContainer" unique_id=1128697463]
@@ -103,6 +103,12 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_fonts/font = ExtResource("5_2cqfq")
 placeholder_text = "If you are seeing this(not in the editor) then the terminal didn't work (lol). Go read the docs or smth."
+context_menu_enabled = false
+emoji_menu_enabled = false
+selecting_enabled = false
+drag_and_drop_selection_enabled = false
+middle_mouse_paste_enabled = false
+empty_selection_clipboard_enabled = false
 syntax_highlighter = SubResource("AnsiHighlighter_2cqfq")
 
 [node name="Intro Window" type="Window" parent="." unique_id=1273299596]

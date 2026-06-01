@@ -20,8 +20,6 @@ env.Append(CXXFLAGS=["-g", "-O0"])
 # ---------------------------------------
 platform = env["platform"]
 
-common_sources = Glob("src/Common/*.cpp")
-
 if platform == "linux":
     platform_sources = Glob("src/Linux/*.cpp")
     target_name = "linuxhost"
@@ -35,7 +33,7 @@ else:
     print("Unsupported platform:", platform)
     Exit(1)
 
-sources = common_sources + platform_sources
+sources = platform_sources
 
 # ---------------------------------------
 # Windows specific fixes

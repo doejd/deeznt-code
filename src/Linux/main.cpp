@@ -10,6 +10,7 @@
 #include <godot_cpp/classes/input_event_action.hpp>
 #include <godot_cpp/classes/input_event_key.hpp>
 #include <godot_cpp/classes/file_access.hpp>
+#include <godot_cpp/classes/engine.hpp>
 #include <unistd.h>
 #include <pty.h>
 #include <utmp.h>
@@ -300,6 +301,13 @@ void LinuxHost::get_color_highlighting(const godot::String &ansi_string, godot::
 }
 
 void LinuxHost::_ready() {
+
+    if (godot::Engine::get_singleton()->is_editor_hint()) {
+        set_process(false);
+        return;
+    }
+
+    clear();
     set_focus_mode(FOCUS_ALL);
     set_selecting_enabled(false);
     set_emoji_menu_enabled(false);
@@ -309,12 +317,26 @@ void LinuxHost::_ready() {
     set_empty_selection_clipboard_enabled(false);
     set_process(true);
 
-    const godot::Ref<AnsiHighlighter> hl = memnew(AnsiHighlighter);
-    this->set_syntax_highlighter(hl);
-    this->highlighter = hl;
+    highlighter.instantiate();
+    this->set_syntax_highlighter(highlighter);
     font = get_theme_font("font", "TextEdit");
 
     start_pseudoterminal();
+}
+
+void LinuxHost::_exit_tree() {
+    end_pseudoterminal();
+}
+
+void LinuxHost::_notification(int p_what) {
+    switch (p_what) {
+        case NOTIFICATION_PREDELETE:
+        case NOTIFICATION_EXIT_TREE:
+            end_pseudoterminal();
+            break;
+
+        default: break;
+    }
 }
 
 void LinuxHost::_bind_methods(){
@@ -349,28 +371,34 @@ void LinuxHost::start_pseudoterminal(){
 
     godot::UtilityFunctions::print("PTY searched, PID: ", child_pid);
 
-    write_to_terminal("export TERM=xterm-256color\n");
     load_history(500);
 }
 
 void LinuxHost::end_pseudoterminal(){
     if (!running) return;
+    godot::UtilityFunctions::print("Absolutely fucking nuking the terminal out of existence");
+    godot::UtilityFunctions::print("Child PID: ", child_pid);
 
     running = false;
+
+    if (child_pid > 0){
+        kill(child_pid, SIGHUP);
+
+        kill(child_pid, SIGKILL);
+
+        waitpid(child_pid, nullptr, WNOHANG);
+        child_pid = -1;
+    }
 
     if (master_fd != -1){
         close(master_fd);
         master_fd = -1;
     }
-
-    if (child_pid > 0){
-        kill(child_pid, SIGHUP);
-        waitpid(child_pid, nullptr, 0);
-        child_pid = -1;
-    }
 }
 
 void LinuxHost::_process(double p_delta) {
+    if (godot::Engine::get_singleton()->is_editor_hint()) return;
+
     read_from_terminal();
 
     int32_t processed{0};
@@ -382,11 +410,13 @@ void LinuxHost::_process(double p_delta) {
         processed++;
     }
     if (frame_text.is_empty()) return;
+
     if (const int excess = get_line_count() - TOTAL_MAX_LINES; excess > 0) {
         remove_text(0, 0, excess, static_cast<int32_t>(get_line(excess).length()));
         bulk_remove(excess);
         center_viewport_to_caret();
     }
+
     set_caret_line(get_line_count() - 1);
     set_caret_column(static_cast<int32_t>(get_line(get_line_count() - 1).length()));
     insert_text_at_caret(frame_text);
@@ -395,7 +425,14 @@ void LinuxHost::_process(double p_delta) {
 }
 
 void  LinuxHost::_draw() {
+    if (godot::Engine::get_singleton()->is_editor_hint()) return;
+
     if (segments_to_line.empty()) return;
+
+    if (font.is_null()) {
+        font = get_theme_font("font", "TextEdit");
+        return;
+    }
 
     const int first_visible = get_first_visible_line();
     const int last_visible = first_visible + get_visible_line_count();
