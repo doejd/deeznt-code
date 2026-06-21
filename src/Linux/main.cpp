@@ -245,10 +245,7 @@ void LinuxHost::apply_args(Segment &seg, const godot::String &args) {
 }
 
 void LinuxHost::get_color_highlighting(const godot::String &ansi_string, godot::String &frame_text) {
-    Segment current;
     int32_t line{get_line_count() - 1};
-    godot::String cur_args;
-    auto parse_state = ParseState::Normal;
     for (int i{0}; i < ansi_string.length(); i++) {
         const auto ch = ansi_string[i];
         if (parse_state == ParseState::Normal) {
