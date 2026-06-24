@@ -20,13 +20,6 @@
 #include <poll.h>
 #include <string>
 
-
-bool Segment::operator==(const Segment &other) const {
-    return this->bg_color == other.bg_color
-    && this->color == other.color
-    && this->bold == other.bold;
-}
-
 void AnsiHighlighter::_bind_methods() {}
 
 godot::Dictionary AnsiHighlighter::_get_line_syntax_highlighting(const int line) const {
@@ -113,6 +106,12 @@ void LinuxHost::write_to_terminal(const godot::String &text) {
     const std::string native = text.utf8().get_data();
 
     if (native == "clear\n") {
+        clear();
+        segments_to_line.clear();
+    }
+
+    if (native == "exit\n") {
+        end_pseudoterminal();
         clear();
         segments_to_line.clear();
     }
@@ -298,7 +297,6 @@ void LinuxHost::get_color_highlighting(const godot::String &ansi_string, godot::
 }
 
 void LinuxHost::_ready() {
-
     if (godot::Engine::get_singleton()->is_editor_hint()) {
         set_process(false);
         return;
@@ -327,6 +325,7 @@ void LinuxHost::_exit_tree() {
 
 void LinuxHost::_notification(int p_what) {
     switch (p_what) {
+        case NOTIFICATION_WM_CLOSE_REQUEST:
         case NOTIFICATION_PREDELETE:
         case NOTIFICATION_EXIT_TREE:
             end_pseudoterminal();
@@ -374,7 +373,6 @@ void LinuxHost::start_pseudoterminal(){
 void LinuxHost::end_pseudoterminal(){
     if (!running) return;
     godot::UtilityFunctions::print("Absolutely fucking nuking the terminal out of existence");
-    godot::UtilityFunctions::print("Child PID: ", child_pid);
 
     running = false;
 

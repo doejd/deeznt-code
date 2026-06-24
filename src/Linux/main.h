@@ -22,7 +22,6 @@ struct Segment {
     uint32_t color{0xffffff};
     uint32_t bg_color{0x000000};
     bool bold{false};
-    bool operator==(const Segment &other) const;
 };
 
 class AnsiHighlighter : public godot::SyntaxHighlighter {
