@@ -18,9 +18,9 @@ enum class ParseState {
 
 struct Segment {
     godot::String text{""};
-    int32_t starting_column{0};
     uint32_t color{0xffffff};
     uint32_t bg_color{0x000000};
+    int32_t starting_column{0};
     bool bold{false};
 };
 
@@ -46,9 +46,6 @@ class LinuxHost : public godot::TextEdit {
     godot::String input;
     godot::String history_temp;
     int32_t history_index{0};
-    Segment current;
-    godot::String cur_args;
-    ParseState parse_state = ParseState::Normal;
     godot::Vector2i input_start_line_col{0, 0};
     int MAX_LINES_PER_FRAME{50};
     int TOTAL_MAX_LINES{22560};

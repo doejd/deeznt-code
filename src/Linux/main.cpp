@@ -99,7 +99,6 @@ void LinuxHost::load_history(const uint32_t &max_lines) {
     history = lines;
     history_index = static_cast<int>(history.size());
     history_temp = "";
-    godot::UtilityFunctions::print("Successfully loaded history");
 }
 
 void LinuxHost::write_to_terminal(const godot::String &text) {
@@ -244,6 +243,9 @@ void LinuxHost::apply_args(Segment &seg, const godot::String &args) {
 }
 
 void LinuxHost::get_color_highlighting(const godot::String &ansi_string, godot::String &frame_text) {
+    Segment current;
+    godot::String cur_args;
+    ParseState parse_state = ParseState::Normal;
     int32_t line{get_line_count() - 1};
     for (int i{0}; i < ansi_string.length(); i++) {
         const auto ch = ansi_string[i];
@@ -252,8 +254,8 @@ void LinuxHost::get_color_highlighting(const godot::String &ansi_string, godot::
                 if (!current.text.is_empty()) {
                     if (segments_to_line.size() <= line) segments_to_line.emplace_back();
                     segments_to_line[line].push_back(current);
-                    current.starting_column += static_cast<int32_t>(current.text.length());
                     frame_text += current.text;
+                    current.starting_column += static_cast<int32_t>(current.text.length());
                     current.text = "";
                 }
                 parse_state = ParseState::Escape;
@@ -274,17 +276,11 @@ void LinuxHost::get_color_highlighting(const godot::String &ansi_string, godot::
             current.text += ch;
         }
         else if (parse_state == ParseState::Escape) {
-            if (ch == '[') {
-                parse_state = ParseState::CSI;
-                cur_args = "";
-            }
+            if (ch == '[') {parse_state = ParseState::CSI; cur_args = "";}
             else parse_state = ParseState::Normal;
         }
         else {
-            if (ch == 'm') {
-                apply_args(current, cur_args);
-                parse_state = ParseState::Normal;
-            }
+            if (ch == 'm') {apply_args(current, cur_args); parse_state = ParseState::Normal;}
             else if (ch != '\n') cur_args += ch;
         }
     }
@@ -372,7 +368,6 @@ void LinuxHost::start_pseudoterminal(){
 
 void LinuxHost::end_pseudoterminal(){
     if (!running) return;
-    godot::UtilityFunctions::print("Absolutely fucking nuking the terminal out of existence");
 
     running = false;
 
